@@ -18,8 +18,20 @@ Checkout script generation, used for enabling Skipify checkout in a merchant sto
 
 ## Usage
 
-The starter contains the following scripts:
+The project contains the following scripts:
 
 - `dev` - starts dev server
 - `build` - generates the bundles
+
+Bundles are generated inside the dist folder
+
+## Developing 
+
+BigCommerce
+
+```
+npm run dev
+Get the bigCommerce bundle inside the /dist folder and manually add to BigCommerce checkout page inside a store
+```
+
 
