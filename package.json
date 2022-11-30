@@ -11,8 +11,10 @@
     }
   },
   "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
+    "build:production": "vite build",
+    "build:staging": "vite build --mode staging",
+    "build:development": "vite build --mode development",
+    "dev": "vite build --mode development --watch",
     "dev-host": "vite --host",
     "build-tsc": "tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
     "test": "jest --runInBand",

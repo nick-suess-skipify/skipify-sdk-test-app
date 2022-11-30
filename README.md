@@ -21,9 +21,9 @@ Checkout script generation, used for enabling Skipify checkout in a merchant sto
 The project contains the following scripts:
 
 - `dev` - starts dev server
-- `build` - generates the bundles
+- `build:[environment]` - generates the bundles, environment can be development | staging | production
 
-Bundles are generated inside the dist folder
+Bundles get generated inside the dist folder
 
 ## Developing 
 
