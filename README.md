@@ -1,6 +1,6 @@
 # Skipify Checkout SDK
 
-![Skipify Logo][skipify-logo]
+![skipify-logo](https://user-images.githubusercontent.com/5350362/204699214-f9b54d89-0328-4475-a83f-06dd469813fd.svg)
 
 Checkout script generation, used for enabling Skipify checkout in a merchant store
 
