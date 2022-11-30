@@ -13,8 +13,8 @@ Checkout script generation, used for enabling Skipify checkout in a merchant sto
 ## Features
 
 - Static file generation
-- Shared features for every platform
-- Platform specific features
+- Shared features across platforms
+- Platform-specific features
 
 ## Usage
 
