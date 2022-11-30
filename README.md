@@ -27,11 +27,14 @@ Bundles are generated inside the dist folder
 
 ## Developing 
 
+```
+// Start development server
+npm run dev
+```
+
 BigCommerce
 
-```
-npm run dev
 Get the bigCommerce bundle inside the /dist folder and manually add to BigCommerce checkout page inside a store
-```
+
 
 
