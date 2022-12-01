@@ -1,0 +1,39 @@
+version: 2.1
+
+orbs:
+  gcr: circleci/gcp-gcr@0.7.1
+  gke: circleci/gcp-gke@1.4.0
+  node: circleci/node@5.0.3
+jobs:
+  code-quality:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm ci
+
+      - run:
+          name: Lint code
+          command: npm run lint:scripts
+
+      # - run:
+      #     name: Run tests
+      #     command: npm run test:cov -- --coverageReporters=lcov
+
+      # - run:
+      #     name: Send coverage report to coveralls
+      #     when: always
+      #     command: cat ./coverage/lcov.info | npx coveralls
+
+workflows:
+  always:
+    jobs:
+      - code-quality:
+          context: skipify-dev
+      # - build:
+      #     context: skipify-dev
+      #     requires:
+      #       - code-quality
