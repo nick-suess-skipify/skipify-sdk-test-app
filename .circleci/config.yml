@@ -12,6 +12,19 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install  Node.js 16.13.0 with build in nvm tool
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm install v16.13.0 && nvm use v16.13.0 && nvm alias default v16.13.0
+            node -v
+
+      - run:
+          name: Check node version
+          command: |
+            node -v
+
+      - run:
           name: Install dependencies
           command: npm ci
 
