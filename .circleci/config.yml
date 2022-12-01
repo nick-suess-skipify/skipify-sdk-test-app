@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   gcr: circleci/gcp-gcr@0.7.1
   gke: circleci/gcp-gke@1.4.0
-  node: circleci/node@5.0.3
+  node: circleci/node@5.0.2
 jobs:
   code-quality:
     machine:
@@ -12,8 +12,22 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Swap node versions
+          command: |
+            set +e
+            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            nvm install 16.13.0
+            nvm alias default 16.13.0
+
+            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+
+      - run:
           name: Install dependencies
-          command: npm ci
+          command: npm i
 
       - run:
           name: Lint code
