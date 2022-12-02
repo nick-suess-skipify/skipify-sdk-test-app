@@ -13,10 +13,7 @@ jobs:
       - checkout
 
       - node/install:
-          install-yarn: true
           node-version: '16.13'
-
-      - run: node --version
 
       - run:
           name: Install dependencies
@@ -36,13 +33,31 @@ jobs:
       #     name: Send coverage report to coveralls
       #     when: always
       #     command: cat ./coverage/lcov.info | npx coveralls
+  build-dev:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
+      - node/install:
+          node-version: "16.13"
+
+      - run:
+          name: Install dependencies
+          command: |
+            npm i
+
+      - run:
+          name: 'build code base'
+          command: npm run build:development
+    
 
 workflows:
   always:
     jobs:
       - code-quality:
           context: skipify-dev
-      # - build:
-      #     context: skipify-dev
-      #     requires:
-      #       - code-quality
+      - build-dev:
+          context: skipify-dev
+          requires:
+            - code-quality
