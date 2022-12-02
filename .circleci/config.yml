@@ -4,7 +4,6 @@ orbs:
   gcr: circleci/gcp-gcr@0.7.1
   gke: circleci/gcp-gke@1.4.0
   node: circleci/node@5.0.2
-  # gcp-storage: freighthub/gcp-storage@0.2.0
 
 jobs:
   code-quality:
@@ -53,18 +52,19 @@ jobs:
             npm i
 
       - run:
-          name: 'build code base'
+          name: "build code base"
           command: npm run build:development
-      - store_artifacts:
-         path: dist
 
-  build-push-dev:
+      - store_artifacts:
+          path: dist
+
+  build-stage:
     machine:
       image: ubuntu-2004:202104-01
     resource_class: medium
     steps:
       - checkout
-      - gcr/gcr-auth
+
       - node/install:
           node-version: "16.13"
 
@@ -72,31 +72,41 @@ jobs:
           name: Install dependencies
           command: |
             npm i
-            gcloud auth print-access-token
 
       - run:
           name: "build code base"
-          command: npm run build:development
+          command: npm run build:staging
+
       - store_artifacts:
           path: dist
-      # - gcp-storage/upload:
-      #     source_path: dist/*
-      #     destination_bucket: skipfyscript
-      #     destination_prefix: sdk/
-      #     cache_control: "public, max-age=86400"
-      #     transfer_files_compressed: "js"
 
-      
+  build-prod:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
 
-  # build-push-stage:
+      - node/install:
+          node-version: "16.13"
 
-  # build-push-prod:
+      - run:
+          name: Install dependencies
+          command: |
+            npm i
+
+      - run:
+          name: "build code base"
+          command: npm run build:production
+
+      - store_artifacts:
+          path: dist
+
 
 workflows:
   always:
     jobs:
-      - code-quality:
-          context: skipify-dev
+      - code-quality
       - build-dev:
           context: skipify-dev
           requires:
@@ -106,11 +116,37 @@ workflows:
       - build-approval:
           type: approval
       - code-quality:
+          requires:
+            - build-approval
+      - build-dev:
           context: skipify-dev
           requires:
             - build-approval
-      - build-push-dev:
-          context: skipify-dev
+            - code-quality
+  stage:
+    jobs:
+      - build-approval:
+          type: approval
+      - code-quality:
           requires:
             - build-approval
+      - build-stage:
+          context: skipify-stage
+          requires:
+            - build-approval
+            - code-quality
+  prod:
+    jobs:
+      - build-approval:
+          type: approval
+      - code-quality:
+          requires:
+            - build-approval
+      - build-prod:
+          context: skipify-prod
+          requires:
+            - build-approval
+            - code-quality
 
+# https://circleci.com/developer/orbs/orb/freighthub/gcp-storage
+# incase we get approval follow this for setting up to push to cloud storage
