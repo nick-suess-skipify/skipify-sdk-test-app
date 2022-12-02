@@ -14,12 +14,14 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            set -x
             ./node-version.sh
             npm ci
 
       - run:
           name: Lint code
           command: |
+            set -x
             ./node-version.sh
             npm run lint:scripts
 
