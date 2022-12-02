@@ -4,7 +4,7 @@ orbs:
   gcr: circleci/gcp-gcr@0.7.1
   gke: circleci/gcp-gke@1.4.0
   node: circleci/node@5.0.2
-  gcp-storage: freighthub/gcp-storage@0.2.0
+  # gcp-storage: freighthub/gcp-storage@0.2.0
 
 jobs:
   code-quality:
@@ -42,12 +42,14 @@ jobs:
     resource_class: medium
     steps:
       - checkout
+      - gcr/gcr-auth
       - node/install:
           node-version: "16.13"
 
       - run:
           name: Install dependencies
           command: |
+            gcloud auth print-access-token
             npm i
 
       - run:
@@ -70,18 +72,19 @@ jobs:
           name: Install dependencies
           command: |
             npm i
+            gcloud auth print-access-token
 
       - run:
           name: "build code base"
           command: npm run build:development
       - store_artifacts:
           path: dist
-      - gcp-storage/upload:
-          source_path: dist/*
-          destination_bucket: skipfyscript
-          destination_prefix: sdk/
-          cache_control: "public, max-age=86400"
-          transfer_files_compressed: "js"
+      # - gcp-storage/upload:
+      #     source_path: dist/*
+      #     destination_bucket: skipfyscript
+      #     destination_prefix: sdk/
+      #     cache_control: "public, max-age=86400"
+      #     transfer_files_compressed: "js"
 
       
 
@@ -106,9 +109,8 @@ workflows:
           context: skipify-dev
           requires:
             - build-approval
-            - code-quality
-      - build-push:
+      - build-push-dev:
           context: skipify-dev
           requires:
-            - build-push-dev
+            - build-approval
 
