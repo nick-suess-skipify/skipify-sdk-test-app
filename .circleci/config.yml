@@ -11,18 +11,21 @@ jobs:
     resource_class: medium
     steps:
       - checkout
+
+      - node/install:
+          install-yarn: true
+          node-version: '16.13'
+
+      - run: node --version
+
       - run:
           name: Install dependencies
           command: |
-            set -x
-            ./node-version.sh
-            npm ci
+            npm i
 
       - run:
           name: Lint code
           command: |
-            set -x
-            ./node-version.sh
             npm run lint:scripts
 
       # - run:
