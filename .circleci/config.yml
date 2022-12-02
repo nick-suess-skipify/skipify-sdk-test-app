@@ -50,6 +50,8 @@ jobs:
       - run:
           name: 'build code base'
           command: npm run build:development
+      - store_artifacts:
+         path: dist
     
 
 workflows:
