@@ -4,6 +4,8 @@ orbs:
   gcr: circleci/gcp-gcr@0.7.1
   gke: circleci/gcp-gke@1.4.0
   node: circleci/node@5.0.2
+  gcp-storage: freighthub/gcp-storage@0.2.0
+
 jobs:
   code-quality:
     machine:
@@ -33,6 +35,7 @@ jobs:
       #     name: Send coverage report to coveralls
       #     when: always
       #     command: cat ./coverage/lcov.info | npx coveralls
+
   build-dev:
     machine:
       image: ubuntu-2004:202104-01
@@ -52,7 +55,39 @@ jobs:
           command: npm run build:development
       - store_artifacts:
          path: dist
-    
+
+  build-push-dev:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
+      - gcr/gcr-auth
+      - node/install:
+          node-version: "16.13"
+
+      - run:
+          name: Install dependencies
+          command: |
+            npm i
+
+      - run:
+          name: "build code base"
+          command: npm run build:development
+      - store_artifacts:
+          path: dist
+      - gcp-storage/upload:
+          source_path: dist/*
+          destination_bucket: skipfyscript
+          destination_prefix: sdk/
+          cache_control: "public, max-age=86400"
+          transfer_files_compressed: "js"
+
+      
+
+  # build-push-stage:
+
+  # build-push-prod:
 
 workflows:
   always:
@@ -63,3 +98,17 @@ workflows:
           context: skipify-dev
           requires:
             - code-quality
+  dev:
+    jobs:
+      - build-approval:
+          type: approval
+      - code-quality:
+          context: skipify-dev
+          requires:
+            - build-approval
+            - code-quality
+      - build-push:
+          context: skipify-dev
+          requires:
+            - build-push-dev
+
