@@ -8,3 +8,6 @@ export const SkipifyClassNames = {
   paymentButton: "_SKIPIFY_payment_button",
   enrollmentCheckbox: "_SKIPIFY_enrollment_checkbox",
 };
+
+export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;
+export const SdkUrl = import.meta.env.VITE_SDK_URL;

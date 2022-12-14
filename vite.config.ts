@@ -2,6 +2,7 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  publicDir: './public',
   build: {
     assetsDir: './',
     minify: false,
@@ -9,7 +10,8 @@ export default defineConfig({
       treeshake: false,
       input: {
         bigCommerce: resolve(__dirname, "src/bigcommerce/bigcommerce.ts"),
-        shopify: resolve(__dirname, "src/shopify/shopify.ts")
+        shopify: resolve(__dirname, "src/shopify/shopify.ts"),
+        skipifyEnrollmentCheckbox: resolve(__dirname, "src/components/skipifyEnrollmentCheckbox.tsx"),
       },
       output: {
         entryFileNames: "[name].js",

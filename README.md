@@ -32,9 +32,18 @@ Bundles get generated inside the dist folder
 npm run dev
 ```
 
+Inside another terminal:
+```
+// Start development server
+npm run host
+```
+Your scripts should be now live on http://localhost:4200/
+
 BigCommerce
-
-Get the bigCommerce bundle inside the /dist folder and manually add to BigCommerce checkout page inside a store
-
-
-
+Add hosted script to the store by pasting the following code snippet
+Remember to replace merchantId in the query
+```
+var script = document.createElement("script");
+script.src = `http://localhost:4200/bigCommerce.js?merchantId=52498a0a-7ae5-4877-af19-0f4d38f228f8&date=${new Date().getTime()}`;
+document.head.appendChild(script);
+```
