@@ -82,6 +82,8 @@ export class Base {
         return this.listenerEnrollmentInfo(event);
       case MESSAGE_NAMES.CLOSE_IFRAME:
         return this.listenerCloseIframe();
+      case MESSAGE_NAMES.RESIZE_CONTAINER:
+        return this.listenerIframeHeightChange(event);
       default:
         return;
     }
@@ -91,6 +93,19 @@ export class Base {
   // Once we receive this message, we can start sending messages to the iframe source that we stored.
   listenerInit(event: MessageEvent) {
     this.iframeSource = event.source as Window;
+
+    const iframeEl = document.getElementById(SkipifyElementIds.iframe);
+    const overlayEl = document.getElementById(SkipifyElementIds.overlay);
+
+    if (iframeEl && overlayEl) {
+      iframeEl.style.display = "block";
+      overlayEl.style.display = "block";
+
+      // Added a setTimeout here to ensure that the opacity transition is applied
+      setTimeout(() => {
+        overlayEl.style.opacity = "1";
+      }, 10);
+    }
   }
 
   // Set up listener for the "get enrollment data" signal
@@ -109,10 +124,50 @@ export class Base {
   // This is a one-way signal, meaning that we receive a signal from the iframe,
   // and then we do something in response.
   listenerCloseIframe() {
-    const iframeEl = document.getElementById(SkipifyElementIds.iframe);
-    if (iframeEl) {
-      iframeEl.style.display = "none";
+    const overlayEl = document.getElementById(SkipifyElementIds.overlay);
+
+    if (overlayEl) {
+      document.body.removeChild(overlayEl);
     }
+
     this.isIframeOpen = false;
+  }
+
+  listenerIframeHeightChange(event: MessageEvent) {
+    const iframeEl = document.getElementById(SkipifyElementIds.iframe);
+
+    const { payload } = event.data;
+
+    if (!iframeEl || !payload.height) {
+      return;
+    }
+
+    iframeEl.style.height = `${payload.height}px`;
+  }
+
+  // The launchIframe function will create the iframe and overlay elements,
+  // and then append them to the body. They will be hidden by default and will
+  // be shown when the iframe sends the INIT message.
+  launchIframe(iframeSrc: string) {
+    const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
+    const existingIframe = document.getElementById(SkipifyElementIds.iframe);
+
+    if (existingOverlay && existingIframe) {
+      existingOverlay.style.display = "block";
+      existingIframe.style.display = "block";
+      return;
+    }
+
+    const overlayEl = document.createElement("div");
+    overlayEl.id = SkipifyElementIds.overlay;
+    overlayEl.style.display = "none";
+
+    const iframeEl = document.createElement("iframe");
+    iframeEl.id = SkipifyElementIds.iframe;
+    iframeEl.src = iframeSrc;
+    iframeEl.style.display = "none";
+    overlayEl.appendChild(iframeEl);
+
+    document.body.appendChild(overlayEl);
   }
 }

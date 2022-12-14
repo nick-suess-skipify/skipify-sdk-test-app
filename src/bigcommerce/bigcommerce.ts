@@ -1,4 +1,4 @@
-import { AbstractSDK, Base, SkipifyClassNames } from "../shared";
+import { AbstractSDK, Base, SkipifyClassNames, IFRAME_ORIGIN } from "../shared";
 import { EmailInput } from "./emailInput";
 import { PaymentButton } from "./paymentButton";
 import { EnrollmentCheckbox } from "./enrollmentCheckbox";
@@ -9,6 +9,8 @@ interface OwnProps {
 }
 
 type Props = OwnProps;
+
+import "../styles/index.css";
 
 class BigCommerceSDK extends Base implements AbstractSDK {
   /**
@@ -101,6 +103,11 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     //     { targetOrigin: IFRAME_ORIGIN }
     //   );
     // });
+
+    // XXX: This is an example of attaching a function to launch the iframe.
+    checkboxEl.addEventListener("change", () =>
+      this.launchIframe(IFRAME_ORIGIN)
+    );
 
     wrapperEl.appendChild(checkboxEl);
     wrapperEl.appendChild(contentEl);
