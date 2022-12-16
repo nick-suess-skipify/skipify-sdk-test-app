@@ -158,8 +158,13 @@ workflows:
       - build-stage:
           context: skipify-stage
           requires:
-            - build-approval
             - code-quality
+      - deploy:
+          name: deploy-stage
+          bucket: checkout-sdk
+          context: skipify-stage
+          requires:
+            - build-stage
   prod:
     jobs:
       - build-approval:
@@ -170,8 +175,13 @@ workflows:
       - build-prod:
           context: skipify-prod
           requires:
-            - build-approval
             - code-quality
+      - deploy:
+          name: deploy-prod
+          bucket: checkout-sdk
+          context: skipify-prod
+          requires:
+            - build-prod
 
 # https://circleci.com/developer/orbs/orb/freighthub/gcp-storage
 # incase we get approval follow this for setting up to push to cloud storage
