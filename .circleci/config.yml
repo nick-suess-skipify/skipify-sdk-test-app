@@ -144,7 +144,7 @@ workflows:
             - code-quality
       - deploy:
           name: deploy-dev
-          bucket: checkout-sdk
+          bucket: checkout-sdk-dev
           context: skipify-dev
           requires:
             - build-dev
@@ -161,7 +161,7 @@ workflows:
             - code-quality
       - deploy:
           name: deploy-stage
-          bucket: checkout-sdk
+          bucket: checkout-sdk-stage
           context: skipify-stage
           requires:
             - build-stage
@@ -182,8 +182,3 @@ workflows:
           context: skipify-prod
           requires:
             - build-prod
-
-# https://circleci.com/developer/orbs/orb/freighthub/gcp-storage
-# incase we get approval follow this for setting up to push to cloud storage
-
-# VS Code Extension Version: 1.4.0
