@@ -25,7 +25,7 @@ The project contains the following scripts:
 
 Bundles get generated inside the dist folder
 
-## Developing 
+## Developing
 
 ```
 // Start development server

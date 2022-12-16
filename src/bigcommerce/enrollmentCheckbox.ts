@@ -27,18 +27,9 @@ export class EnrollmentCheckbox {
       enrollmentCheckBoxUrl += "&darkMode=true";
     }
     enrollmentCheckboxFrame.src = enrollmentCheckBoxUrl;
-
-    enrollmentCheckboxFrame.style.border = "0";
-    enrollmentCheckboxFrame.style.display = "block";
-    enrollmentCheckboxFrame.style.height = "129px";
-    enrollmentCheckboxFrame.style.width = "100%";
-    enrollmentCheckboxFrame.style.overflow = "hidden";
+    enrollmentCheckboxFrame.id = `${SkipifyClassNames.enrollmentCheckbox}_frame`;
 
     wrapperEl.appendChild(enrollmentCheckboxFrame);
-
-    wrapperEl.style.marginBottom = "18px";
-    wrapperEl.style.width = "calc(100% - 1px)";
-    wrapperEl.style.margin = "0 0 16px 0";
 
     this.node.parentNode?.prepend(wrapperEl);
   }

@@ -1,7 +1,9 @@
-import { AbstractSDK, Base, SkipifyClassNames, IFRAME_ORIGIN } from "../shared";
+import { AbstractSDK, Base, SkipifyClassNames } from "../shared";
 import { EmailInput } from "./emailInput";
 import { PaymentButton } from "./paymentButton";
 import { EnrollmentCheckbox } from "./enrollmentCheckbox";
+
+import "../styles/index.css";
 
 interface OwnProps {
   emailInputId?: string;
@@ -9,8 +11,6 @@ interface OwnProps {
 }
 
 type Props = OwnProps;
-
-import "../styles/index.css";
 
 class BigCommerceSDK extends Base implements AbstractSDK {
   /**
@@ -27,7 +27,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   paymentButton: PaymentButton | null = null;
   enrollmentCheckbox: EnrollmentCheckbox | null = null;
 
-  constructor({ emailInputId, paymentButtonId }: Props) {
+  constructor({ emailInputId, paymentButtonId }: Props = {}) {
     super();
     if (emailInputId) {
       this.emailInputId = emailInputId;
@@ -80,44 +80,6 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       });
     }
   }
-
-  handleEnrollmentCheckbox(paymentButtonElem: HTMLElement) {
-    const wrapperEl = document.createElement("div");
-    wrapperEl.id = SkipifyClassNames.enrollmentCheckbox;
-
-    const contentEl = document.createElement("div");
-    contentEl.innerHTML =
-      "Save my information with a one-time code for faster future checkouts. By continuing you agree to Skipify Terms and Conditions and Privacy Policy.";
-
-    const checkboxEl = document.createElement("input");
-    checkboxEl.setAttribute("type", "checkbox");
-    checkboxEl.style.width = "32px";
-    checkboxEl.style.marginRight = "14px";
-
-    // XXX: This is an example of sending a message to the iframe.
-    // We store the iframe source in the base class, and then send a message to it.
-    //
-    // checkboxEl.addEventListener("change", () => {
-    //   this.iframeSource?.postMessage(
-    //     { name: "TEST_MESSAGE", payload: { success: true } },
-    //     { targetOrigin: IFRAME_ORIGIN }
-    //   );
-    // });
-
-    // XXX: This is an example of attaching a function to launch the iframe.
-    checkboxEl.addEventListener("change", () =>
-      this.launchIframe(IFRAME_ORIGIN)
-    );
-
-    wrapperEl.appendChild(checkboxEl);
-    wrapperEl.appendChild(contentEl);
-
-    wrapperEl.style.display = "flex";
-    wrapperEl.style.alignItems = "space-between";
-    wrapperEl.style.marginBottom = "18px";
-
-    paymentButtonElem.parentNode?.prepend(wrapperEl);
-  }
 }
 
-export default new BigCommerceSDK({});
+export default new BigCommerceSDK();
