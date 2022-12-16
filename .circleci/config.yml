@@ -28,7 +28,7 @@ jobs:
 
       - run:
           name: Run tests
-          command: npm run test:cov -- --coverageReporters=lcov
+          command: npm run test:coverage -- --coverageReporters=lcov
 
       - run:
           name: Send coverage report to coveralls
