@@ -1,0 +1,86 @@
+import React, { useState } from "react";
+import styled from "styled-components";
+
+export const SkipifyEnrollmentCheckboxContent: React.FC = (props) => {
+  const params = new URL(window.location.href).searchParams;
+  const darkMode = Boolean(params.get("darkMode"));
+  const [checked, setChecked] = useState(true);
+  return (
+    <Container>
+      <Checkbox
+        checked={checked}
+        onChange={() => setChecked(!checked)}
+        darkMode={darkMode}
+      />
+      <Content>
+        <ContentTitle darkMode={darkMode}>
+          Save my information for faster checkouts
+        </ContentTitle>
+        <ContentDescription darkMode={darkMode}>
+          Securely save my info and payment method for the next time I pay
+          anywhere that accepts Skipify.
+        </ContentDescription>
+        <Terms darkMode={darkMode}>
+          By continuing, you agree to the Skipify{" "}
+          <Link darkMode={darkMode}>Terms & Conditions</Link> and{" "}
+          <Link darkMode={darkMode}>Privacy Policy</Link>
+        </Terms>
+      </Content>
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  font-family: Poppins;
+  border-radius: 5px;
+  border: 1px solid #01ead3;
+  padding: 16px 18px;
+`;
+
+const Checkbox = styled.input.attrs(() => ({
+  type: "checkbox",
+}))<{ darkMode: boolean }>`
+  width: 13px;
+  height: 13px;
+  ${(props) =>
+    props.darkMode
+      ? `accent-color: ${props.checked ? "#01EAD3" : "#FFFFFF"};`
+      : `accent-color: ${props.checked ? "#000000" : "#FFFFFF"};`}
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 18px;
+`;
+
+const ContentTitle = styled.div<{ darkMode: boolean }>`
+  color: ${(props) => (props.darkMode ? "#FFFFFF" : "#000000")};
+  font-weight: 600;
+  font-size: 12px;
+  font-family: Poppins;
+  margin-bottom: 5px;
+`;
+
+const ContentDescription = styled.div<{ darkMode: boolean }>`
+  color: ${(props) => (props.darkMode ? "#FFFFFF" : "#000000")};
+  font-weight: 400;
+  font-size: 12px;
+  font-family: Poppins;
+  margin-bottom: 16px;
+`;
+
+const Terms = styled.div<{ darkMode: boolean }>`
+  color: ${(props) => (props.darkMode ? "#B2B2B2" : "#7a7a7a")};
+  font-weight: 400;
+  font-size: 10px;
+  font-family: Poppins;
+`;
+
+const Link = styled.span<{ darkMode: boolean }>`
+  color: ${(props) => (props.darkMode ? "#01EAD3" : "#1f7f79")};
+  cursor: pointer;
+  text-decoration: underline;
+`;
