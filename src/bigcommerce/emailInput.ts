@@ -14,8 +14,8 @@ export class EmailInput {
   }
 
   start() {
-    this.node?.classList.add(SkipifyClassNames.emailInput);
-    this.node?.addEventListener("blur", this.handleInput);
+    this.node.classList.add(SkipifyClassNames.emailInput);
+    this.node.addEventListener("blur", this.handleInput);
   }
 
   handleInput(e: FocusEvent) {

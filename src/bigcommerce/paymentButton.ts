@@ -14,9 +14,9 @@ export class PaymentButton {
   }
 
   start() {
-    this.node?.classList.add(SkipifyClassNames.paymentButton);
+    this.node.classList.add(SkipifyClassNames.paymentButton);
 
-    this.node?.addEventListener("click", this.handleButton);
+    this.node.addEventListener("click", this.handleButton);
   }
 
   handleButton() {
