@@ -1,0 +1,184 @@
+version: 2.1
+
+orbs:
+  gcr: circleci/gcp-gcr@0.15.0
+  node: circleci/node@5.0.3
+  gcp-cli: circleci/gcp-cli@3.0.1
+
+jobs:
+  code-quality:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
+
+      - node/install:
+          node-version: '16.13'
+
+      - run:
+          name: Install dependencies
+          command: |
+            npm i
+
+      - run:
+          name: Lint code
+          command: |
+            npm run lint:scripts
+
+#      - run:
+#          name: Run tests
+#          command: npm run test:coverage -- --coverageReporters=lcov
+
+#      - run:
+#          name: Send coverage report to coveralls
+#          when: always
+#          command: cat ./coverage/lcov.info | npx coveralls
+
+  build-dev:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
+      - gcr/gcr-auth
+      - node/install:
+          node-version: "16.13"
+
+      - run:
+          name: Install dependencies
+          command: |
+            gcloud auth print-access-token
+            npm i
+
+      - run:
+          name: "build code base"
+          command: npm run build:development
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+
+  build-stage:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
+      - gcr/gcr-auth
+      - node/install:
+          node-version: "16.13"
+
+      - run:
+          name: Install dependencies
+          command: |
+            npm i
+
+      - run:
+          name: "build code base"
+          command: npm run build:staging
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+
+  build-prod:
+    machine:
+      image: ubuntu-2004:202104-01
+    resource_class: medium
+    steps:
+      - checkout
+      - gcr/gcr-auth
+      - node/install:
+          node-version: "16.13"
+
+      - run:
+          name: Install dependencies
+          command: |
+            npm i
+
+      - run:
+          name: "build code base"
+          command: npm run build:production
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+
+  deploy:
+    parameters:
+      bucket:
+        description: Google Cloud Storage bucket name where artifact will be deployed to
+        type: string
+    executor: gcp-cli/default
+    steps:
+      - attach_workspace:
+          at: .
+      - gcp-cli/setup:
+          version: 404.0.0
+      - run:
+          name: Push to bucket
+          command: gsutil cp dist/* gs://<< parameters.bucket >>
+
+workflows:
+  always:
+    jobs:
+      - code-quality
+      - build-dev:
+          context: skipify-dev
+          requires:
+            - code-quality
+  dev:
+    jobs:
+      - build-approval:
+          type: approval
+      - code-quality:
+          requires:
+            - build-approval
+      - build-dev:
+          context: skipify-dev
+          requires:
+            - code-quality
+      - deploy:
+          name: deploy-dev
+          bucket: checkout-sdk-dev
+          context: skipify-dev
+          requires:
+            - build-dev
+  stage:
+    jobs:
+      - build-approval:
+          type: approval
+      - code-quality:
+          requires:
+            - build-approval
+      - build-stage:
+          context: skipify-stage
+          requires:
+            - code-quality
+      - deploy:
+          name: deploy-stage
+          bucket: checkout-sdk-stage
+          context: skipify-stage
+          requires:
+            - build-stage
+  prod:
+    jobs:
+      - build-approval:
+          type: approval
+      - code-quality:
+          requires:
+            - build-approval
+      - build-prod:
+          context: skipify-prod
+          requires:
+            - code-quality
+      - deploy:
+          name: deploy-prod
+          bucket: checkout-sdk
+          context: skipify-prod
+          requires:
+            - build-prod
