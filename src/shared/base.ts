@@ -23,7 +23,9 @@ export class Base {
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
-    this.messenger = new Messenger();
+    this.messenger = new Messenger({
+      clearCartCallback: () => this.clearCart(),
+    });
 
     /**
      * Mutation observer used to enable Skipify features on checkout
@@ -67,5 +69,9 @@ export class Base {
 
   processDOM() {
     console.warn("-- processDom should be overwritten by platform class");
+  }
+
+  async clearCart(): Promise<void> {
+    console.warn("-- clearCart should be overwritten by platform class");
   }
 }

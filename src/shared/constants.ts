@@ -10,6 +10,7 @@ export const SkipifyClassNames = {
   enrollmentCheckbox: "_SKIPIFY_enrollment_checkbox",
 };
 
+export const BigCommerceApiUrl = import.meta.env.VITE_BIGCOMMERCE_API_URL;
 export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;
 export const SdkUrl = import.meta.env.VITE_SDK_URL;
 export const SkipifyElementIds = {
@@ -26,6 +27,7 @@ export const MESSAGE_NAMES = {
   INIT: `${MESSAGE_NAME_PREFIX}/init`,
   GET_ENROLLMENT_INFO: `${MESSAGE_NAME_PREFIX}/get-enrollment-info`,
   CLOSE_IFRAME: `${MESSAGE_NAME_PREFIX}/close-iframe`,
+  CLEAR_CART: `${MESSAGE_NAME_PREFIX}/clear-cart`,
   RESIZE_CONTAINER: `${MESSAGE_NAME_PREFIX}/resize-container`,
   // Inbound
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,

@@ -1,11 +1,17 @@
 import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "./constants";
 
+interface Props {
+  clearCartCallback: () => Promise<void>;
+}
+
 export class Messenger {
   iframeSource: Window | null = null;
   isIframeOpen = true;
+  clearCartCallback: () => Promise<void>;
 
-  constructor() {
+  constructor({ clearCartCallback }: Props) {
     window.addEventListener("message", (e) => this.handleIframeMessage(e));
+    this.clearCartCallback = clearCartCallback;
   }
 
   handleIframeMessage(event: MessageEvent) {
@@ -23,6 +29,8 @@ export class Messenger {
         return this.listenerCloseIframe();
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
+      case MESSAGE_NAMES.CLEAR_CART:
+        return this.listenerClearCart();
       default:
         return;
     }
@@ -108,5 +116,9 @@ export class Messenger {
     }
 
     iframeEl.style.height = `${payload.height}px`;
+  }
+
+  async listenerClearCart(): Promise<void> {
+    return this.clearCartCallback();
   }
 }
