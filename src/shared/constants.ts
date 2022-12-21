@@ -26,6 +26,7 @@ export const MESSAGE_NAMES = {
   INIT: `${MESSAGE_NAME_PREFIX}/init`,
   GET_ENROLLMENT_INFO: `${MESSAGE_NAME_PREFIX}/get-enrollment-info`,
   CLOSE_IFRAME: `${MESSAGE_NAME_PREFIX}/close-iframe`,
+  CLEAR_CART: `${MESSAGE_NAME_PREFIX}/clear-cart`,
   RESIZE_CONTAINER: `${MESSAGE_NAME_PREFIX}/resize-container`,
   // Inbound
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
