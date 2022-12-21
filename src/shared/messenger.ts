@@ -1,16 +1,27 @@
 import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "./constants";
 
+interface OwnProps {
+  setEnrollmentCheckboxValue: (value: boolean) => void;
+}
+
+type Props = OwnProps;
+
 export class Messenger {
   iframeSource: Window | null = null;
   isIframeOpen = true;
+  setEnrollmentCheckboxValue;
 
-  constructor() {
+  constructor({ setEnrollmentCheckboxValue }: Props) {
+    this.setEnrollmentCheckboxValue = setEnrollmentCheckboxValue;
     window.addEventListener("message", (e) => this.handleIframeMessage(e));
   }
 
   handleIframeMessage(event: MessageEvent) {
     const { data, origin } = event;
-    if (origin !== IFRAME_ORIGIN || !data) {
+
+    // TODO Add back origin check once we have SDK components origins defined
+    // if (origin != IFRAME_ORIGIN || !data)
+    if (!data) {
       return;
     }
 
@@ -23,6 +34,8 @@ export class Messenger {
         return this.listenerCloseIframe();
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
+      case MESSAGE_NAMES.ENROLLMENT_VALUE_CHANGED:
+        return this.listenerEnrollmentValue(event);
       default:
         return;
     }
@@ -83,6 +96,14 @@ export class Messenger {
       payload: { email: "captured@email.com", phone: "1234567890" },
       name: MESSAGE_NAMES.ENROLLMENT_INFO_RECEIVED,
     });
+  }
+
+  /**
+   * Set up listener for when changing enrollment checkbox value from inside our enrollment checkbox Iframe
+   */
+  listenerEnrollmentValue(event: MessageEvent) {
+    const { value } = event.data;
+    this.setEnrollmentCheckboxValue(value);
   }
 
   // Set up listener for the "close iframe" signal

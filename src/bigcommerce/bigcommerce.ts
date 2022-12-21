@@ -1,4 +1,9 @@
-import { AbstractSDK, Base, SkipifyClassNames } from "../shared";
+import {
+  AbstractSDK,
+  Base,
+  SkipifyClassNames,
+  SkipifyElementIds,
+} from "../shared";
 import { EmailInput } from "./emailInput";
 import { PaymentButton } from "./paymentButton";
 import { EnrollmentCheckbox } from "./enrollmentCheckbox";
@@ -72,7 +77,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   processEnrollmentCheckbox() {
     const paymentButtonElem = document.getElementById(this.paymentButtonId);
     const enrollmentCheckboxElem = document.getElementById(
-      SkipifyClassNames.enrollmentCheckbox
+      SkipifyElementIds.enrollmentCheckbox
     );
     if (paymentButtonElem && !enrollmentCheckboxElem) {
       this.enrollmentCheckbox = new EnrollmentCheckbox({

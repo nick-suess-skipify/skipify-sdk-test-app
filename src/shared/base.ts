@@ -2,9 +2,21 @@ import { SkipifyApi } from "./api";
 import { Messenger } from "./messenger";
 
 export class Base {
+  /**
+   * Merchant data
+   */
   merchantId: string | null = null;
   merchant: any; // TODO Map all data we need from MMs
+
+  /**
+   * Internal
+   */
   observer: MutationObserver;
+  enrollmentCheckboxValue = true;
+
+  /**
+   * Feature classes
+   */
   api: SkipifyApi;
   messenger: Messenger;
 
@@ -23,7 +35,9 @@ export class Base {
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
-    this.messenger = new Messenger();
+    this.messenger = new Messenger({
+      setEnrollmentCheckboxValue: this.setEnrollmentCheckboxValue,
+    });
 
     /**
      * Mutation observer used to enable Skipify features on checkout
@@ -67,5 +81,9 @@ export class Base {
 
   processDOM() {
     console.warn("-- processDom should be overwritten by platform class");
+  }
+
+  setEnrollmentCheckboxValue(value: boolean) {
+    this.enrollmentCheckboxValue = value;
   }
 }

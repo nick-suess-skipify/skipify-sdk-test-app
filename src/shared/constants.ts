@@ -4,17 +4,18 @@ export const mode = process.env.NODE_ENV as
   | "production";
 export const IFRAME_ORIGIN = import.meta.env.VITE_IFRAME_ORIGIN;
 
+export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;
+export const SdkUrl = import.meta.env.VITE_SDK_URL;
+
 export const SkipifyClassNames = {
   emailInput: "_SKIPIFY_email_input",
   paymentButton: "_SKIPIFY_payment_button",
-  enrollmentCheckbox: "_SKIPIFY_enrollment_checkbox",
 };
 
-export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;
-export const SdkUrl = import.meta.env.VITE_SDK_URL;
 export const SkipifyElementIds = {
   iframe: "_SKIPIFY_iframe",
   overlay: "_SKIPIFY_overlay",
+  enrollmentCheckbox: "_SKIPIFY_enrollment_checkbox",
 };
 
 /**
@@ -27,6 +28,7 @@ export const MESSAGE_NAMES = {
   GET_ENROLLMENT_INFO: `${MESSAGE_NAME_PREFIX}/get-enrollment-info`,
   CLOSE_IFRAME: `${MESSAGE_NAME_PREFIX}/close-iframe`,
   RESIZE_CONTAINER: `${MESSAGE_NAME_PREFIX}/resize-container`,
+  ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   // Inbound
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
 } as const;
