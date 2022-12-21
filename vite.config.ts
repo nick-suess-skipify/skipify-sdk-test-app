@@ -2,14 +2,17 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 
+import closurify from "./src/plugins/closurify";
+
 export default defineConfig({
   publicDir: './public',
   plugins: [
     cssInjectedByJsPlugin(),
+    closurify({ files: ["bigCommerce.js"] }),
   ],
   build: {
     assetsDir: './',
-    minify: false,
+    minify: true,
     rollupOptions: {
       treeshake: false,
       input: {
