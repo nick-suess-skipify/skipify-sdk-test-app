@@ -29,7 +29,6 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   enrollmentCheckbox: EnrollmentCheckbox | null = null;
 
   storeFrontApi: BigCommerceStoreFrontApi;
-  userEmail: string | null = null;
 
   constructor({ emailInputId, paymentButtonId }: Props = {}) {
     super();
