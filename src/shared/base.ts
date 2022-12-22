@@ -12,7 +12,7 @@ export class Base {
     transactionId: string;
     isPhoneRequired: boolean;
     email: string;
-  }; // TODO: map all properties
+  };
 
   constructor() {
     /**
