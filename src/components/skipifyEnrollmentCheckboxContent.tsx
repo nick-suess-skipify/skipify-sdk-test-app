@@ -68,6 +68,7 @@ const Checkbox = styled.input.attrs(() => ({
 }))<{ darkMode: boolean }>`
   width: 13px;
   height: 13px;
+  cursor: pointer;
   ${(props) =>
     props.darkMode
       ? `accent-color: ${props.checked ? "#01EAD3" : "#FFFFFF"};`

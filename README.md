@@ -44,6 +44,6 @@ Add hosted script to the store by pasting the following code snippet
 Remember to replace merchantId in the query
 ```
 var script = document.createElement("script");
-script.src = `http://localhost:4200/bigCommerce.js?merchantId=52498a0a-7ae5-4877-af19-0f4d38f228f8&date=${new Date().getTime()}`;
+script.src = `http://localhost:4200/bigCommerce.js?merchantId=77acbdc1-2d31-40ba-b4aa-02c69888ad86&date=${new Date().getTime()}`;
 document.head.appendChild(script);
 ```
