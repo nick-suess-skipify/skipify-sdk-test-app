@@ -7,6 +7,7 @@ export class Base {
   observer: MutationObserver;
   api: SkipifyApi;
   messenger: Messenger;
+  userEmail: string | null = null;
 
   constructor() {
     /**

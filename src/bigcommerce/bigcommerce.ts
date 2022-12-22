@@ -40,6 +40,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     this.storeFrontApi = new BigCommerceStoreFrontApi();
+    this.fetchUserEmailFromCart();
   }
 
   processDOM() {
@@ -59,6 +60,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
 
     this.emailInput = new EmailInput({
       node: emailInputElem,
+      setUserEmail: (email) => this.setUserEmail(email),
     });
   }
 
@@ -95,6 +97,22 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     await this.storeFrontApi.deleteCart(userCart.id);
+  }
+
+  // If we have already have an user email in the cart, we can rely on that instead of asking the
+  // user to input it again.
+  async fetchUserEmailFromCart() {
+    const userCart = await this.storeFrontApi.getUserCart();
+
+    if (!userCart || this.userEmail) {
+      return;
+    }
+
+    this.setUserEmail(userCart.email);
+  }
+
+  setUserEmail(email: string) {
+    this.userEmail = email;
   }
 }
 

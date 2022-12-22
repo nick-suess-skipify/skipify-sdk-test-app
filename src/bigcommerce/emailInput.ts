@@ -2,17 +2,19 @@ import { SkipifyClassNames } from "../shared";
 
 interface OwnProps {
   node: HTMLElement;
+  setUserEmail: (email: string) => void;
 }
 
 type Props = OwnProps;
 
 export class EmailInput {
   node: HTMLElement;
-  value: string | null = null;
+  setUserEmail: (email: string) => void;
 
-  constructor({ node }: Props) {
+  constructor({ node, setUserEmail }: Props) {
     this.node = node;
     this.start();
+    this.setUserEmail = setUserEmail;
   }
 
   start() {
@@ -24,6 +26,6 @@ export class EmailInput {
     const emailValue = (e.target as HTMLInputElement).value;
     console.log(emailValue);
     alert(`-- Email input blur: ${emailValue}`);
-    this.value = emailValue;
+    this.setUserEmail(emailValue);
   }
 }
