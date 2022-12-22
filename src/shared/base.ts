@@ -8,13 +8,25 @@ export class Base {
   api: SkipifyApi;
   messenger: Messenger;
   userEmail: string | null = null;
-  user: any; // TODO: map all properties
+  user: {
+    transactionId: string;
+    isPhoneRequired: boolean;
+    email: string;
+  }; // TODO: map all properties
 
   constructor() {
     /**
      * Get Merchant Id from script query params, if not present script will fail
      */
     this.getMerchantIdFromQuery();
+    /**
+     * Get Merchant Id from script query params, if not present script will fail
+     */
+    this.user = {
+      transactionId: "",
+      isPhoneRequired: false,
+      email: "",
+    };
 
     /**
      * All outside requests are handled by the SkipifyApi class
@@ -55,8 +67,11 @@ export class Base {
   }
 
   async getUserFromLookup(email: string) {
-    const user = await this.api.emailLookup(email);
-    this.user = user;
+    const user: {
+      transactionId: string;
+      isPhoneRequired: boolean;
+    } = await this.api.emailLookup(email);
+    this.user = { ...user, email };
   }
 
   start() {
