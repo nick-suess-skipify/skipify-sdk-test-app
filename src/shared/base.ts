@@ -19,8 +19,9 @@ export class Base {
      * Get Merchant Id from script query params, if not present script will fail
      */
     this.getMerchantIdFromQuery();
+
     /**
-     * Get Merchant Id from script query params, if not present script will fail
+     * initiate empty user
      */
     this.user = {
       transactionId: "",
