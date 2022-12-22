@@ -1,6 +1,6 @@
 export interface AbstractSDK {
   processDOM(): void;
   processEmailInput(): void;
-  processPaymentButton(): void;
+  processCheckoutCompleted(): void;
   processEnrollmentCheckbox(): void;
 }

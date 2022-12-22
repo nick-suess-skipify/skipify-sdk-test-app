@@ -1,5 +1,6 @@
 import { SkipifyApi } from "./api";
 import { Messenger } from "./messenger";
+import { store } from "./state";
 
 export class Base {
   /**
@@ -12,20 +13,27 @@ export class Base {
    * Internal
    */
   observer: MutationObserver;
-  enrollmentCheckboxValue = true;
+  hasLaunchedIframe = false;
+  isIframeInitialized = false;
+  userEmail: string | null = null;
 
   /**
    * Feature classes
    */
   api: SkipifyApi;
   messenger: Messenger;
-  userEmail: string | null = null;
+  store;
 
   constructor() {
     /**
      * Get Merchant Id from script query params, if not present script will fail
      */
     this.getMerchantIdFromQuery();
+
+    /**
+     * Persisted state
+     */
+    this.store = store;
 
     /**
      * All outside requests are handled by the SkipifyApi class
@@ -37,7 +45,8 @@ export class Base {
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
     this.messenger = new Messenger({
-      setEnrollmentCheckboxValue: this.setEnrollmentCheckboxValue,
+      setEnrollmentCheckboxValue: (value) =>
+        this.setEnrollmentCheckboxValue(value),
       clearCartCallback: () => this.clearCart(),
     });
 
@@ -81,12 +90,34 @@ export class Base {
     });
   }
 
-  processDOM() {
-    console.warn("-- processDom should be overwritten by platform class");
-  }
+  /**
+   * Setters
+   */
 
   setEnrollmentCheckboxValue(value: boolean) {
-    this.enrollmentCheckboxValue = value;
+    this.store.setState({
+      enrollmentCheckboxValue: value,
+    });
+  }
+
+  setUserEmail(email: string) {
+    this.userEmail = email;
+  }
+
+  setHasLaunchedIframe(value: boolean) {
+    this.hasLaunchedIframe = value;
+  }
+
+  setIsIframeInitialized(value: boolean) {
+    this.isIframeInitialized = value;
+  }
+
+  /**
+   * Overwritten methods
+   */
+
+  processDOM() {
+    console.warn("-- processDom should be overwritten by platform class");
   }
 
   async clearCart(): Promise<void> {

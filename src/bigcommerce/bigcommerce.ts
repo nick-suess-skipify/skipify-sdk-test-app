@@ -5,7 +5,7 @@ import {
   SkipifyElementIds,
 } from "../shared";
 import { EmailInput } from "./emailInput";
-import { PaymentButton } from "./paymentButton";
+import { CheckoutCompleted } from "./checkoutCompleted";
 import { EnrollmentCheckbox } from "./enrollmentCheckbox";
 import { BigCommerceStoreFrontApi } from "./storeFrontApi";
 
@@ -25,12 +25,13 @@ class BigCommerceSDK extends Base implements AbstractSDK {
    */
   emailInputId = "email";
   paymentButtonId = "checkout-payment-continue";
+  checkoutUrlMatch = "order-confirmation";
 
   /**
    * Child classes that implements specific business logic.
    */
   emailInput: EmailInput | null = null;
-  paymentButton: PaymentButton | null = null;
+  checkoutCompleted: CheckoutCompleted | null = null;
   enrollmentCheckbox: EnrollmentCheckbox | null = null;
 
   storeFrontApi: BigCommerceStoreFrontApi;
@@ -50,7 +51,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
 
   processDOM() {
     this.processEmailInput();
-    this.processPaymentButton();
+    this.processCheckoutCompleted();
     this.processEnrollmentCheckbox();
   }
 
@@ -69,16 +70,21 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     });
   }
 
-  processPaymentButton() {
-    const paymentButtonElem = document.getElementById(this.paymentButtonId);
+  processCheckoutCompleted() {
+    const { enrollmentCheckboxValue } = this.store.getState();
     if (
-      !paymentButtonElem ||
-      paymentButtonElem?.classList.contains(SkipifyClassNames.paymentButton)
+      window.location.href.includes(this.checkoutUrlMatch) &&
+      this.userEmail &&
+      !this.hasLaunchedIframe &&
+      enrollmentCheckboxValue &&
+      this.merchantId
     ) {
-      return;
+      this.checkoutCompleted = new CheckoutCompleted({
+        setHasLaunchedIframe: this.setHasLaunchedIframe,
+        messenger: this.messenger,
+        merchantId: this.merchantId,
+      });
     }
-
-    this.paymentButton = new PaymentButton({ node: paymentButtonElem });
   }
 
   processEnrollmentCheckbox() {
@@ -88,6 +94,9 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     );
 
     if (paymentButtonElem && !enrollmentCheckboxElem) {
+      // Reset enrollment checkbox value as its value is persisted across page changes
+      this.setEnrollmentCheckboxValue(true);
+
       this.enrollmentCheckbox = new EnrollmentCheckbox({
         node: paymentButtonElem,
       });
@@ -114,10 +123,6 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     this.setUserEmail(userCart.email);
-  }
-
-  setUserEmail(email: string) {
-    this.userEmail = email;
   }
 }
 
