@@ -7,6 +7,7 @@ import {
 import { EmailInput } from "./emailInput";
 import { PaymentButton } from "./paymentButton";
 import { EnrollmentCheckbox } from "./enrollmentCheckbox";
+import { BigCommerceStoreFrontApi } from "./storeFrontApi";
 
 import "../styles/index.css";
 
@@ -32,6 +33,8 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   paymentButton: PaymentButton | null = null;
   enrollmentCheckbox: EnrollmentCheckbox | null = null;
 
+  storeFrontApi: BigCommerceStoreFrontApi;
+
   constructor({ emailInputId, paymentButtonId }: Props = {}) {
     super();
     if (emailInputId) {
@@ -40,6 +43,8 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     if (paymentButtonId) {
       this.paymentButtonId = paymentButtonId;
     }
+
+    this.storeFrontApi = new BigCommerceStoreFrontApi();
   }
 
   processDOM() {
@@ -79,11 +84,22 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     const enrollmentCheckboxElem = document.getElementById(
       SkipifyElementIds.enrollmentCheckbox
     );
+
     if (paymentButtonElem && !enrollmentCheckboxElem) {
       this.enrollmentCheckbox = new EnrollmentCheckbox({
         node: paymentButtonElem,
       });
     }
+  }
+
+  async clearCart(): Promise<void> {
+    const userCart = await this.storeFrontApi.getUserCart();
+
+    if (!userCart) {
+      return;
+    }
+
+    await this.storeFrontApi.deleteCart(userCart.id);
   }
 }
 

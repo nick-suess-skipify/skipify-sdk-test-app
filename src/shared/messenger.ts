@@ -1,18 +1,19 @@
 import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "./constants";
 
-interface OwnProps {
+interface Props {
+  clearCartCallback: () => Promise<void>;
   setEnrollmentCheckboxValue: (value: boolean) => void;
 }
-
-type Props = OwnProps;
 
 export class Messenger {
   iframeSource: Window | null = null;
   isIframeOpen = true;
+  clearCartCallback: () => Promise<void>;
   setEnrollmentCheckboxValue;
 
-  constructor({ setEnrollmentCheckboxValue }: Props) {
+  constructor({ clearCartCallback, setEnrollmentCheckboxValue }: Props) {
     this.setEnrollmentCheckboxValue = setEnrollmentCheckboxValue;
+    this.clearCartCallback = clearCartCallback;
     window.addEventListener("message", (e) => this.handleIframeMessage(e));
   }
 
@@ -36,6 +37,8 @@ export class Messenger {
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.ENROLLMENT_VALUE_CHANGED:
         return this.listenerEnrollmentValue(event);
+      case MESSAGE_NAMES.CLEAR_CART:
+        return this.listenerClearCart();
       default:
         return;
     }
@@ -129,5 +132,9 @@ export class Messenger {
     }
 
     iframeEl.style.height = `${payload.height}px`;
+  }
+
+  async listenerClearCart(): Promise<void> {
+    return this.clearCartCallback();
   }
 }

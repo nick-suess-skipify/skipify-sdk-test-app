@@ -37,6 +37,7 @@ export class Base {
      */
     this.messenger = new Messenger({
       setEnrollmentCheckboxValue: this.setEnrollmentCheckboxValue,
+      clearCartCallback: () => this.clearCart(),
     });
 
     /**
@@ -85,5 +86,9 @@ export class Base {
 
   setEnrollmentCheckboxValue(value: boolean) {
     this.enrollmentCheckboxValue = value;
+  }
+
+  async clearCart(): Promise<void> {
+    console.warn("-- clearCart should be overwritten by platform class");
   }
 }
