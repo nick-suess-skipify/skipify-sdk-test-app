@@ -19,6 +19,7 @@ export class Base {
    */
   api: SkipifyApi;
   messenger: Messenger;
+  userEmail: string | null = null;
 
   constructor() {
     /**
