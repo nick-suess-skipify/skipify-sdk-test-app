@@ -1,4 +1,4 @@
-import { SkipifyClassNames } from "../shared";
+import { SkipifyClassNames, debounce } from "../shared";
 
 interface OwnProps {
   node: HTMLElement;
@@ -25,7 +25,7 @@ export class EmailInput {
   handleInput(e: FocusEvent) {
     const emailValue = (e.target as HTMLInputElement).value;
     console.log(emailValue);
-    alert(`-- Email input blur: ${emailValue}`);
-    this.setUserEmail(emailValue);
+    // alert(`-- Email input blur: ${emailValue}`);
+    emailValue && this.setUserEmail(emailValue);
   }
 }
