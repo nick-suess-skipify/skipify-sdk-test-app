@@ -1,4 +1,4 @@
-import { MerchantServiceUrl } from "./constants";
+import { MerchantServiceUrl, AuthServiceUrl } from "./constants";
 
 interface OwnProps {
   merchantId: string | null;
@@ -22,6 +22,31 @@ export class SkipifyApi {
         //   "Cache-Control": "public, default, max-age=5000",
         // },
       }
+    );
+
+    if (!response.ok) {
+      return Promise.reject(response);
+    }
+    return await response.json();
+  }
+
+  async emailLookup(email: string) {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      email,
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+    };
+
+    const response = await fetch(
+      `${AuthServiceUrl}/v3/auth/lookup_user`,
+      requestOptions
     );
 
     if (!response.ok) {

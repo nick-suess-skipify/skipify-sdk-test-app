@@ -11,6 +11,7 @@ export const SkipifyClassNames = {
 };
 
 export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;
+export const AuthServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL;
 export const SdkUrl = import.meta.env.VITE_SDK_URL;
 export const SkipifyElementIds = {
   iframe: "_SKIPIFY_iframe",

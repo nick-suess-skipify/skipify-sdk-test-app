@@ -8,6 +8,7 @@ export class Base {
   api: SkipifyApi;
   messenger: Messenger;
   userEmail: string | null = null;
+  user: any; // TODO: map all properties
 
   constructor() {
     /**
@@ -51,6 +52,11 @@ export class Base {
   async getMerchantFromApi() {
     const merchantFromApi = await this.api.getMerchant();
     this.merchant = merchantFromApi;
+  }
+
+  async getUserFromLookup(email: string) {
+    const user = await this.api.emailLookup(email);
+    this.user = user;
   }
 
   start() {
