@@ -1,5 +1,6 @@
 import { SkipifyApi } from "./api";
 import { Messenger } from "./messenger";
+import { SkipifyAuthUser, SkipifyCapturedUser } from "./shared.types";
 
 export class Base {
   merchantId: string | null = null;
@@ -8,11 +9,7 @@ export class Base {
   api: SkipifyApi;
   messenger: Messenger;
   userEmail: string | null = null;
-  user: {
-    transactionId: string;
-    isPhoneRequired: boolean;
-    email: string;
-  };
+  capturedUser: SkipifyCapturedUser;
 
   constructor() {
     /**
@@ -23,9 +20,9 @@ export class Base {
     /**
      * initiate empty user
      */
-    this.user = {
+    this.capturedUser = {
       transactionId: "",
-      isPhoneRequired: false,
+      isNewUser: false,
       email: "",
     };
 
@@ -68,11 +65,12 @@ export class Base {
   }
 
   async getUserFromLookup(email: string) {
-    const user: {
-      transactionId: string;
-      isPhoneRequired: boolean;
-    } = await this.api.emailLookup(email);
-    this.user = { ...user, email };
+    const user: SkipifyAuthUser = await this.api.emailLookup(email);
+    this.capturedUser = {
+      isNewUser: user.isPhoneRequired,
+      transactionId: user.transactionId,
+      email: email,
+    };
   }
 
   start() {

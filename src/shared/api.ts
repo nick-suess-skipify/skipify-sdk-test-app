@@ -1,4 +1,5 @@
 import { MerchantServiceUrl, AuthServiceUrl } from "./constants";
+import { SkipifyAuthUser } from "./shared.types";
 
 interface OwnProps {
   merchantId: string | null;
@@ -30,7 +31,7 @@ export class SkipifyApi {
     return await response.json();
   }
 
-  async emailLookup(email: string) {
+  async emailLookup(email: string): Promise<SkipifyAuthUser> {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -54,6 +55,6 @@ export class SkipifyApi {
     }
     const { data } = await response.json();
 
-    return data;
+    return data as SkipifyAuthUser;
   }
 }

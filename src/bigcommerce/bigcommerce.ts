@@ -113,9 +113,11 @@ class BigCommerceSDK extends Base implements AbstractSDK {
 
   async setUserEmail(email: string) {
     this.userEmail = email;
-    email && email !== this.user.email && (await this.getUserFromLookup(email));
+    email &&
+      email !== this.capturedUser.email &&
+      (await this.getUserFromLookup(email));
     this.userEmail &&
-      console.log(this.user.isPhoneRequired ? "New user" : "Existing user");
+      console.log(this.capturedUser.isNewUser ? "New user" : "Existing user");
   }
 }
 
