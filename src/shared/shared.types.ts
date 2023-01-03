@@ -10,3 +10,8 @@ export interface AbstractSDK {
   processEnrollmentCheckbox(): void;
   getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null>;
 }
+
+export interface SkipifyAuthUser {
+  transactionId: string;
+  isPhoneRequired: boolean;
+}

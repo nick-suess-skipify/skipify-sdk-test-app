@@ -7,7 +7,7 @@ interface Props {
   setHasInitializedIframe: (value: boolean) => void;
   setHasLaunchedIframe: (value: boolean) => void;
   reset: () => void;
-  getUserEnrollmentInformation: () => Promise<UserEnrollmentInformationType>;
+  getUserEnrollmentInformation: () => Promise<UserEnrollmentInformationType | null>;
 }
 
 export class Messenger {

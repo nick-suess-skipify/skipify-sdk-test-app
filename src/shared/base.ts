@@ -1,7 +1,8 @@
 import { SkipifyApi } from "./api";
 import { Messenger } from "./messenger";
 import { store, defaultState } from "./state";
-import { UserEnrollmentInformationType } from "./shared.types";
+import { SkipifyCheckoutUrl } from "./constants";
+import { UserEnrollmentInformationType, SkipifyAuthUser } from "./shared.types";
 
 export class Base {
   /**
@@ -80,6 +81,21 @@ export class Base {
     this.merchant = merchantFromApi;
   }
 
+  async getUserFromApi(email: string) {
+    const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
+    console.log("get user form api");
+    console.log(email);
+    console.log(skipifyUser);
+    if (skipifyUser && !skipifyUser.isPhoneRequired) {
+      // Means it's an existing user, therefore the existing user flow should be triggered
+      // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
+
+      this.messenger.launchIframe(
+        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/mocked-order-id`
+      );
+    }
+  }
+
   start() {
     this.processDOM();
     this.observer.observe(document.body, {
@@ -111,10 +127,16 @@ export class Base {
     });
   }
 
-  setUserEmail(email: string) {
+  async setUserEmail(email: string) {
+    const { userEmail } = this.store.getState();
+
     this.store.setState({
       userEmail: email,
     });
+
+    if (email && userEmail !== email) {
+      await this.getUserFromApi(email);
+    }
   }
 
   setHasLaunchedIframe(value: boolean) {
