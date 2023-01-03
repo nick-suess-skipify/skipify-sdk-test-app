@@ -71,16 +71,15 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   }
 
   processCheckoutCompleted() {
-    const { enrollmentCheckboxValue } = this.store.getState();
+    const { enrollmentCheckboxValue, userEmail } = this.store.getState();
     if (
       window.location.href.includes(this.checkoutUrlMatch) &&
-      this.userEmail &&
+      userEmail &&
       !this.hasLaunchedIframe &&
       enrollmentCheckboxValue &&
       this.merchantId
     ) {
       this.checkoutCompleted = new CheckoutCompleted({
-        setHasLaunchedIframe: this.setHasLaunchedIframe,
         messenger: this.messenger,
         merchantId: this.merchantId,
       });
@@ -118,11 +117,40 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   async fetchUserEmailFromCart() {
     const userCart = await this.storeFrontApi.getUserCart();
 
-    if (!userCart || this.userEmail) {
+    if (!userCart) {
       return;
     }
 
     this.setUserEmail(userCart.email);
+  }
+
+  async getUserEnrollmentInformation() {
+    // TODO Refactor this function once phone is removed as a required field from the iframe, it's not a required field on BigCommerce
+    const { userEmail } = this.store.getState();
+
+    // We can rely on getting the orderId here:
+    // https://support.bigcommerce.com/s/question/0D54O00006sUx6PSAS/can-you-get-the-order-id-using-javascript-on-the-order-confirmation-page
+    const completedOrderElement = document.querySelector(
+      ".orderConfirmation-section span strong"
+    );
+    const completedOrderId = completedOrderElement
+      ? completedOrderElement.textContent
+      : null;
+
+    if (!completedOrderId) {
+      return Promise.resolve(null);
+    }
+
+    const completedOrder = await this.storeFrontApi.getOrder(completedOrderId);
+
+    if (!completedOrder) {
+      return Promise.resolve(null);
+    }
+
+    return Promise.resolve({
+      email: userEmail,
+      phone: completedOrder.billingAddress.phone,
+    });
   }
 }
 

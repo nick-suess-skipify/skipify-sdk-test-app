@@ -1,6 +1,7 @@
 import { SkipifyApi } from "./api";
 import { Messenger } from "./messenger";
-import { store } from "./state";
+import { store, defaultState } from "./state";
+import { UserEnrollmentInformationType } from "./shared.types";
 
 export class Base {
   /**
@@ -13,9 +14,9 @@ export class Base {
    * Internal
    */
   observer: MutationObserver;
-  hasLaunchedIframe = false;
+  hasLaunchedIframe = false; // Means the checkout iframe was launched
+  hasInitializedIframe = false; // Means the checkout iframe is ready for communication
   isIframeInitialized = false;
-  userEmail: string | null = null;
 
   /**
    * Feature classes
@@ -45,9 +46,13 @@ export class Base {
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
     this.messenger = new Messenger({
+      clearCartCallback: () => this.clearCart(),
+      reset: () => this.reset(),
+      getUserEnrollmentInformation: () => this.getUserEnrollmentInformation(),
       setEnrollmentCheckboxValue: (value) =>
         this.setEnrollmentCheckboxValue(value),
-      clearCartCallback: () => this.clearCart(),
+      setHasInitializedIframe: (value) => this.setHasInitializedIframe(value),
+      setHasLaunchedIframe: (value) => this.setHasLaunchedIframe(value),
     });
 
     /**
@@ -84,6 +89,12 @@ export class Base {
     });
   }
 
+  reset() {
+    this.store.setState({
+      ...defaultState,
+    });
+  }
+
   makeMutationObserver() {
     return new MutationObserver(() => {
       this.processDOM();
@@ -101,11 +112,17 @@ export class Base {
   }
 
   setUserEmail(email: string) {
-    this.userEmail = email;
+    this.store.setState({
+      userEmail: email,
+    });
   }
 
   setHasLaunchedIframe(value: boolean) {
     this.hasLaunchedIframe = value;
+  }
+
+  setHasInitializedIframe(value: boolean) {
+    this.hasInitializedIframe = value;
   }
 
   setIsIframeInitialized(value: boolean) {
@@ -122,5 +139,12 @@ export class Base {
 
   async clearCart(): Promise<void> {
     console.warn("-- clearCart should be overwritten by platform class");
+  }
+
+  async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {
+    console.warn(
+      "-- getUserEnrollmentInformation should be overwritten by platform class"
+    );
+    return Promise.resolve(null);
   }
 }

@@ -1,18 +1,15 @@
 import { Messenger, SkipifyCheckoutUrl } from "../shared";
 
 type Props = {
-  setHasLaunchedIframe: (value: boolean) => void;
   messenger: Messenger;
   merchantId: string;
 };
 
 export class CheckoutCompleted {
-  setHasLaunchedIframe;
   messenger;
   merchantId;
 
-  constructor({ setHasLaunchedIframe, messenger, merchantId }: Props) {
-    this.setHasLaunchedIframe = setHasLaunchedIframe;
+  constructor({ messenger, merchantId }: Props) {
     this.messenger = messenger;
     this.merchantId = merchantId;
     this.start();
