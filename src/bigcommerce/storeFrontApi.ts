@@ -21,7 +21,6 @@ export class BigCommerceStoreFrontApi {
     }
 
     const carts = (await response.json()) as BigCommerceCart[];
-
     return carts.length > 0 ? carts[0] : null;
   }
 
@@ -32,5 +31,17 @@ export class BigCommerceStoreFrontApi {
         "Content-Type": "application/json",
       },
     });
+  }
+
+  async getOrder(orderId: string) {
+    const response = await fetch(this.getStoreFrontUrl(`orders/${orderId}`), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const order = await response.json();
+    return order;
   }
 }

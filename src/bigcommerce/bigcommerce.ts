@@ -1,6 +1,11 @@
-import { AbstractSDK, Base, SkipifyClassNames } from "../shared";
+import {
+  AbstractSDK,
+  Base,
+  SkipifyClassNames,
+  SkipifyElementIds,
+} from "../shared";
 import { EmailInput } from "./emailInput";
-import { PaymentButton } from "./paymentButton";
+import { CheckoutCompleted } from "./checkoutCompleted";
 import { EnrollmentCheckbox } from "./enrollmentCheckbox";
 import { BigCommerceStoreFrontApi } from "./storeFrontApi";
 
@@ -20,12 +25,15 @@ class BigCommerceSDK extends Base implements AbstractSDK {
    */
   emailInputId = "email";
   paymentButtonId = "checkout-payment-continue";
+  completedOrderSelector = ".orderConfirmation-section span strong";
+  checkoutUrlMatch = "checkout";
+  orderConfirmationUrlMatch = "order-confirmation";
 
   /**
    * Child classes that implements specific business logic.
    */
   emailInput: EmailInput | null = null;
-  paymentButton: PaymentButton | null = null;
+  checkoutCompleted: CheckoutCompleted | null = null;
   enrollmentCheckbox: EnrollmentCheckbox | null = null;
 
   storeFrontApi: BigCommerceStoreFrontApi;
@@ -45,7 +53,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
 
   processDOM() {
     this.processEmailInput();
-    this.processPaymentButton();
+    this.processCheckoutCompleted();
     this.processEnrollmentCheckbox();
   }
 
@@ -64,25 +72,34 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     });
   }
 
-  processPaymentButton() {
-    const paymentButtonElem = document.getElementById(this.paymentButtonId);
+  processCheckoutCompleted() {
+    const { enrollmentCheckboxValue, userEmail, isExistingUser } =
+      this.store.getState();
     if (
-      !paymentButtonElem ||
-      paymentButtonElem?.classList.contains(SkipifyClassNames.paymentButton)
+      window.location.href.includes(this.orderConfirmationUrlMatch) &&
+      userEmail &&
+      !isExistingUser &&
+      !this.hasLaunchedIframe &&
+      enrollmentCheckboxValue &&
+      this.merchantId
     ) {
-      return;
+      this.checkoutCompleted = new CheckoutCompleted({
+        messenger: this.messenger,
+        merchantId: this.merchantId,
+      });
     }
-
-    this.paymentButton = new PaymentButton({ node: paymentButtonElem });
   }
 
   processEnrollmentCheckbox() {
     const paymentButtonElem = document.getElementById(this.paymentButtonId);
     const enrollmentCheckboxElem = document.getElementById(
-      SkipifyClassNames.enrollmentCheckbox
+      SkipifyElementIds.enrollmentCheckbox
     );
 
     if (paymentButtonElem && !enrollmentCheckboxElem) {
+      // Reset enrollment checkbox value as its value is persisted across page changes
+      this.setEnrollmentCheckboxValue(true);
+
       this.enrollmentCheckbox = new EnrollmentCheckbox({
         node: paymentButtonElem,
       });
@@ -102,22 +119,45 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   // If we have already have an user email in the cart, we can rely on that instead of asking the
   // user to input it again.
   async fetchUserEmailFromCart() {
-    const userCart = await this.storeFrontApi.getUserCart();
+    if (!window.location.href.includes(this.checkoutUrlMatch)) {
+      return;
+    }
 
-    if (!userCart || this.userEmail) {
+    const userCart = await this.storeFrontApi.getUserCart();
+    if (!userCart) {
       return;
     }
 
     this.setUserEmail(userCart.email);
   }
 
-  async setUserEmail(email: string) {
-    this.userEmail = email;
-    email &&
-      email !== this.capturedUser.email &&
-      (await this.getUserFromLookup(email));
-    this.userEmail &&
-      console.log(this.capturedUser.isNewUser ? "New user" : "Existing user");
+  async getUserEnrollmentInformation() {
+    // TODO Refactor this function once phone is removed as a required field from the iframe, it's not a required field on BigCommerce
+    const { userEmail } = this.store.getState();
+
+    // We can rely on getting the orderId here:
+    // https://support.bigcommerce.com/s/question/0D54O00006sUx6PSAS/can-you-get-the-order-id-using-javascript-on-the-order-confirmation-page
+    const completedOrderElement = document.querySelector(
+      this.completedOrderSelector
+    );
+    const completedOrderId = completedOrderElement
+      ? completedOrderElement.textContent
+      : null;
+
+    if (!completedOrderId) {
+      return Promise.resolve(null);
+    }
+
+    const completedOrder = await this.storeFrontApi.getOrder(completedOrderId);
+
+    if (!completedOrder) {
+      return Promise.resolve(null);
+    }
+
+    return Promise.resolve({
+      email: userEmail,
+      phone: completedOrder.billingAddress.phone,
+    });
   }
 }
 

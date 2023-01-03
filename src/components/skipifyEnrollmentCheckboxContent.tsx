@@ -1,15 +1,28 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+// Be careful with cyclic dependencies here
 
 export const SkipifyEnrollmentCheckboxContent: React.FC = (props) => {
   const params = new URL(window.location.href).searchParams;
   const darkMode = Boolean(params.get("darkMode"));
   const [checked, setChecked] = useState(true);
+
+  const handleCheckbox = () => {
+    setChecked(!checked);
+    window.top?.postMessage(
+      {
+        name: "@skipify/enrollment-checkbox-changed",
+        value: !checked,
+      },
+      "*"
+    );
+  };
+
   return (
     <Container>
       <Checkbox
         checked={checked}
-        onChange={() => setChecked(!checked)}
+        onChange={() => handleCheckbox()}
         darkMode={darkMode}
       />
       <Content>
@@ -22,8 +35,19 @@ export const SkipifyEnrollmentCheckboxContent: React.FC = (props) => {
         </ContentDescription>
         <Terms darkMode={darkMode}>
           By continuing, you agree to the Skipify{" "}
-          <Link darkMode={darkMode}>Terms & Conditions</Link> and{" "}
-          <Link darkMode={darkMode}>Privacy Policy</Link>
+          <Link
+            href="https://www.skipify.com/us/terms-and-conditions/"
+            darkMode={darkMode}
+          >
+            Terms & Conditions
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="https://www.skipify.com/us/privacy-policy/"
+            darkMode={darkMode}
+          >
+            Privacy Policy
+          </Link>
         </Terms>
       </Content>
     </Container>
@@ -44,6 +68,7 @@ const Checkbox = styled.input.attrs(() => ({
 }))<{ darkMode: boolean }>`
   width: 13px;
   height: 13px;
+  cursor: pointer;
   ${(props) =>
     props.darkMode
       ? `accent-color: ${props.checked ? "#01EAD3" : "#FFFFFF"};`
@@ -79,7 +104,9 @@ const Terms = styled.div<{ darkMode: boolean }>`
   font-family: Poppins;
 `;
 
-const Link = styled.span<{ darkMode: boolean }>`
+const Link = styled.a.attrs({
+  target: "_blank",
+})<{ darkMode: boolean }>`
   color: ${(props) => (props.darkMode ? "#01EAD3" : "#1f7f79")};
   cursor: pointer;
   text-decoration: underline;

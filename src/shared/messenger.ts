@@ -1,22 +1,48 @@
 import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "./constants";
+import { UserEnrollmentInformationType } from "./shared.types";
 
 interface Props {
   clearCartCallback: () => Promise<void>;
+  setEnrollmentCheckboxValue: (value: boolean) => void;
+  setHasInitializedIframe: (value: boolean) => void;
+  setHasLaunchedIframe: (value: boolean) => void;
+  reset: () => void;
+  getUserEnrollmentInformation: () => Promise<UserEnrollmentInformationType | null>;
 }
 
 export class Messenger {
   iframeSource: Window | null = null;
   isIframeOpen = true;
   clearCartCallback: () => Promise<void>;
+  reset;
+  setEnrollmentCheckboxValue;
+  setHasInitializedIframe;
+  setHasLaunchedIframe;
+  getUserEnrollmentInformation;
 
-  constructor({ clearCartCallback }: Props) {
-    window.addEventListener("message", (e) => this.handleIframeMessage(e));
+  constructor({
+    clearCartCallback,
+    reset,
+    setEnrollmentCheckboxValue,
+    setHasInitializedIframe,
+    setHasLaunchedIframe,
+    getUserEnrollmentInformation,
+  }: Props) {
+    this.setEnrollmentCheckboxValue = setEnrollmentCheckboxValue;
+    this.setHasInitializedIframe = setHasInitializedIframe;
     this.clearCartCallback = clearCartCallback;
+    this.setHasLaunchedIframe = setHasLaunchedIframe;
+    this.getUserEnrollmentInformation = getUserEnrollmentInformation;
+    this.reset = reset;
+    window.addEventListener("message", (e) => this.handleIframeMessage(e));
   }
 
   handleIframeMessage(event: MessageEvent) {
     const { data, origin } = event;
-    if (origin !== IFRAME_ORIGIN || !data) {
+
+    // TODO Add back origin check once we have SDK components origins defined
+    // if (origin != IFRAME_ORIGIN || !data)
+    if (!data) {
       return;
     }
 
@@ -29,6 +55,8 @@ export class Messenger {
         return this.listenerCloseIframe();
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
+      case MESSAGE_NAMES.ENROLLMENT_VALUE_CHANGED:
+        return this.listenerEnrollmentValue(event);
       case MESSAGE_NAMES.CLEAR_CART:
         return this.listenerClearCart();
       default:
@@ -40,23 +68,23 @@ export class Messenger {
   // and then append them to the body. They will be hidden by default and will
   // be shown when the iframe sends the INIT message.
   launchIframe(iframeSrc: string) {
+    this.setHasLaunchedIframe(true);
+
     const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
     const existingIframe = document.getElementById(SkipifyElementIds.iframe);
 
     if (existingOverlay && existingIframe) {
-      existingOverlay.style.display = "block";
-      existingIframe.style.display = "block";
       return;
     }
 
     const overlayEl = document.createElement("div");
     overlayEl.id = SkipifyElementIds.overlay;
-    overlayEl.style.display = "none";
+    overlayEl.style.display = "block";
 
     const iframeEl = document.createElement("iframe");
     iframeEl.id = SkipifyElementIds.iframe;
     iframeEl.src = iframeSrc;
-    iframeEl.style.display = "none";
+    iframeEl.style.display = "block";
     overlayEl.appendChild(iframeEl);
 
     document.body.appendChild(overlayEl);
@@ -65,6 +93,7 @@ export class Messenger {
   // This is the listener for the INIT message from the iframe.
   // Once we receive this message, we can start sending messages to the iframe source that we stored.
   listenerInit(event: MessageEvent) {
+    this.setHasInitializedIframe(true);
     this.iframeSource = event.source as Window;
 
     const iframeEl = document.getElementById(SkipifyElementIds.iframe);
@@ -84,13 +113,26 @@ export class Messenger {
   // Set up listener for the "get enrollment data" signal
   // This is a request-response, meaning that we receive a signal from the iframe,
   // and then we send a response back.
-  listenerEnrollmentInfo(event: MessageEvent) {
+  async listenerEnrollmentInfo(event: MessageEvent) {
+    const enrollmentData = await this.getUserEnrollmentInformation();
+
+    if (!enrollmentData) {
+      // An error occurred while fetching user information, not sending anything will trigger the iframe to close
+      return;
+    }
+
     event.ports[0]?.postMessage({
-      // TODO: This is where we would send the enrollment data to the iframe.
-      // This should be fetched properly
-      payload: { email: "captured@email.com", phone: "1234567890" },
+      payload: enrollmentData,
       name: MESSAGE_NAMES.ENROLLMENT_INFO_RECEIVED,
     });
+  }
+
+  /**
+   * Set up listener for when changing enrollment checkbox value from inside our enrollment checkbox Iframe
+   */
+  listenerEnrollmentValue(event: MessageEvent) {
+    const { value } = event.data;
+    this.setEnrollmentCheckboxValue(value);
   }
 
   // Set up listener for the "close iframe" signal
@@ -104,6 +146,7 @@ export class Messenger {
     }
 
     this.isIframeOpen = false;
+    this.reset();
   }
 
   listenerIframeHeightChange(event: MessageEvent) {

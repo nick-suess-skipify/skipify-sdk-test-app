@@ -1,15 +1,30 @@
 import { SkipifyApi } from "./api";
 import { Messenger } from "./messenger";
-import { SkipifyAuthUser, SkipifyCapturedUser } from "./shared.types";
+import { store, defaultState } from "./state";
+import { SkipifyCheckoutUrl } from "./constants";
+import { UserEnrollmentInformationType, SkipifyAuthUser } from "./shared.types";
 
 export class Base {
+  /**
+   * Merchant data
+   */
   merchantId: string | null = null;
   merchant: any; // TODO Map all data we need from MMs
+
+  /**
+   * Internal
+   */
   observer: MutationObserver;
+  hasLaunchedIframe = false; // Means the checkout iframe was launched
+  hasInitializedIframe = false; // Means the checkout iframe is ready for communication
+  isIframeInitialized = false;
+
+  /**
+   * Feature classes
+   */
   api: SkipifyApi;
   messenger: Messenger;
-  userEmail: string | null = null;
-  capturedUser: SkipifyCapturedUser;
+  store;
 
   constructor() {
     /**
@@ -18,13 +33,9 @@ export class Base {
     this.getMerchantIdFromQuery();
 
     /**
-     * initiate empty user
+     * Persisted state
      */
-    this.capturedUser = {
-      transactionId: "",
-      isNewUser: false,
-      email: "",
-    };
+    this.store = store;
 
     /**
      * All outside requests are handled by the SkipifyApi class
@@ -37,6 +48,12 @@ export class Base {
      */
     this.messenger = new Messenger({
       clearCartCallback: () => this.clearCart(),
+      reset: () => this.reset(),
+      getUserEnrollmentInformation: () => this.getUserEnrollmentInformation(),
+      setEnrollmentCheckboxValue: (value) =>
+        this.setEnrollmentCheckboxValue(value),
+      setHasInitializedIframe: (value) => this.setHasInitializedIframe(value),
+      setHasLaunchedIframe: (value) => this.setHasLaunchedIframe(value),
     });
 
     /**
@@ -64,13 +81,27 @@ export class Base {
     this.merchant = merchantFromApi;
   }
 
-  async getUserFromLookup(email: string) {
-    const user: SkipifyAuthUser = await this.api.emailLookup(email);
-    this.capturedUser = {
-      isNewUser: user.isPhoneRequired,
-      transactionId: user.transactionId,
-      email: email,
-    };
+  async isExistingUser(email: string) {
+    const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
+
+    this.store.setState({
+      isExistingUser: skipifyUser && !skipifyUser.isPhoneRequired,
+    });
+
+    // Means it's an existing user, therefore the complete checkout flow should be triggered
+    return skipifyUser && !skipifyUser.isPhoneRequired;
+  }
+
+  async existingUserCheck(email: string) {
+    const isExistingUser = await this.isExistingUser(email);
+    if (isExistingUser) {
+      // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
+      const orderId = "mocked-order-id";
+
+      this.messenger.launchIframe(
+        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}`
+      );
+    }
   }
 
   start() {
@@ -82,11 +113,50 @@ export class Base {
     });
   }
 
+  reset() {
+    this.store.setState({
+      ...defaultState,
+    });
+  }
+
   makeMutationObserver() {
     return new MutationObserver(() => {
       this.processDOM();
     });
   }
+
+  /**
+   * Setters
+   */
+
+  setEnrollmentCheckboxValue(value: boolean) {
+    this.store.setState({
+      enrollmentCheckboxValue: value,
+    });
+  }
+
+  async setUserEmail(email: string) {
+    this.store.setState({
+      userEmail: email,
+    });
+    await this.existingUserCheck(email);
+  }
+
+  setHasLaunchedIframe(value: boolean) {
+    this.hasLaunchedIframe = value;
+  }
+
+  setHasInitializedIframe(value: boolean) {
+    this.hasInitializedIframe = value;
+  }
+
+  setIsIframeInitialized(value: boolean) {
+    this.isIframeInitialized = value;
+  }
+
+  /**
+   * Overwritten methods
+   */
 
   processDOM() {
     console.warn("-- processDom should be overwritten by platform class");
@@ -94,5 +164,12 @@ export class Base {
 
   async clearCart(): Promise<void> {
     console.warn("-- clearCart should be overwritten by platform class");
+  }
+
+  async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {
+    console.warn(
+      "-- getUserEnrollmentInformation should be overwritten by platform class"
+    );
+    return Promise.resolve(null);
   }
 }

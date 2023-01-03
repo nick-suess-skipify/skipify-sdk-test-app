@@ -24,8 +24,7 @@ export class EmailInput {
 
   handleInput(e: FocusEvent) {
     const emailValue = (e.target as HTMLInputElement).value;
-    console.log({ emailValue });
-    // alert(`-- Email input blur: ${emailValue}`);
+    console.log(emailValue);
     this.setUserEmail(emailValue);
   }
 }
