@@ -83,9 +83,6 @@ export class Base {
 
   async getUserFromApi(email: string) {
     const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
-    console.log("get user form api");
-    console.log(email);
-    console.log(skipifyUser);
     if (skipifyUser && !skipifyUser.isPhoneRequired) {
       // Means it's an existing user, therefore the existing user flow should be triggered
       // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
