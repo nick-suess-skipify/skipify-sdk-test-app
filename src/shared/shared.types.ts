@@ -4,3 +4,14 @@ export interface AbstractSDK {
   processPaymentButton(): void;
   processEnrollmentCheckbox(): void;
 }
+
+export interface SkipifyAuthUser {
+  transactionId: string;
+  isPhoneRequired: boolean;
+}
+
+export interface SkipifyCapturedUser {
+  transactionId: string;
+  isNewUser: boolean;
+  email: string;
+}

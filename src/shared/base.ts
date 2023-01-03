@@ -1,5 +1,6 @@
 import { SkipifyApi } from "./api";
 import { Messenger } from "./messenger";
+import { SkipifyAuthUser, SkipifyCapturedUser } from "./shared.types";
 
 export class Base {
   merchantId: string | null = null;
@@ -8,12 +9,22 @@ export class Base {
   api: SkipifyApi;
   messenger: Messenger;
   userEmail: string | null = null;
+  capturedUser: SkipifyCapturedUser;
 
   constructor() {
     /**
      * Get Merchant Id from script query params, if not present script will fail
      */
     this.getMerchantIdFromQuery();
+
+    /**
+     * initiate empty user
+     */
+    this.capturedUser = {
+      transactionId: "",
+      isNewUser: false,
+      email: "",
+    };
 
     /**
      * All outside requests are handled by the SkipifyApi class
@@ -51,6 +62,15 @@ export class Base {
   async getMerchantFromApi() {
     const merchantFromApi = await this.api.getMerchant();
     this.merchant = merchantFromApi;
+  }
+
+  async getUserFromLookup(email: string) {
+    const user: SkipifyAuthUser = await this.api.emailLookup(email);
+    this.capturedUser = {
+      isNewUser: user.isPhoneRequired,
+      transactionId: user.transactionId,
+      email: email,
+    };
   }
 
   start() {
