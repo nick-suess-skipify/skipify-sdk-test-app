@@ -25,7 +25,9 @@ class BigCommerceSDK extends Base implements AbstractSDK {
    */
   emailInputId = "email";
   paymentButtonId = "checkout-payment-continue";
-  checkoutUrlMatch = "order-confirmation";
+  completedOrderSelector = ".orderConfirmation-section span strong";
+  checkoutUrlMatch = "checkout";
+  orderConfirmationUrlMatch = "order-confirmation";
 
   /**
    * Child classes that implements specific business logic.
@@ -71,10 +73,12 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   }
 
   processCheckoutCompleted() {
-    const { enrollmentCheckboxValue, userEmail } = this.store.getState();
+    const { enrollmentCheckboxValue, userEmail, isExistingUser } =
+      this.store.getState();
     if (
-      window.location.href.includes(this.checkoutUrlMatch) &&
+      window.location.href.includes(this.orderConfirmationUrlMatch) &&
       userEmail &&
+      !isExistingUser &&
       !this.hasLaunchedIframe &&
       enrollmentCheckboxValue &&
       this.merchantId
@@ -115,8 +119,11 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   // If we have already have an user email in the cart, we can rely on that instead of asking the
   // user to input it again.
   async fetchUserEmailFromCart() {
-    const userCart = await this.storeFrontApi.getUserCart();
+    if (!window.location.href.includes(this.checkoutUrlMatch)) {
+      return;
+    }
 
+    const userCart = await this.storeFrontApi.getUserCart();
     if (!userCart) {
       return;
     }
@@ -131,7 +138,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     // We can rely on getting the orderId here:
     // https://support.bigcommerce.com/s/question/0D54O00006sUx6PSAS/can-you-get-the-order-id-using-javascript-on-the-order-confirmation-page
     const completedOrderElement = document.querySelector(
-      ".orderConfirmation-section span strong"
+      this.completedOrderSelector
     );
     const completedOrderId = completedOrderElement
       ? completedOrderElement.textContent

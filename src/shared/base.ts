@@ -81,14 +81,25 @@ export class Base {
     this.merchant = merchantFromApi;
   }
 
-  async getUserFromApi(email: string) {
+  async isExistingUser(email: string) {
     const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
-    if (skipifyUser && !skipifyUser.isPhoneRequired) {
-      // Means it's an existing user, therefore the existing user flow should be triggered
+
+    this.store.setState({
+      isExistingUser: skipifyUser && !skipifyUser.isPhoneRequired,
+    });
+
+    // Means it's an existing user, therefore the complete checkout flow should be triggered
+    return skipifyUser && !skipifyUser.isPhoneRequired;
+  }
+
+  async existingUserCheck(email: string) {
+    const isExistingUser = await this.isExistingUser(email);
+    if (isExistingUser) {
       // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
+      const orderId = "mocked-order-id";
 
       this.messenger.launchIframe(
-        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/mocked-order-id`
+        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}`
       );
     }
   }
@@ -125,15 +136,10 @@ export class Base {
   }
 
   async setUserEmail(email: string) {
-    const { userEmail } = this.store.getState();
-
     this.store.setState({
       userEmail: email,
     });
-
-    if (email && userEmail !== email) {
-      await this.getUserFromApi(email);
-    }
+    await this.existingUserCheck(email);
   }
 
   setHasLaunchedIframe(value: boolean) {
