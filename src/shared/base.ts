@@ -1,6 +1,6 @@
 import { Messenger, SkipifyApi } from "./utils";
 import { store, defaultState } from "./state";
-import { SkipifyCheckoutUrl } from "./constants";
+import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
 import { UserEnrollmentInformationType, SkipifyAuthUser } from "./shared.types";
 
 import "../styles/index.css";
@@ -28,6 +28,14 @@ export class Base {
   store;
 
   constructor() {
+    /**
+     * Add values like SDK version to the window object
+     * It's useful when debugging
+     */
+    (window as any).SkipifyCheckout = {
+      SDKVersion: SDKVersion,
+    };
+
     /**
      * Get Merchant Id from script query params, if not present script will fail
      */

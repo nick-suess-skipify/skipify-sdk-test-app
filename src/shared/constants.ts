@@ -1,3 +1,5 @@
+export const SDKVersion = "1.0.0";
+
 export const mode = process.env.NODE_ENV as
   | "development"
   | "staging"
