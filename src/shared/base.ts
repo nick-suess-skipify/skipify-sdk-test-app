@@ -47,15 +47,7 @@ export class Base {
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
-    this.messenger = new Messenger({
-      clearCartCallback: () => this.clearCart(),
-      reset: () => this.reset(),
-      getUserEnrollmentInformation: () => this.getUserEnrollmentInformation(),
-      setEnrollmentCheckboxValue: (value) =>
-        this.setEnrollmentCheckboxValue(value),
-      setHasInitializedIframe: (value) => this.setHasInitializedIframe(value),
-      setHasLaunchedIframe: (value) => this.setHasLaunchedIframe(value),
-    });
+    this.messenger = new Messenger({ base: this });
 
     /**
      * Mutation observer used to enable Skipify features on checkout
