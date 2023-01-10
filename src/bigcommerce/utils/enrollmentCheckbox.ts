@@ -1,4 +1,4 @@
-import { SkipifyElementIds, SdkUrl, getIsDarkColor } from "../shared";
+import { SkipifyElementIds, SdkUrl, getIsDarkColor } from "../../shared";
 
 interface OwnProps {
   node: HTMLElement;

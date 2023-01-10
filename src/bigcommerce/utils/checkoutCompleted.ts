@@ -1,4 +1,4 @@
-import { Messenger, SkipifyCheckoutUrl } from "../shared";
+import { Messenger, SkipifyCheckoutUrl } from "../../shared";
 
 type Props = {
   messenger: Messenger;

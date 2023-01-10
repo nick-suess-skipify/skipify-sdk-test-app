@@ -1,5 +1,5 @@
-import { MerchantServiceUrl, AuthServiceUrl } from "./constants";
-import { SkipifyAuthUser } from "./shared.types";
+import { MerchantServiceUrl, AuthServiceUrl } from "../constants";
+import { SkipifyAuthUser } from "../shared.types";
 
 interface OwnProps {
   merchantId: string | null;

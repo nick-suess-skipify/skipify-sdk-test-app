@@ -4,12 +4,12 @@ import {
   SkipifyClassNames,
   SkipifyElementIds,
 } from "../shared";
-import { EmailInput } from "./emailInput";
-import { CheckoutCompleted } from "./checkoutCompleted";
-import { EnrollmentCheckbox } from "./enrollmentCheckbox";
-import { BigCommerceStoreFrontApi } from "./storeFrontApi";
-
-import "../styles/index.css";
+import {
+  EmailInput,
+  CheckoutCompleted,
+  EnrollmentCheckbox,
+  BigCommerceStoreFrontApi,
+} from "./utils";
 
 interface OwnProps {
   emailInputId?: string;

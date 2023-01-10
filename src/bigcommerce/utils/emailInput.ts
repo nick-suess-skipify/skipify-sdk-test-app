@@ -1,4 +1,4 @@
-import { SkipifyClassNames } from "../shared";
+import { SkipifyClassNames } from "../../shared";
 
 interface OwnProps {
   node: HTMLElement;

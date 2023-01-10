@@ -1,5 +1,5 @@
-import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "./constants";
-import { UserEnrollmentInformationType } from "./shared.types";
+import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "../constants";
+import { UserEnrollmentInformationType } from "../shared.types";
 
 interface Props {
   clearCartCallback: () => Promise<void>;

@@ -1,8 +1,9 @@
-import { SkipifyApi } from "./api";
-import { Messenger } from "./messenger";
+import { Messenger, SkipifyApi } from "./utils";
 import { store, defaultState } from "./state";
 import { SkipifyCheckoutUrl } from "./constants";
 import { UserEnrollmentInformationType, SkipifyAuthUser } from "./shared.types";
+
+import "../styles/index.css";
 
 export class Base {
   /**
