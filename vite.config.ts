@@ -18,7 +18,7 @@ export default defineConfig({
       input: {
         bigCommerce: resolve(__dirname, "src/bigcommerce/bigcommerce.ts"),
         shopify: resolve(__dirname, "src/shopify/shopify.ts"),
-        skipifyEnrollmentCheckbox: resolve(__dirname, "src/components/skipifyEnrollmentCheckbox.tsx"),
+        ['components/skipifyEnrollmentCheckbox']: resolve(__dirname, "src/components/skipifyEnrollmentCheckbox.tsx"),
       },
       output: {
         manualChunks: undefined,
