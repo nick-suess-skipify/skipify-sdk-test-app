@@ -82,6 +82,14 @@ export class Base {
   }
 
   async isExistingUser(email: string) {
+    if (!email) {
+      // Update state when searching an empty email
+      this.store.setState({
+        isExistingUser: false,
+      });
+      return false;
+    }
+
     const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
 
     this.store.setState({
