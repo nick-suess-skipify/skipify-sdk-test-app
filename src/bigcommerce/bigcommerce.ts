@@ -3,6 +3,8 @@ import {
   Base,
   SkipifyClassNames,
   SkipifyElementIds,
+  EnrollmentDataType,
+  cleanPhoneNumber,
 } from "../shared";
 import {
   EmailInput,
@@ -154,10 +156,19 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       return Promise.resolve(null);
     }
 
-    return Promise.resolve({
+    const enrollmentData: EnrollmentDataType = {
       email: userEmail,
-      phone: completedOrder.billingAddress.phone,
-    });
+    };
+
+    if (completedOrder.billingAddress?.phone) {
+      const cleanedPhoneNumber = cleanPhoneNumber(
+        completedOrder.billingAddress.phone
+      );
+      if (cleanedPhoneNumber) {
+        enrollmentData.phone = cleanedPhoneNumber;
+      }
+    }
+    return Promise.resolve(enrollmentData);
   }
 }
 

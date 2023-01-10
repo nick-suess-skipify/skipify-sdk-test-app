@@ -105,7 +105,7 @@ export class Base {
     const isExistingUser = await this.isExistingUser(email);
     if (isExistingUser) {
       // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
-      const orderId = "mocked-order-id";
+      const orderId = 0;
 
       this.messenger.launchIframe(
         `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}`
