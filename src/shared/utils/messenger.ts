@@ -10,12 +10,6 @@ export class Messenger {
   iframeSource: Window | null = null;
   isIframeOpen = true;
   base: Base;
-  // clearCartCallback: () => Promise<void>;
-  // reset;
-  // setEnrollmentCheckboxValue;
-  // setHasInitializedIframe;
-  // setHasLaunchedIframe;
-  // getUserEnrollmentInformation;
 
   constructor({ base }: Props) {
     this.base = base;
