@@ -134,7 +134,6 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   }
 
   async getUserEnrollmentInformation() {
-    // TODO Refactor this function once phone is removed as a required field from the iframe, it's not a required field on BigCommerce
     const { userEmail } = this.store.getState();
 
     // We can rely on getting the orderId here:
@@ -168,7 +167,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
         enrollmentData.phone = cleanedPhoneNumber;
       }
     }
-    return Promise.resolve(enrollmentData);
+    return enrollmentData;
   }
 }
 
