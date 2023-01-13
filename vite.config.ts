@@ -1,6 +1,7 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
+import loadVersion from 'vite-plugin-package-version';
 
 import closurify from "./src/plugins/closurify";
 
@@ -8,6 +9,7 @@ export default defineConfig({
   publicDir: './public',
   plugins: [
     cssInjectedByJsPlugin(),
+    loadVersion(),
     closurify({ files: ["bigCommerce.js"] }),
   ],
   build: {

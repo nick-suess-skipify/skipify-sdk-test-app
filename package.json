@@ -1,7 +1,7 @@
 {
   "name": "skipify-sdk",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "./dist/skipify-sdk.cjs",
   "module": "./dist/skipify-sdk.mjs",
   "exports": {
@@ -58,6 +58,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.6",
+    "vite-plugin-package-version": "^1.0.2",
     "zustand": "^4.1.5"
   }
 }
