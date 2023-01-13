@@ -1,8 +1,9 @@
-import { SkipifyApi } from "./api";
-import { Messenger } from "./messenger";
+import { Messenger, SkipifyApi } from "./utils";
 import { store, defaultState } from "./state";
-import { SkipifyCheckoutUrl } from "./constants";
+import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
 import { UserEnrollmentInformationType, SkipifyAuthUser } from "./shared.types";
+
+import "../styles/index.css";
 
 export class Base {
   /**
@@ -28,6 +29,14 @@ export class Base {
 
   constructor() {
     /**
+     * Add values like SDK version to the window object
+     * It's useful when debugging
+     */
+    (window as any).SkipifyCheckout = {
+      SDKVersion: SDKVersion,
+    };
+
+    /**
      * Get Merchant Id from script query params, if not present script will fail
      */
     this.getMerchantIdFromQuery();
@@ -46,15 +55,7 @@ export class Base {
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
-    this.messenger = new Messenger({
-      clearCartCallback: () => this.clearCart(),
-      reset: () => this.reset(),
-      getUserEnrollmentInformation: () => this.getUserEnrollmentInformation(),
-      setEnrollmentCheckboxValue: (value) =>
-        this.setEnrollmentCheckboxValue(value),
-      setHasInitializedIframe: (value) => this.setHasInitializedIframe(value),
-      setHasLaunchedIframe: (value) => this.setHasLaunchedIframe(value),
-    });
+    this.messenger = new Messenger({ base: this });
 
     /**
      * Mutation observer used to enable Skipify features on checkout
@@ -82,6 +83,14 @@ export class Base {
   }
 
   async isExistingUser(email: string) {
+    if (!email) {
+      // Update state when searching an empty email
+      this.store.setState({
+        isExistingUser: false,
+      });
+      return false;
+    }
+
     const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
 
     this.store.setState({
@@ -96,7 +105,7 @@ export class Base {
     const isExistingUser = await this.isExistingUser(email);
     if (isExistingUser) {
       // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
-      const orderId = "mocked-order-id";
+      const orderId = 0;
 
       this.messenger.launchIframe(
         `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}`

@@ -1,4 +1,4 @@
-import { SkipifyElementIds, SdkUrl, getIsDarkColor } from "../shared";
+import { SkipifyElementIds, SdkUrl, getIsDarkColor } from "../../shared";
 
 interface OwnProps {
   node: HTMLElement;
@@ -22,7 +22,7 @@ export class EnrollmentCheckbox {
     wrapperEl.id = SkipifyElementIds.enrollmentCheckbox;
 
     const enrollmentCheckboxFrame = document.createElement("iframe");
-    let enrollmentCheckBoxUrl = `${SdkUrl}/iframe_skipifyEnrollmentCheckbox.html?date=${new Date().getTime()}`;
+    let enrollmentCheckBoxUrl = `${SdkUrl}/components/iframe_skipifyEnrollmentCheckbox.html?date=${new Date().getTime()}`;
     if (isDarkColor) {
       enrollmentCheckBoxUrl += "&darkMode=true";
     }

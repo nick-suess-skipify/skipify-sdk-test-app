@@ -16,3 +16,14 @@ export function getIsDarkColor(color: string) {
     return true;
   }
 }
+
+export const phoneRegex = new RegExp(/\d{10}/);
+
+export function cleanPhoneNumber(phoneNumber = "") {
+  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, "");
+  if (phoneRegex.test(cleanedPhoneNumber)) {
+    return cleanedPhoneNumber;
+  } else {
+    return "";
+  }
+}

@@ -1,7 +1,5 @@
-export const mode = process.env.NODE_ENV as
-  | "development"
-  | "staging"
-  | "production";
+export const SDKVersion = import.meta.env.PACKAGE_VERSION;
+
 export const IFRAME_ORIGIN = import.meta.env.VITE_IFRAME_ORIGIN;
 
 export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;

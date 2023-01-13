@@ -3,13 +3,15 @@ import {
   Base,
   SkipifyClassNames,
   SkipifyElementIds,
+  EnrollmentDataType,
+  cleanPhoneNumber,
 } from "../shared";
-import { EmailInput } from "./emailInput";
-import { CheckoutCompleted } from "./checkoutCompleted";
-import { EnrollmentCheckbox } from "./enrollmentCheckbox";
-import { BigCommerceStoreFrontApi } from "./storeFrontApi";
-
-import "../styles/index.css";
+import {
+  EmailInput,
+  CheckoutCompleted,
+  EnrollmentCheckbox,
+  BigCommerceStoreFrontApi,
+} from "./utils";
 
 interface OwnProps {
   emailInputId?: string;
@@ -132,7 +134,6 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   }
 
   async getUserEnrollmentInformation() {
-    // TODO Refactor this function once phone is removed as a required field from the iframe, it's not a required field on BigCommerce
     const { userEmail } = this.store.getState();
 
     // We can rely on getting the orderId here:
@@ -154,10 +155,19 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       return Promise.resolve(null);
     }
 
-    return Promise.resolve({
+    const enrollmentData: EnrollmentDataType = {
       email: userEmail,
-      phone: completedOrder.billingAddress.phone,
-    });
+    };
+
+    if (completedOrder.billingAddress?.phone) {
+      const cleanedPhoneNumber = cleanPhoneNumber(
+        completedOrder.billingAddress.phone
+      );
+      if (cleanedPhoneNumber) {
+        enrollmentData.phone = cleanedPhoneNumber;
+      }
+    }
+    return enrollmentData;
   }
 }
 

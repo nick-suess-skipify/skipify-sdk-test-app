@@ -1,39 +1,18 @@
-import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "./constants";
-import { UserEnrollmentInformationType } from "./shared.types";
+import { Base } from "../base";
+import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "../constants";
+import { UserEnrollmentInformationType } from "../shared.types";
 
 interface Props {
-  clearCartCallback: () => Promise<void>;
-  setEnrollmentCheckboxValue: (value: boolean) => void;
-  setHasInitializedIframe: (value: boolean) => void;
-  setHasLaunchedIframe: (value: boolean) => void;
-  reset: () => void;
-  getUserEnrollmentInformation: () => Promise<UserEnrollmentInformationType | null>;
+  base: Base;
 }
 
 export class Messenger {
   iframeSource: Window | null = null;
   isIframeOpen = true;
-  clearCartCallback: () => Promise<void>;
-  reset;
-  setEnrollmentCheckboxValue;
-  setHasInitializedIframe;
-  setHasLaunchedIframe;
-  getUserEnrollmentInformation;
+  base: Base;
 
-  constructor({
-    clearCartCallback,
-    reset,
-    setEnrollmentCheckboxValue,
-    setHasInitializedIframe,
-    setHasLaunchedIframe,
-    getUserEnrollmentInformation,
-  }: Props) {
-    this.setEnrollmentCheckboxValue = setEnrollmentCheckboxValue;
-    this.setHasInitializedIframe = setHasInitializedIframe;
-    this.clearCartCallback = clearCartCallback;
-    this.setHasLaunchedIframe = setHasLaunchedIframe;
-    this.getUserEnrollmentInformation = getUserEnrollmentInformation;
-    this.reset = reset;
+  constructor({ base }: Props) {
+    this.base = base;
     window.addEventListener("message", (e) => this.handleIframeMessage(e));
   }
 
@@ -68,8 +47,7 @@ export class Messenger {
   // and then append them to the body. They will be hidden by default and will
   // be shown when the iframe sends the INIT message.
   launchIframe(iframeSrc: string) {
-    this.setHasLaunchedIframe(true);
-
+    this.base.setHasLaunchedIframe(true);
     const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
     const existingIframe = document.getElementById(SkipifyElementIds.iframe);
 
@@ -93,7 +71,7 @@ export class Messenger {
   // This is the listener for the INIT message from the iframe.
   // Once we receive this message, we can start sending messages to the iframe source that we stored.
   listenerInit(event: MessageEvent) {
-    this.setHasInitializedIframe(true);
+    this.base.setHasInitializedIframe(true);
     this.iframeSource = event.source as Window;
 
     const iframeEl = document.getElementById(SkipifyElementIds.iframe);
@@ -114,7 +92,7 @@ export class Messenger {
   // This is a request-response, meaning that we receive a signal from the iframe,
   // and then we send a response back.
   async listenerEnrollmentInfo(event: MessageEvent) {
-    const enrollmentData = await this.getUserEnrollmentInformation();
+    const enrollmentData = await this.base.getUserEnrollmentInformation();
 
     if (!enrollmentData) {
       // An error occurred while fetching user information, not sending anything will trigger the iframe to close
@@ -132,7 +110,7 @@ export class Messenger {
    */
   listenerEnrollmentValue(event: MessageEvent) {
     const { value } = event.data;
-    this.setEnrollmentCheckboxValue(value);
+    this.base.setEnrollmentCheckboxValue(value);
   }
 
   // Set up listener for the "close iframe" signal
@@ -146,7 +124,7 @@ export class Messenger {
     }
 
     this.isIframeOpen = false;
-    this.reset();
+    this.base.reset();
   }
 
   listenerIframeHeightChange(event: MessageEvent) {
@@ -162,6 +140,6 @@ export class Messenger {
   }
 
   async listenerClearCart(): Promise<void> {
-    return this.clearCartCallback();
+    return this.base.clearCart();
   }
 }
