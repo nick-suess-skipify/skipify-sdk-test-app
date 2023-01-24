@@ -77,7 +77,7 @@ jobs:
           version: 404.0.0
       - run:
           name: Push to bucket
-          command: gsutil cp -r dist/* gs://<< parameters.bucket >>
+          command: gsutil -m cp -r dist/* gs://<< parameters.bucket >>
       - run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"Deployed checkout-sdk to << parameters.bucket >> env from circleci, version: https://github.com/deeperlooknetwork/checkout-sdk/commit/'"$(git rev-parse --short HEAD)"'"}' https://hooks.slack.com/services/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
 
