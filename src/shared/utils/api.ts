@@ -1,4 +1,8 @@
-import { MerchantServiceUrl, AuthServiceUrl } from "../constants";
+import {
+  MerchantServiceUrl,
+  AuthServiceUrl,
+  OrderServiceUrl,
+} from "../constants";
 import { SkipifyAuthUser } from "../shared.types";
 
 interface OwnProps {
@@ -29,6 +33,27 @@ export class SkipifyApi {
       return Promise.reject(response);
     }
     return await response.json();
+  }
+
+  async createOrder(cartData: any) {
+    // TODO Remove order service mocks
+
+    // const response = await fetch(
+    //   `${OrderServiceUrl}/v1/create/${this.merchantId}`,
+    //   {
+    //     method: "POST",
+    //     body: cartData ? JSON.stringify(cartData) : null,
+    //   }
+    // );
+
+    // if (!response.ok) {
+    //   return Promise.reject(response);
+    // }
+    // return await response.json();
+
+    return {
+      id: 2,
+    };
   }
 
   async emailLookup(email: string): Promise<SkipifyAuthUser> {

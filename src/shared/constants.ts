@@ -3,6 +3,7 @@ export const SDKVersion = import.meta.env.PACKAGE_VERSION;
 export const IFRAME_ORIGIN = import.meta.env.VITE_IFRAME_ORIGIN;
 
 export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;
+export const OrderServiceUrl = import.meta.env.VITE_ORDER_SERVICE_URL;
 export const SdkUrl = import.meta.env.VITE_SDK_URL;
 export const AuthServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL;
 export const SkipifyCheckoutUrl = import.meta.env.VITE_SKIPIFY_CHECKOUT_URL;
@@ -29,7 +30,10 @@ export const MESSAGE_NAMES = {
   CLOSE_IFRAME: `${MESSAGE_NAME_PREFIX}/close-iframe`,
   CLEAR_CART: `${MESSAGE_NAME_PREFIX}/clear-cart`,
   RESIZE_CONTAINER: `${MESSAGE_NAME_PREFIX}/resize-container`,
-  ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
+  GET_RETURNING_USER_INFO: `${MESSAGE_NAME_PREFIX}/get-returning-user-info`,
   // Inbound
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
+  RETURNING_USER_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/returning-user-info`,
+  // Internal
+  ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
 } as const;
