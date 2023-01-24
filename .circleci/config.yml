@@ -38,7 +38,7 @@ jobs:
   build:
     parameters:
       branch:
-        description: The branch we are building. i.e. dev, stage, or prod
+        description: The branch we are building. Accepted values - development, staging, or production
         type: string
     machine:
       image: ubuntu-2004:202104-01
@@ -86,7 +86,7 @@ workflows:
     jobs:
       - code-quality
       - build:
-          branch: dev
+          branch: development
           context: skipify-dev
           requires:
             - code-quality
