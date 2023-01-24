@@ -154,9 +154,13 @@ workflows:
           context: skipify-prod
           requires:
             - code-quality
+      - deploy-approval:
+          type: approval
+          requires:
+            - build
       - deploy:
           name: deploy-prod
           bucket: checkout-sdk
           context: skipify-prod
           requires:
-            - build
+            - deploy-approval
