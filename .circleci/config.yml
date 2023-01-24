@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  gcr: circleci/gcp-gcr@0.15.0
-  node: circleci/node@5.0.3
+  gcr: circleci/gcp-gcr@0.15.1
+  node: circleci/node@5.1.0
   gcp-cli: circleci/gcp-cli@3.0.1
 
 jobs:
@@ -35,7 +35,11 @@ jobs:
 #          when: always
 #          command: cat ./coverage/lcov.info | npx coveralls
 
-  build-dev:
+  build:
+    parameters:
+      branch:
+        description: The branch we are building. Accepted values - development, staging, or production
+        type: string
     machine:
       image: ubuntu-2004:202104-01
     resource_class: medium
@@ -53,55 +57,7 @@ jobs:
 
       - run:
           name: "build code base"
-          command: npm run build:development
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
-
-  build-stage:
-    machine:
-      image: ubuntu-2004:202104-01
-    resource_class: medium
-    steps:
-      - checkout
-      - gcr/gcr-auth
-      - node/install:
-          node-version: "16.13"
-
-      - run:
-          name: Install dependencies
-          command: |
-            npm i
-
-      - run:
-          name: "build code base"
-          command: npm run build:staging
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
-
-  build-prod:
-    machine:
-      image: ubuntu-2004:202104-01
-    resource_class: medium
-    steps:
-      - checkout
-      - gcr/gcr-auth
-      - node/install:
-          node-version: "16.13"
-
-      - run:
-          name: Install dependencies
-          command: |
-            npm i
-
-      - run:
-          name: "build code base"
-          command: npm run build:production
+          command: npm run build:<< parameters.branch >>
 
       - persist_to_workspace:
           root: .
@@ -121,7 +77,7 @@ jobs:
           version: 404.0.0
       - run:
           name: Push to bucket
-          command: gsutil cp -r dist/* gs://<< parameters.bucket >>
+          command: gsutil -m cp -r dist/* gs://<< parameters.bucket >>
       - run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"Deployed checkout-sdk to << parameters.bucket >> env from circleci, version: https://github.com/deeperlooknetwork/checkout-sdk/commit/'"$(git rev-parse --short HEAD)"'"}' https://hooks.slack.com/services/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
 
@@ -129,7 +85,8 @@ workflows:
   always:
     jobs:
       - code-quality
-      - build-dev:
+      - build:
+          branch: development
           context: skipify-dev
           requires:
             - code-quality
@@ -137,10 +94,16 @@ workflows:
     jobs:
       - build-approval:
           type: approval
+          filters:
+            branches:
+              only:
+                - dev
+                - development
       - code-quality:
           requires:
             - build-approval
-      - build-dev:
+      - build:
+          branch: development
           context: skipify-dev
           requires:
             - code-quality
@@ -149,15 +112,22 @@ workflows:
           bucket: checkout-sdk-dev
           context: skipify-dev
           requires:
-            - build-dev
+            - build
   stage:
     jobs:
       - build-approval:
           type: approval
+          filters:
+            branches:
+              only:
+                - stage
+                - staging
+                - release/*
       - code-quality:
           requires:
             - build-approval
-      - build-stage:
+      - build:
+          branch: staging
           context: skipify-stage
           requires:
             - code-quality
@@ -166,21 +136,31 @@ workflows:
           bucket: checkout-sdk-stage
           context: skipify-stage
           requires:
-            - build-stage
+            - build
   prod:
     jobs:
       - build-approval:
           type: approval
+          filters:
+            branches:
+              only:
+                - master
+                - main
       - code-quality:
           requires:
             - build-approval
-      - build-prod:
+      - build:
+          branch: production
           context: skipify-prod
           requires:
             - code-quality
+      - deploy-approval:
+          type: approval
+          requires:
+            - build
       - deploy:
           name: deploy-prod
           bucket: checkout-sdk
           context: skipify-prod
           requires:
-            - build-prod
+            - deploy-approval
