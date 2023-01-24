@@ -98,7 +98,7 @@ workflows:
           requires:
             - build-approval
       - build:
-          branch: dev
+          branch: development
           context: skipify-dev
           requires:
             - code-quality
@@ -116,7 +116,7 @@ workflows:
           requires:
             - build-approval
       - build:
-          branch: stage
+          branch: staging
           context: skipify-stage
           requires:
             - code-quality
@@ -134,7 +134,7 @@ workflows:
           requires:
             - build-approval
       - build:
-          branch: master
+          branch: production
           context: skipify-prod
           requires:
             - code-quality
