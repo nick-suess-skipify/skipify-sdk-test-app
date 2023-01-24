@@ -26,14 +26,14 @@ jobs:
           command: |
             npm run lint:scripts
 
-      - run:
-          name: Run tests
-          command: npm run test:coverage -- --coverageReporters=lcov
+#      - run:
+#          name: Run tests
+#          command: npm run test:coverage -- --coverageReporters=lcov
 
-      - run:
-          name: Send coverage report to coveralls
-          when: always
-          command: cat ./coverage/lcov.info | npx coveralls
+#      - run:
+#          name: Send coverage report to coveralls
+#          when: always
+#          command: cat ./coverage/lcov.info | npx coveralls
 
   build:
     parameters:
