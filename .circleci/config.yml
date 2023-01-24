@@ -94,6 +94,11 @@ workflows:
     jobs:
       - build-approval:
           type: approval
+          filters:
+            branches:
+              only:
+                - dev
+                - development
       - code-quality:
           requires:
             - build-approval
@@ -112,6 +117,12 @@ workflows:
     jobs:
       - build-approval:
           type: approval
+          filters:
+            branches:
+              only:
+                - stage
+                - staging
+                - release/*
       - code-quality:
           requires:
             - build-approval
@@ -130,6 +141,11 @@ workflows:
     jobs:
       - build-approval:
           type: approval
+          filters:
+            branches:
+              only:
+                - master
+                - main
       - code-quality:
           requires:
             - build-approval
