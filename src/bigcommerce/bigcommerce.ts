@@ -12,6 +12,7 @@ import {
   EnrollmentCheckbox,
   BigCommerceStoreFrontApi,
 } from "./utils";
+import { BigCommerceLineItem } from "./bigcommerce.types";
 
 interface OwnProps {
   emailInputId?: string;
@@ -116,6 +117,17 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     await this.storeFrontApi.deleteCart(userCart.id);
+  }
+
+  async getCartData(): Promise<BigCommerceLineItem[] | null> {
+    const userCart = await this.storeFrontApi.getUserCart();
+
+    if (!userCart) {
+      return null;
+    }
+
+    const { physicalItems, digitalItems } = userCart.lineItems;
+    return [...physicalItems, ...digitalItems];
   }
 
   // If we have already have an user email in the cart, we can rely on that instead of asking the
