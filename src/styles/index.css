@@ -1,3 +1,7 @@
+._SKIPIFY_body {
+    overflow: hidden;
+}
+
 #_SKIPIFY_overlay {
     position: fixed;
     top: 0;
