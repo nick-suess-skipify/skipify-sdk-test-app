@@ -38,6 +38,8 @@ export class Messenger {
         return this.listenerEnrollmentValue(event);
       case MESSAGE_NAMES.CLEAR_CART:
         return this.listenerClearCart();
+      case MESSAGE_NAMES.GET_RETURNING_USER_INFO:
+        return this.listenerReturningUserInfo(event);
       default:
         return;
     }
@@ -86,6 +88,23 @@ export class Messenger {
         overlayEl.style.opacity = "1";
       }, 10);
     }
+  }
+
+  // We are passing along the transactionId used on user lookup
+  async listenerReturningUserInfo(event: MessageEvent) {
+    const { transactionId } = this.base.store.getState();
+
+    if (!transactionId) {
+      // An error occurred while getting the transactionId, not sending anything will trigger the iframe to close
+      return;
+    }
+
+    event.ports[0]?.postMessage({
+      payload: {
+        transactionId,
+      },
+      name: MESSAGE_NAMES.RETURNING_USER_INFO_RECEIVED,
+    });
   }
 
   // Set up listener for the "get enrollment data" signal

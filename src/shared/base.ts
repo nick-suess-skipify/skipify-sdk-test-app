@@ -102,6 +102,7 @@ export class Base {
       // Update state when searching an empty email
       this.store.setState({
         isExistingUser: false,
+        transactionId: "",
       });
       return false;
     }
@@ -117,6 +118,7 @@ export class Base {
 
     this.store.setState({
       isExistingUser: skipifyUser && !skipifyUser.isPhoneRequired,
+      transactionId: skipifyUser && skipifyUser.transactionId,
     });
 
     // Means it's an existing user, therefore the complete checkout flow should be triggered
@@ -125,12 +127,19 @@ export class Base {
 
   async existingUserCheck(email: string) {
     const isExistingUser = await this.isExistingUser(email);
+
     if (isExistingUser) {
-      // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
-      const orderId = 0;
+      const cartData = await this.getCartData();
+
+      if (!cartData) {
+        console.warn("-- Cant get cart data from platform");
+        return;
+      }
+
+      const createdOrder = await this.api.createOrder(cartData);
 
       this.messenger.launchIframe(
-        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}`
+        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${createdOrder.id}`
       );
     }
   }
@@ -197,10 +206,15 @@ export class Base {
     console.warn("-- clearCart should be overwritten by platform class");
   }
 
+  async getCartData(): Promise<any> {
+    console.warn("-- getCartData should be overwritten by platform class");
+    return null;
+  }
+
   async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {
     console.warn(
       "-- getUserEnrollmentInformation should be overwritten by platform class"
     );
-    return Promise.resolve(null);
+    return null;
   }
 }

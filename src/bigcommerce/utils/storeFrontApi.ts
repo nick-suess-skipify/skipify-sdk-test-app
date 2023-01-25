@@ -1,7 +1,4 @@
-type BigCommerceCart = Record<string, unknown> & {
-  id: string;
-  email: string;
-};
+import { BigCommerceCart } from "../bigcommerce.types";
 
 export class BigCommerceStoreFrontApi {
   private getStoreFrontUrl(path: string) {
