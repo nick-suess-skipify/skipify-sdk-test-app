@@ -108,7 +108,7 @@ export class Base {
       const orderId = 0;
 
       this.messenger.launchIframe(
-        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}`
+        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}?source=listener`
       );
     }
   }
