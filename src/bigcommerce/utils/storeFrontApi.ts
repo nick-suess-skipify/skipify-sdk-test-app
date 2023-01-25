@@ -1,18 +1,4 @@
-type BigCommerceLineItem = {
-  id?: string;
-  variant_id: number;
-  product_id: number;
-  sku?: string;
-};
-
-type BigCommerceCart = Record<string, unknown> & {
-  id: string;
-  email: string;
-  lineItems: {
-    physicalItems: [BigCommerceLineItem];
-    digitalItems: [BigCommerceLineItem];
-  };
-};
+import { BigCommerceCart } from "../bigcommerce.types";
 
 export class BigCommerceStoreFrontApi {
   private getStoreFrontUrl(path: string) {

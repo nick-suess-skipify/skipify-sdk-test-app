@@ -12,6 +12,7 @@ import {
   EnrollmentCheckbox,
   BigCommerceStoreFrontApi,
 } from "./utils";
+import { BigCommerceLineItem } from "./bigcommerce.types";
 
 interface OwnProps {
   emailInputId?: string;
@@ -118,7 +119,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     await this.storeFrontApi.deleteCart(userCart.id);
   }
 
-  async getCartData(): Promise<any> {
+  async getCartData(): Promise<BigCommerceLineItem[] | null> {
     const userCart = await this.storeFrontApi.getUserCart();
 
     if (!userCart) {
