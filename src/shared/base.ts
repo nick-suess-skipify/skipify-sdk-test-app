@@ -110,7 +110,7 @@ export class Base {
     // Checking ig testMode is enabled then check for if email is whitelisted
     // if not white listed we return as null
     // if testMode enabled and email is whitelisted then it would continue as expected
-    if (!(this.testMode && (await this.api.isEmailWhitelisted(email)))) {
+    if (this.testMode && !(await this.api.isEmailWhitelisted(email))) {
       return null;
     }
 
