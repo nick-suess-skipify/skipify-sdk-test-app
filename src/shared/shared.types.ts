@@ -15,6 +15,9 @@ export interface SkipifyAuthUser {
   transactionId: string;
   isPhoneRequired: boolean;
 }
+export interface SkipifyTestMode {
+  enabled: boolean;
+}
 
 export type EnrollmentDataType = {
   email: string;

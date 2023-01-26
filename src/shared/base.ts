@@ -11,6 +11,7 @@ export class Base {
    */
   merchantId: string | null = null;
   merchant: any; // TODO Map all data we need from MMs
+  testMode: boolean;
 
   /**
    * Internal
@@ -47,10 +48,16 @@ export class Base {
     this.store = store;
 
     /**
+     * default test mode set to false
+     */
+    this.testMode = false;
+
+    /**
      * All outside requests are handled by the SkipifyApi class
      */
     this.api = new SkipifyApi({ merchantId: this.merchantId });
     this.getMerchantFromApi();
+    this.getTestModeFromApi();
 
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
@@ -82,6 +89,14 @@ export class Base {
     this.merchant = merchantFromApi;
   }
 
+  /**
+   * used to get merchant configuration and check if test mode is enabled or not
+   */
+  async getTestModeFromApi() {
+    const { enabled } = await this.api.getMerchantTestModeStatus();
+    this.testMode = enabled;
+  }
+
   async isExistingUser(email: string) {
     if (!email) {
       // Update state when searching an empty email
@@ -90,6 +105,13 @@ export class Base {
         transactionId: "",
       });
       return false;
+    }
+
+    // Checking ig testMode is enabled then check for if email is whitelisted
+    // if not white listed we return as null
+    // if testMode enabled and email is whitelisted then it would continue as expected
+    if (this.testMode && !(await this.api.isEmailWhitelisted(email))) {
+      return null;
     }
 
     const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
