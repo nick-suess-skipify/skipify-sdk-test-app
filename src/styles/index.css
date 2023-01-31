@@ -1,3 +1,7 @@
+._SKIPIFY_body {
+    overflow: hidden;
+}
+
 #_SKIPIFY_overlay {
     position: fixed;
     top: 0;
@@ -23,6 +27,7 @@
     box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
     border-radius: 16px;
     transition: height 0.3s ease-in-out;
+    max-height: calc(100vh - 40px);
 }
 
 #_SKIPIFY_enrollment_checkbox {
@@ -41,10 +46,11 @@
 
 @media screen and (max-width: 550px) {
     #_SKIPIFY_iframe {
-        width: 100%;
-        min-height: 100%;
+        width: 100vh;
+        min-height: 100vh;
         top: 0px;
         border-radius: 0px;
         box-shadow: none;
+        max-height: 100vh;
     }
 }

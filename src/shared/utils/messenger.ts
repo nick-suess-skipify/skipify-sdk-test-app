@@ -68,6 +68,7 @@ export class Messenger {
     overlayEl.appendChild(iframeEl);
 
     document.body.appendChild(overlayEl);
+    document.body.classList.add("_SKIPIFY_body");
   }
 
   // This is the listener for the INIT message from the iframe.
@@ -143,6 +144,7 @@ export class Messenger {
     }
 
     this.isIframeOpen = false;
+    document.body.classList.remove("_SKIPIFY_body");
     this.base.reset();
   }
 
