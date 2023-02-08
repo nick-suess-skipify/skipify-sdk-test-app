@@ -142,7 +142,7 @@ export class Base {
       const createdOrder = await this.api.createOrder(cartData);
 
       this.messenger.launchIframe(
-        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${createdOrder.id}?source=listener`
+        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${createdOrder.id}/login?source=listener`
       );
     }
   }
