@@ -129,10 +129,13 @@ export class Base {
     const isExistingUser = await this.isExistingUser(email);
 
     if (isExistingUser) {
+      this.messenger.prepareIframe();
+
       const cartData = await this.getCartData();
 
       if (!cartData) {
         console.warn("-- Cant get cart data from platform");
+        this.messenger.closeIframe();
         return;
       }
 
