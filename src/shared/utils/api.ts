@@ -1,5 +1,9 @@
-import { MerchantServiceUrl, AuthServiceUrl } from "../constants";
-import { SkipifyAuthUser } from "../shared.types";
+import { SkipifyAuthUser, SkipifyTestMode } from "../shared.types";
+import {
+  MerchantServiceUrl,
+  AuthServiceUrl,
+  OrderServiceUrl,
+} from "../constants";
 
 interface OwnProps {
   merchantId: string | null;
@@ -31,6 +35,44 @@ export class SkipifyApi {
     return await response.json();
   }
 
+  async getMerchantTestModeStatus(): Promise<SkipifyTestMode> {
+    const response = await fetch(
+      `${MerchantServiceUrl}/v1/merchant-shops/${this.merchantId}/merchant-configurations?configName=checkout-test-mode`,
+      {
+        // TODO Uncomment cache control policy once merchant service cors rules are fixed
+        // headers: {
+        //   "Cache-Control": "public, default, max-age=5000",
+        // },
+      }
+    );
+
+    if (!response.ok) {
+      return Promise.reject();
+    }
+    return await response.json();
+  }
+
+  async createOrder(cartData: any) {
+    // TODO Remove order service mocks
+
+    // const response = await fetch(
+    //   `${OrderServiceUrl}/v1/create/${this.merchantId}`,
+    //   {
+    //     method: "POST",
+    //     body: cartData ? JSON.stringify(cartData) : null,
+    //   }
+    // );
+
+    // if (!response.ok) {
+    //   return Promise.reject(response);
+    // }
+    // return await response.json();
+
+    return {
+      id: 2,
+    };
+  }
+
   async emailLookup(email: string): Promise<SkipifyAuthUser> {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -56,5 +98,30 @@ export class SkipifyApi {
     const { data } = await response.json();
 
     return data as SkipifyAuthUser;
+  }
+
+  async isEmailWhitelisted(email: string) {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      email,
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+    };
+
+    const response = await fetch(
+      `${MerchantServiceUrl}/v1/merchant-shops/${this.merchantId}/check-email-whitelist`,
+      requestOptions
+    );
+
+    if (!response.ok) {
+      return false;
+    }
+    return true;
   }
 }

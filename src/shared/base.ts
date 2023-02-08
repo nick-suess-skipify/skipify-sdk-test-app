@@ -11,6 +11,7 @@ export class Base {
    */
   merchantId: string | null = null;
   merchant: any; // TODO Map all data we need from MMs
+  testMode: boolean;
 
   /**
    * Internal
@@ -47,10 +48,16 @@ export class Base {
     this.store = store;
 
     /**
+     * default test mode set to false
+     */
+    this.testMode = false;
+
+    /**
      * All outside requests are handled by the SkipifyApi class
      */
     this.api = new SkipifyApi({ merchantId: this.merchantId });
     this.getMerchantFromApi();
+    this.getTestModeFromApi();
 
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
@@ -82,19 +89,36 @@ export class Base {
     this.merchant = merchantFromApi;
   }
 
+  /**
+   * used to get merchant configuration and check if test mode is enabled or not
+   */
+  async getTestModeFromApi() {
+    const { enabled } = await this.api.getMerchantTestModeStatus();
+    this.testMode = enabled;
+  }
+
   async isExistingUser(email: string) {
     if (!email) {
       // Update state when searching an empty email
       this.store.setState({
         isExistingUser: false,
+        transactionId: "",
       });
       return false;
+    }
+
+    // Checking ig testMode is enabled then check for if email is whitelisted
+    // if not white listed we return as null
+    // if testMode enabled and email is whitelisted then it would continue as expected
+    if (this.testMode && !(await this.api.isEmailWhitelisted(email))) {
+      return null;
     }
 
     const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
 
     this.store.setState({
       isExistingUser: skipifyUser && !skipifyUser.isPhoneRequired,
+      transactionId: skipifyUser && skipifyUser.transactionId,
     });
 
     // Means it's an existing user, therefore the complete checkout flow should be triggered
@@ -103,12 +127,26 @@ export class Base {
 
   async existingUserCheck(email: string) {
     const isExistingUser = await this.isExistingUser(email);
+
     if (isExistingUser) {
-      // TODO Create order on Order Service and pass to the iframe, route contract is /embed/[merchantId]/checkout/[orderId]
-      const orderId = 0;
+      this.messenger.prepareIframe();
+
+      const cartData = await this.getCartData();
+
+      if (!cartData) {
+        console.warn("-- Cant get cart data from platform");
+        this.messenger.closeIframe();
+        return;
+      }
+
+      const createdOrder = await this.api.createOrder(cartData);
 
       this.messenger.launchIframe(
+<<<<<<< HEAD
         `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${orderId}?source=listener`
+=======
+        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${createdOrder.id}`
+>>>>>>> dev
       );
     }
   }
@@ -175,10 +213,15 @@ export class Base {
     console.warn("-- clearCart should be overwritten by platform class");
   }
 
+  async getCartData(): Promise<any> {
+    console.warn("-- getCartData should be overwritten by platform class");
+    return null;
+  }
+
   async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {
     console.warn(
       "-- getUserEnrollmentInformation should be overwritten by platform class"
     );
-    return Promise.resolve(null);
+    return null;
   }
 }

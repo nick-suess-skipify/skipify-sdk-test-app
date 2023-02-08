@@ -5,6 +5,7 @@ export const defaultState = {
   enrollmentCheckboxValue: true,
   userEmail: "",
   isExistingUser: true,
+  transactionId: "",
 };
 
 export const store = create(

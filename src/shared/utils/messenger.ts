@@ -38,9 +38,37 @@ export class Messenger {
         return this.listenerEnrollmentValue(event);
       case MESSAGE_NAMES.CLEAR_CART:
         return this.listenerClearCart();
+      case MESSAGE_NAMES.GET_RETURNING_USER_INFO:
+        return this.listenerReturningUserInfo(event);
       default:
         return;
     }
+  }
+
+  /**
+   * The prepareIframe function is responsible for creating the overlay element
+   * and showing a loading animation, while we get the needed data for initializing the Iframe
+   */
+  prepareIframe() {
+    const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
+    if (existingOverlay) {
+      return;
+    }
+
+    const overlayEl = document.createElement("div");
+    overlayEl.id = SkipifyElementIds.overlay;
+    overlayEl.style.display = "block";
+    overlayEl.style.opacity = "0";
+
+    document.body.appendChild(overlayEl);
+    document.body.classList.add("_SKIPIFY_body");
+
+    // Added a setTimeout here to ensure that the opacity transition is applied
+    setTimeout(() => {
+      overlayEl.style.opacity = "1";
+    }, 10);
+
+    return overlayEl;
   }
 
   // The launchIframe function will create the iframe and overlay elements,
@@ -51,21 +79,40 @@ export class Messenger {
     const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
     const existingIframe = document.getElementById(SkipifyElementIds.iframe);
 
-    if (existingOverlay && existingIframe) {
+    if (existingIframe) {
       return;
     }
 
-    const overlayEl = document.createElement("div");
-    overlayEl.id = SkipifyElementIds.overlay;
-    overlayEl.style.display = "block";
+    let overlayEl = existingOverlay;
+    if (!existingOverlay) {
+      overlayEl = this.prepareIframe() as HTMLElement;
+    }
 
     const iframeEl = document.createElement("iframe");
     iframeEl.id = SkipifyElementIds.iframe;
     iframeEl.src = iframeSrc;
-    iframeEl.style.display = "block";
-    overlayEl.appendChild(iframeEl);
+    iframeEl.style.opacity = "0";
 
-    document.body.appendChild(overlayEl);
+    iframeEl.onload = () => {
+      // Added a setTimeout here to ensure that the opacity transition is applied
+      setTimeout(() => {
+        iframeEl.style.opacity = "1";
+      }, 300);
+    };
+
+    overlayEl?.appendChild(iframeEl);
+  }
+
+  closeIframe() {
+    const overlayEl = document.getElementById(SkipifyElementIds.overlay);
+
+    if (overlayEl) {
+      document.body.removeChild(overlayEl);
+    }
+
+    this.isIframeOpen = false;
+    document.body.classList.remove("_SKIPIFY_body");
+    this.base.reset();
   }
 
   // This is the listener for the INIT message from the iframe.
@@ -73,19 +120,26 @@ export class Messenger {
   listenerInit(event: MessageEvent) {
     this.base.setHasInitializedIframe(true);
     this.iframeSource = event.source as Window;
+  }
 
-    const iframeEl = document.getElementById(SkipifyElementIds.iframe);
-    const overlayEl = document.getElementById(SkipifyElementIds.overlay);
+  // We are passing along the transactionId used on user lookup
+  async listenerReturningUserInfo(event: MessageEvent) {
+    const { transactionId, userEmail, isExistingUser } =
+      this.base.store.getState();
 
-    if (iframeEl && overlayEl) {
-      iframeEl.style.display = "block";
-      overlayEl.style.display = "block";
-
-      // Added a setTimeout here to ensure that the opacity transition is applied
-      setTimeout(() => {
-        overlayEl.style.opacity = "1";
-      }, 10);
+    if (!transactionId) {
+      // An error occurred while getting the transactionId, not sending anything will trigger the iframe to close
+      return;
     }
+
+    event.ports[0]?.postMessage({
+      payload: {
+        transactionId,
+        email: userEmail,
+        phoneRequired: !isExistingUser,
+      },
+      name: MESSAGE_NAMES.RETURNING_USER_INFO_RECEIVED,
+    });
   }
 
   // Set up listener for the "get enrollment data" signal
@@ -117,14 +171,7 @@ export class Messenger {
   // This is a one-way signal, meaning that we receive a signal from the iframe,
   // and then we do something in response.
   listenerCloseIframe() {
-    const overlayEl = document.getElementById(SkipifyElementIds.overlay);
-
-    if (overlayEl) {
-      document.body.removeChild(overlayEl);
-    }
-
-    this.isIframeOpen = false;
-    this.base.reset();
+    this.closeIframe();
   }
 
   listenerIframeHeightChange(event: MessageEvent) {
