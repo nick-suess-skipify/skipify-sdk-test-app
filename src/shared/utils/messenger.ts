@@ -97,7 +97,7 @@ export class Messenger {
       // Added a setTimeout here to ensure that the opacity transition is applied
       setTimeout(() => {
         iframeEl.style.opacity = "1";
-      }, 200);
+      }, 300);
     };
 
     overlayEl?.appendChild(iframeEl);
@@ -124,7 +124,8 @@ export class Messenger {
 
   // We are passing along the transactionId used on user lookup
   async listenerReturningUserInfo(event: MessageEvent) {
-    const { transactionId } = this.base.store.getState();
+    const { transactionId, userEmail, isExistingUser } =
+      this.base.store.getState();
 
     if (!transactionId) {
       // An error occurred while getting the transactionId, not sending anything will trigger the iframe to close
@@ -134,6 +135,8 @@ export class Messenger {
     event.ports[0]?.postMessage({
       payload: {
         transactionId,
+        email: userEmail,
+        phoneRequired: !isExistingUser,
       },
       name: MESSAGE_NAMES.RETURNING_USER_INFO_RECEIVED,
     });
