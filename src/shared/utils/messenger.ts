@@ -61,6 +61,7 @@ export class Messenger {
     overlayEl.style.opacity = "0";
 
     document.body.appendChild(overlayEl);
+    document.body.classList.add("_SKIPIFY_body");
 
     // Added a setTimeout here to ensure that the opacity transition is applied
     setTimeout(() => {
@@ -110,6 +111,7 @@ export class Messenger {
     }
 
     this.isIframeOpen = false;
+    document.body.classList.remove("_SKIPIFY_body");
     this.base.reset();
   }
 
