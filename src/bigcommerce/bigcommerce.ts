@@ -76,12 +76,13 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   }
 
   processCheckoutCompleted() {
-    const { enrollmentCheckboxValue, userEmail, isExistingUser } =
+    const { enrollmentCheckboxValue, userEmail, eligible, isPhoneRequired } =
       this.store.getState();
     if (
       window.location.href.includes(this.orderConfirmationUrlMatch) &&
       userEmail &&
-      !isExistingUser &&
+      !eligible &&
+      isPhoneRequired &&
       !this.hasLaunchedIframe &&
       enrollmentCheckboxValue &&
       this.merchantId

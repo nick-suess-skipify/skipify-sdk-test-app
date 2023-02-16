@@ -4,8 +4,9 @@ import { persist } from "zustand/middleware";
 export const defaultState = {
   enrollmentCheckboxValue: true,
   userEmail: "",
-  isExistingUser: true,
   transactionId: "",
+  isPhoneRequired: false,
+  eligible: true,
 };
 
 export const store = create(

@@ -14,6 +14,7 @@ export interface AbstractSDK {
 export interface SkipifyAuthUser {
   transactionId: string;
   isPhoneRequired: boolean;
+  eligible: boolean;
 }
 export interface SkipifyTestMode {
   enabled: boolean;

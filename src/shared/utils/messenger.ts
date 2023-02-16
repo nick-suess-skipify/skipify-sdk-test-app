@@ -124,7 +124,7 @@ export class Messenger {
 
   // We are passing along the transactionId used on user lookup
   async listenerReturningUserInfo(event: MessageEvent) {
-    const { transactionId, userEmail, isExistingUser } =
+    const { transactionId, userEmail, isPhoneRequired } =
       this.base.store.getState();
 
     if (!transactionId) {
@@ -136,7 +136,7 @@ export class Messenger {
       payload: {
         transactionId,
         email: userEmail,
-        phoneRequired: !isExistingUser,
+        phoneRequired: isPhoneRequired,
       },
       name: MESSAGE_NAMES.RETURNING_USER_INFO_RECEIVED,
     });
