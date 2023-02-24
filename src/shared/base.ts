@@ -101,8 +101,9 @@ export class Base {
     if (!email) {
       // Update state when searching an empty email
       this.store.setState({
-        isExistingUser: false,
         transactionId: "",
+        eligible: false,
+        isPhoneRequired: false,
       });
       return false;
     }
@@ -117,12 +118,13 @@ export class Base {
     const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
 
     this.store.setState({
-      isExistingUser: skipifyUser && !skipifyUser.isPhoneRequired,
       transactionId: skipifyUser && skipifyUser.transactionId,
+      isPhoneRequired: skipifyUser && skipifyUser.isPhoneRequired,
+      eligible: skipifyUser && skipifyUser.eligible,
     });
 
-    // Means it's an existing user, therefore the complete checkout flow should be triggered
-    return skipifyUser && !skipifyUser.isPhoneRequired;
+    // Means it's an existing or eligible user, therefore the complete checkout flow should be triggered
+    return skipifyUser && skipifyUser.eligible;
   }
 
   async existingUserCheck(email: string) {
