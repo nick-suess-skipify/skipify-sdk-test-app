@@ -16,9 +16,7 @@ export class Base {
    * Internal
    */
   observer: MutationObserver;
-  hasLaunchedIframe = false; // Means the checkout iframe was launched
   hasInitializedIframe = false; // Means the checkout iframe is ready for communication
-  isIframeInitialized = false;
 
   /**
    * Feature classes
@@ -130,16 +128,8 @@ export class Base {
     this.messenger.lookupUser(email, cartData);
   }
 
-  setHasLaunchedIframe(value: boolean) {
-    this.hasLaunchedIframe = value;
-  }
-
   setHasInitializedIframe(value: boolean) {
     this.hasInitializedIframe = value;
-  }
-
-  setIsIframeInitialized(value: boolean) {
-    this.isIframeInitialized = value;
   }
 
   /**
