@@ -87,8 +87,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       this.merchantId
     ) {
       this.checkoutCompleted = new CheckoutCompleted({
-        messenger: this.messenger,
-        merchantId: this.merchantId,
+        launchEnrollmentIframe: () => this.launchEnrollmentIframe(),
       });
     }
   }

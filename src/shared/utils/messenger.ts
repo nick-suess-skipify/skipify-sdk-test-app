@@ -3,6 +3,7 @@ import {
   IFRAME_ORIGIN,
   MESSAGE_NAMES,
   SkipifyElementIds,
+  SkipifyClassNames,
   SkipifyCheckoutUrl,
 } from "../constants";
 import { UserEnrollmentInformationType } from "../shared.types";
@@ -91,6 +92,40 @@ export class Messenger {
     containerEl?.appendChild(iframeEl);
   }
 
+  // This function launches the enrollment iframe, it also replaces the current lookup Iframe
+  launchEnrollmentIframe(iframeSrc: string) {
+    const existingIframe = document.getElementById(SkipifyElementIds.iframe);
+    const existingContainer = document.getElementById(
+      SkipifyElementIds.overlay
+    );
+
+    if (existingIframe && existingContainer) {
+      // If already an enrollment iframe, just skip
+      if (
+        existingIframe.classList.contains(SkipifyClassNames.enrollmentIframe)
+      ) {
+        return;
+      }
+      existingContainer.removeChild(existingIframe);
+    }
+
+    let containerEl = existingContainer;
+    if (!existingContainer) {
+      containerEl = this.getContainer() as HTMLElement;
+    }
+
+    const iframeEl = document.createElement("iframe");
+    iframeEl.style.border = "none";
+    iframeEl.id = SkipifyElementIds.iframe;
+    iframeEl.classList.add(SkipifyClassNames.enrollmentIframe);
+    iframeEl.src = iframeSrc;
+    this.iframe = iframeEl;
+
+    containerEl?.appendChild(iframeEl);
+
+    this.displayIframe();
+  }
+
   lookupUser(email: string, cart?: any) {
     const iframe = document.getElementById(
       SkipifyElementIds.iframe
@@ -106,24 +141,11 @@ export class Messenger {
     }
   }
 
-  goToEnrollment() {
-    console.log("Go to enrollment");
-    // const iframe = document.getElementById(
-    //   SkipifyElementIds.iframe
-    // ) as HTMLIFrameElement;
-
-    // if (iframe) {
-    //   const { userEmail } = this.base.store.getState();
-    //   this.base.setHasLaunchedIframe(true);
-    //   this.lookupUser(userEmail);
-    // }
-  }
-
-  listenerDisplayIframe() {
+  displayIframe() {
     const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
 
     if (existingOverlay) {
-      document.body.classList.add("_SKIPIFY_body");
+      document.body.classList.add(SkipifyClassNames.body);
       existingOverlay.style.display = "block";
 
       // Added a setTimeout here to ensure that the opacity transition is applied
@@ -131,6 +153,10 @@ export class Messenger {
         existingOverlay.style.opacity = "1";
       }, 10);
     }
+  }
+
+  listenerDisplayIframe() {
+    this.displayIframe();
   }
 
   listenerEnrollmentEligible() {
@@ -152,7 +178,7 @@ export class Messenger {
 
     this.base.setHasInitializedIframe(false);
 
-    document.body.classList.remove("_SKIPIFY_body");
+    document.body.classList.remove(SkipifyClassNames.body);
     this.base.reset();
     this.base.launchBaseIframe();
   }

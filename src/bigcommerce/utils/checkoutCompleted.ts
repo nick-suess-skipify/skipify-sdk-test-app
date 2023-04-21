@@ -1,21 +1,16 @@
-import { Messenger, SkipifyCheckoutUrl } from "../../shared";
-
 type Props = {
-  messenger: Messenger;
-  merchantId: string;
+  launchEnrollmentIframe: () => void;
 };
 
 export class CheckoutCompleted {
-  messenger;
-  merchantId;
+  launchEnrollmentIframe: () => void;
 
-  constructor({ messenger, merchantId }: Props) {
-    this.messenger = messenger;
-    this.merchantId = merchantId;
+  constructor({ launchEnrollmentIframe }: Props) {
+    this.launchEnrollmentIframe = launchEnrollmentIframe;
     this.start();
   }
 
   start() {
-    this.messenger.goToEnrollment();
+    this.launchEnrollmentIframe();
   }
 }

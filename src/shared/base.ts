@@ -82,6 +82,12 @@ export class Base {
     );
   }
 
+  async launchEnrollmentIframe() {
+    this.messenger.launchEnrollmentIframe(
+      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`
+    );
+  }
+
   start() {
     this.processDOM();
     this.launchBaseIframe();
