@@ -43,8 +43,6 @@ export class Messenger {
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.ENROLLMENT_VALUE_CHANGED:
         return this.listenerEnrollmentValue(event);
-      case MESSAGE_NAMES.CLEAR_CART:
-        return this.listenerClearCart();
       case MESSAGE_NAMES.DISPLAY_IFRAME:
         return this.listenerDisplayIframe();
       case MESSAGE_NAMES.ENROLLMENT_ELIGIBLE:
@@ -193,7 +191,8 @@ export class Messenger {
   // This is a request-response, meaning that we receive a signal from the iframe,
   // and then we send a response back.
   async listenerEnrollmentInfo(event: MessageEvent) {
-    const enrollmentData = await this.base.getUserEnrollmentInformation();
+    const enrollmentData: UserEnrollmentInformationType | null =
+      await this.base.getUserEnrollmentInformation();
 
     if (!enrollmentData) {
       // An error occurred while fetching user information, not sending anything will trigger the iframe to close
@@ -231,9 +230,5 @@ export class Messenger {
     }
 
     iframeEl.style.height = `${payload.height}px`;
-  }
-
-  async listenerClearCart(): Promise<void> {
-    return this.base.clearCart();
   }
 }

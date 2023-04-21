@@ -27,20 +27,17 @@ export const SkipifyElementIds = {
  */
 const MESSAGE_NAME_PREFIX = "@skipify";
 export const MESSAGE_NAMES = {
-  // Outbound
+  // Inbound
   INIT: `${MESSAGE_NAME_PREFIX}/init`,
   GET_ENROLLMENT_INFO: `${MESSAGE_NAME_PREFIX}/get-enrollment-info`,
   CLOSE_IFRAME: `${MESSAGE_NAME_PREFIX}/close-iframe`,
-  CLEAR_CART: `${MESSAGE_NAME_PREFIX}/clear-cart`,
   RESIZE_CONTAINER: `${MESSAGE_NAME_PREFIX}/resize-container`,
-  REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
-  GO_TO_ENROLLMENT: `${MESSAGE_NAME_PREFIX}/go-to-enrollment`,
   LOOKUP_ERROR: `${MESSAGE_NAME_PREFIX}/lookup-error`,
-  // Inbound
-  ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
-  RETURNING_USER_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/returning-user-info`,
   DISPLAY_IFRAME: `${MESSAGE_NAME_PREFIX}/display-iframe`,
   ENROLLMENT_ELIGIBLE: `${MESSAGE_NAME_PREFIX}/enrollment-eligible`,
+  // Outbound
+  REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
+  ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
 } as const;
