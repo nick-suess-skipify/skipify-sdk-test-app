@@ -10,12 +10,3 @@ export interface AbstractSDK {
   processEnrollmentCheckbox(): void;
   getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null>;
 }
-
-export interface SkipifyTestMode {
-  enabled: boolean;
-}
-
-export type EnrollmentDataType = {
-  email: string;
-  phone?: string;
-};

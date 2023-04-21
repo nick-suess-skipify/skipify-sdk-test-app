@@ -42,32 +42,7 @@ export default function closurify(
 
         const asset = bundle[jsAsset] as OutputChunk;
         const appCode = asset.code;
-        const sentryWrapper = `
-        const _SKIPIFY_script = document.createElement("script");
-        _SKIPIFY_script.type = "text/javascript";
-        _SKIPIFY_script.src = "https://browser.sentry-cdn.com/7.29.0/bundle.tracing.min.js";
-        // _SKIPIFY_script.integrity = "sha384-3j0bt1Hsickwz9yU41Ct73WWNewuV+DoTZXK/mD/HWfBvyUoPPlCAbgu0C3rAIVs";
-        _SKIPIFY_script.crossorigin = "anonymous";
-        _SKIPIFY_script.onreadystatechange = function () {
-          if (this.readyState == "complete") {
-            Sentry.init({
-              dsn: "${config.env.VITE_AUTH_SENTRY_DSN}",
-              environment: "${config.env.MODE}",
-              integrations: [new Sentry.BrowserTracing()],
-              tracesSampleRate: 0.1,
-            });
-          }
-        };
-
-        document.head.appendChild(_SKIPIFY_script);
-
-        try {
-          (function(){${appCode}})();
-        } catch (e) {
-          if(window?.Sentry) { Sentry.captureException(e); }
-        }
-        `;
-        asset.code = `${sentryWrapper}`;
+        asset.code = `(function(){${appCode}})();`;
       }
     },
   };

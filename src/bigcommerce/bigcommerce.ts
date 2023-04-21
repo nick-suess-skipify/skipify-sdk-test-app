@@ -3,7 +3,7 @@ import {
   Base,
   SkipifyClassNames,
   SkipifyElementIds,
-  EnrollmentDataType,
+  UserEnrollmentInformationType,
   cleanPhoneNumber,
 } from "../shared";
 import {
@@ -170,7 +170,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       return Promise.resolve(null);
     }
 
-    const enrollmentData: EnrollmentDataType = {
+    const enrollmentData: UserEnrollmentInformationType = {
       email: userEmail,
     };
 
