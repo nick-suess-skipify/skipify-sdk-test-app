@@ -16,8 +16,6 @@ export class CheckoutCompleted {
   }
 
   start() {
-    this.messenger.launchIframe(
-      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`
-    );
+    this.messenger.goToEnrollment();
   }
 }

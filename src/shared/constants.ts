@@ -17,6 +17,7 @@ export const SkipifyElementIds = {
   iframe: "_SKIPIFY_iframe",
   overlay: "_SKIPIFY_overlay",
   enrollmentCheckbox: "_SKIPIFY_enrollment_checkbox",
+  container: "_SKIPIFY_container",
 };
 
 /**
@@ -30,10 +31,14 @@ export const MESSAGE_NAMES = {
   CLOSE_IFRAME: `${MESSAGE_NAME_PREFIX}/close-iframe`,
   CLEAR_CART: `${MESSAGE_NAME_PREFIX}/clear-cart`,
   RESIZE_CONTAINER: `${MESSAGE_NAME_PREFIX}/resize-container`,
-  GET_RETURNING_USER_INFO: `${MESSAGE_NAME_PREFIX}/get-returning-user-info`,
+  REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
+  GO_TO_ENROLLMENT: `${MESSAGE_NAME_PREFIX}/go-to-enrollment`,
+  LOOKUP_ERROR: `${MESSAGE_NAME_PREFIX}/lookup-error`,
   // Inbound
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
   RETURNING_USER_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/returning-user-info`,
+  DISPLAY_IFRAME: `${MESSAGE_NAME_PREFIX}/display-iframe`,
+  ENROLLMENT_ELIGIBLE: `${MESSAGE_NAME_PREFIX}/enrollment-eligible`,
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
 } as const;

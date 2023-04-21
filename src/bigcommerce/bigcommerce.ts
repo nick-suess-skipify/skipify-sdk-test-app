@@ -76,14 +76,13 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   }
 
   processCheckoutCompleted() {
-    const { enrollmentCheckboxValue, userEmail, eligible, isPhoneRequired } =
+    const { enrollmentCheckboxValue, userEmail, eligible } =
       this.store.getState();
+
     if (
       window.location.href.includes(this.orderConfirmationUrlMatch) &&
       userEmail &&
-      !eligible &&
-      isPhoneRequired &&
-      !this.hasLaunchedIframe &&
+      eligible &&
       enrollmentCheckboxValue &&
       this.merchantId
     ) {
@@ -104,9 +103,13 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       // Reset enrollment checkbox value as its value is persisted across page changes
       this.setEnrollmentCheckboxValue(true);
 
-      this.enrollmentCheckbox = new EnrollmentCheckbox({
-        node: paymentButtonElem,
-      });
+      const { eligible, userEmail } = this.store.getState();
+      // Only render if user is eligible, it could be a user that started Skipify checkout and exited
+      if (userEmail && eligible) {
+        this.enrollmentCheckbox = new EnrollmentCheckbox({
+          node: paymentButtonElem,
+        });
+      }
     }
   }
 

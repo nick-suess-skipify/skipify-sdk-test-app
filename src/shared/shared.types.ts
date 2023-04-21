@@ -11,11 +11,6 @@ export interface AbstractSDK {
   getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null>;
 }
 
-export interface SkipifyAuthUser {
-  transactionId: string;
-  isPhoneRequired: boolean;
-  eligible: boolean;
-}
 export interface SkipifyTestMode {
   enabled: boolean;
 }

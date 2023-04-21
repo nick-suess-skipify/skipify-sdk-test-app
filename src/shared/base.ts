@@ -1,7 +1,7 @@
 import { Messenger, SkipifyApi } from "./utils";
 import { store, defaultState } from "./state";
 import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
-import { UserEnrollmentInformationType, SkipifyAuthUser } from "./shared.types";
+import { UserEnrollmentInformationType } from "./shared.types";
 
 import "../styles/index.css";
 
@@ -11,7 +11,6 @@ export class Base {
    */
   merchantId: string | null = null;
   merchant: any; // TODO Map all data we need from MMs
-  testMode: boolean;
 
   /**
    * Internal
@@ -48,16 +47,9 @@ export class Base {
     this.store = store;
 
     /**
-     * default test mode set to false
-     */
-    this.testMode = false;
-
-    /**
      * All outside requests are handled by the SkipifyApi class
      */
     this.api = new SkipifyApi({ merchantId: this.merchantId });
-    this.getMerchantFromApi();
-    this.getTestModeFromApi();
 
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
@@ -84,73 +76,15 @@ export class Base {
     }
   }
 
-  async getMerchantFromApi() {
-    const merchantFromApi = await this.api.getMerchant();
-    this.merchant = merchantFromApi;
-  }
-
-  /**
-   * used to get merchant configuration and check if test mode is enabled or not
-   */
-  async getTestModeFromApi() {
-    const { enabled } = await this.api.getMerchantTestModeStatus();
-    this.testMode = enabled;
-  }
-
-  async isExistingUser(email: string) {
-    if (!email) {
-      // Update state when searching an empty email
-      this.store.setState({
-        transactionId: "",
-        eligible: false,
-        isPhoneRequired: false,
-      });
-      return false;
-    }
-
-    // Checking ig testMode is enabled then check for if email is whitelisted
-    // if not white listed we return as null
-    // if testMode enabled and email is whitelisted then it would continue as expected
-    if (this.testMode && !(await this.api.isEmailWhitelisted(email))) {
-      return null;
-    }
-
-    const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
-
-    this.store.setState({
-      transactionId: skipifyUser && skipifyUser.transactionId,
-      isPhoneRequired: skipifyUser && skipifyUser.isPhoneRequired,
-      eligible: skipifyUser && skipifyUser.eligible,
-    });
-
-    // Means it's an existing or eligible user, therefore the complete checkout flow should be triggered
-    return skipifyUser && skipifyUser.eligible;
-  }
-
-  async existingUserCheck(email: string) {
-    const isExistingUser = await this.isExistingUser(email);
-
-    if (isExistingUser) {
-      this.messenger.prepareIframe();
-
-      const cartData = await this.getCartData();
-
-      if (!cartData) {
-        console.warn("-- Cant get cart data from platform");
-        this.messenger.closeIframe();
-        return;
-      }
-
-      const createdOrder = await this.api.createOrder(cartData);
-
-      this.messenger.launchIframe(
-        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${createdOrder.id}/login?source=listener`
-      );
-    }
+  async launchBaseIframe() {
+    this.messenger.launchBaseIframe(
+      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup`
+    );
   }
 
   start() {
     this.processDOM();
+    this.launchBaseIframe();
     this.observer.observe(document.body, {
       attributes: true,
       childList: true,
@@ -183,8 +117,11 @@ export class Base {
   async setUserEmail(email: string) {
     this.store.setState({
       userEmail: email,
+      eligible: false,
     });
-    await this.existingUserCheck(email);
+
+    const cartData = await this.getCartData();
+    this.messenger.lookupUser(email, cartData);
   }
 
   setHasLaunchedIframe(value: boolean) {
