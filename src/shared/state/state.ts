@@ -5,6 +5,8 @@ export const defaultState = {
   enrollmentCheckboxValue: true,
   userEmail: "",
   eligible: false,
+  testMode: true,
+  emailWhitelisted: false,
 };
 
 export const store = create(

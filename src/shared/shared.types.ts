@@ -10,3 +10,10 @@ export interface AbstractSDK {
   processEnrollmentCheckbox(): void;
   getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null>;
 }
+
+export type MerchantType = {
+  checkoutTestMode: boolean;
+  urls: string[];
+  merchantId: string;
+  branding: { displayName: string };
+};

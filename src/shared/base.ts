@@ -1,7 +1,7 @@
 import { Messenger, SkipifyApi } from "./utils";
 import { store, defaultState } from "./state";
 import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
-import { UserEnrollmentInformationType } from "./shared.types";
+import { UserEnrollmentInformationType, MerchantType } from "./shared.types";
 
 import "../styles/index.css";
 
@@ -10,7 +10,7 @@ export class Base {
    * Merchant data
    */
   merchantId: string | null = null;
-  merchant: any; // TODO Map all data we need from MMs
+  merchant: MerchantType | null = null;
 
   /**
    * Internal
@@ -48,6 +48,7 @@ export class Base {
      * All outside requests are handled by the SkipifyApi class
      */
     this.api = new SkipifyApi({ merchantId: this.merchantId });
+    this.getMerchant();
 
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
@@ -74,6 +75,15 @@ export class Base {
     }
   }
 
+  async getMerchant() {
+    const merchantPublicData = await this.api.getMerchant();
+    this.merchant = merchantPublicData;
+
+    this.store.setState({
+      testMode: merchantPublicData.checkoutTestMode,
+    });
+  }
+
   async launchBaseIframe() {
     this.messenger.launchBaseIframe(
       `${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup`
@@ -81,6 +91,8 @@ export class Base {
   }
 
   async launchEnrollmentIframe() {
+    this.canProceedCheck();
+
     this.messenger.launchEnrollmentIframe(
       `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`
     );
@@ -97,8 +109,10 @@ export class Base {
   }
 
   reset() {
+    const { testMode } = this.store.getState();
     this.store.setState({
       ...defaultState,
+      testMode, // We don't want to reset this value
     });
   }
 
@@ -119,16 +133,39 @@ export class Base {
   }
 
   async setUserEmail(email: string) {
+    if (!email) {
+      return;
+    }
+
+    const { testMode } = this.store.getState();
     this.store.setState({
       userEmail: email,
       eligible: false,
     });
 
     const cartData = await this.getCartData();
+
+    if (testMode) {
+      const emailWhitelisted = await this.api.isEmailWhitelisted(email);
+      this.store.setState({
+        emailWhitelisted,
+      });
+      if (!emailWhitelisted) {
+        return;
+      }
+    }
+
     if (this.hasInitializedIframe) {
       this.messenger.lookupUser(email, cartData);
     } else {
       this.messenger.addToLookupQueue(email, cartData);
+    }
+  }
+
+  canProceedCheck() {
+    const { testMode, emailWhitelisted } = this.store.getState();
+    if (testMode && !emailWhitelisted) {
+      throw new Error("can't proceed, aborting");
     }
   }
 

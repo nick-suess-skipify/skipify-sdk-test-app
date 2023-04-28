@@ -1,4 +1,5 @@
 import { MerchantServiceUrl } from "../constants";
+import { MerchantType } from "../shared.types";
 
 interface OwnProps {
   merchantId: string | null;
@@ -13,14 +14,13 @@ export class SkipifyApi {
     this.merchantId = merchantId;
   }
 
-  async getMerchant() {
+  async getMerchant(): Promise<MerchantType> {
     const response = await fetch(
-      `${MerchantServiceUrl}/v1/merchant-shops/${this.merchantId}`,
+      `${MerchantServiceUrl}/v1/merchants/${this.merchantId}/public`,
       {
-        // TODO Uncomment cache control policy once merchant service cors rules are fixed
-        // headers: {
-        //   "Cache-Control": "public, default, max-age=5000",
-        // },
+        headers: {
+          "Cache-Control": "public, default, max-age=5000",
+        },
       }
     );
 
@@ -45,7 +45,7 @@ export class SkipifyApi {
     };
 
     const response = await fetch(
-      `${MerchantServiceUrl}/v1/merchant-shops/${this.merchantId}/check-email-whitelist`,
+      `${MerchantServiceUrl}/v1/merchants/${this.merchantId}/check-email-whitelist`,
       requestOptions
     );
 
