@@ -125,7 +125,11 @@ export class Base {
     });
 
     const cartData = await this.getCartData();
-    this.messenger.lookupUser(email, cartData);
+    if (this.hasInitializedIframe) {
+      this.messenger.lookupUser(email, cartData);
+    } else {
+      this.messenger.addToLookupQueue(email, cartData);
+    }
   }
 
   setHasInitializedIframe(value: boolean) {
