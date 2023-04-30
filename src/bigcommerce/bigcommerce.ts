@@ -160,28 +160,24 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       ? completedOrderElement.textContent
       : null;
 
-    if (!completedOrderId) {
-      return Promise.resolve(null);
-    }
-
-    const completedOrder = await this.storeFrontApi.getOrder(completedOrderId);
-
-    if (!completedOrder) {
-      return Promise.resolve(null);
-    }
-
     const enrollmentData: UserEnrollmentInformationType = {
       email: userEmail,
     };
 
-    if (completedOrder.billingAddress?.phone) {
-      const cleanedPhoneNumber = cleanPhoneNumber(
-        completedOrder.billingAddress.phone
+    if (completedOrderId) {
+      const completedOrder = await this.storeFrontApi.getOrder(
+        completedOrderId
       );
-      if (cleanedPhoneNumber) {
-        enrollmentData.phone = cleanedPhoneNumber;
+      if (completedOrder?.billingAddress?.phone) {
+        const cleanedPhoneNumber = cleanPhoneNumber(
+          completedOrder.billingAddress.phone
+        );
+        if (cleanedPhoneNumber) {
+          enrollmentData.phone = cleanedPhoneNumber;
+        }
       }
     }
+
     return enrollmentData;
   }
 }
