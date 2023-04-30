@@ -109,11 +109,10 @@ export class Base {
   }
 
   reset() {
-    const { testMode } = this.store.getState();
-    this.store.setState({
+    this.store.setState((prev) => ({
       ...defaultState,
-      testMode, // We don't want to reset this value
-    });
+      testMode: prev.testMode, // We don't want to reset this value
+    }));
   }
 
   makeMutationObserver() {
@@ -158,7 +157,7 @@ export class Base {
     if (this.hasInitializedIframe) {
       this.messenger.lookupUser(email, cartData);
     } else {
-      this.messenger.addToLookupQueue(email, cartData);
+      this.messenger.addUserToLookup(email, cartData);
     }
   }
 

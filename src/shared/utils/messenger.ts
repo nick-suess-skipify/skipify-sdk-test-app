@@ -15,7 +15,7 @@ interface Props {
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
   base: Base;
-  lookupQueue: { email: string; cartData: any } | null = null;
+  userToLookup: { email: string; cartData: any } | null = null;
 
   constructor({ base }: Props) {
     this.base = base;
@@ -154,14 +154,14 @@ export class Messenger {
 
   listenerDisplayIframe() {
     this.displayIframe();
-    this.clearLookupQueue();
+    this.clearUserToLookup();
   }
 
   listenerEnrollmentEligible() {
     this.base.store.setState({
       eligible: true,
     });
-    this.clearLookupQueue();
+    this.clearUserToLookup();
   }
 
   listenerLookupError() {
@@ -180,15 +180,15 @@ export class Messenger {
     document.body.classList.remove(SkipifyClassNames.body);
     this.base.reset();
     this.base.launchBaseIframe();
-    this.clearLookupQueue();
+    this.clearUserToLookup();
   }
 
   // This is the listener for the INIT message from the iframe.
   // Once we receive this message, we can start sending messages to the iframe source that we stored.
   listenerInit() {
     this.base.setHasInitializedIframe(true);
-    if (this.lookupQueue) {
-      const { email, cartData } = this.lookupQueue;
+    if (this.userToLookup) {
+      const { email, cartData } = this.userToLookup;
       this.lookupUser(email, cartData);
     }
   }
@@ -202,8 +202,11 @@ export class Messenger {
 
     if (!enrollmentData) {
       // An error occurred while fetching user information, not sending anything will trigger the iframe to close
+      console.error("-- Error getting enrollment information");
       return;
     }
+
+    this.base.reset();
 
     event.ports[0]?.postMessage({
       payload: enrollmentData,
@@ -238,11 +241,11 @@ export class Messenger {
     iframeEl.style.height = `${payload.height}px`;
   }
 
-  addToLookupQueue(email: string, cartData: any) {
-    this.lookupQueue = { email, cartData };
+  addUserToLookup(email: string, cartData: any) {
+    this.userToLookup = { email, cartData };
   }
 
-  clearLookupQueue() {
-    this.lookupQueue = null;
+  clearUserToLookup() {
+    this.userToLookup = null;
   }
 }
