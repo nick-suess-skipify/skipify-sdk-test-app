@@ -17,7 +17,7 @@ export function getIsDarkColor(color: string) {
   }
 }
 
-export const phoneRegex = new RegExp(/\d{10}/);
+export const phoneRegex = new RegExp(/^\d{10}$/);
 
 export function cleanPhoneNumber(phoneNumber = "") {
   const cleanedPhoneNumber = phoneNumber.replace(/\D/g, "");

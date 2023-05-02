@@ -1,5 +1,11 @@
 import { Base } from "../base";
-import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds } from "../constants";
+import {
+  IFRAME_ORIGIN,
+  MESSAGE_NAMES,
+  SkipifyElementIds,
+  SkipifyClassNames,
+  SkipifyCheckoutUrl,
+} from "../constants";
 import { UserEnrollmentInformationType } from "../shared.types";
 
 interface Props {
@@ -7,9 +13,9 @@ interface Props {
 }
 
 export class Messenger {
-  iframeSource: Window | null = null;
-  isIframeOpen = true;
+  iframe: HTMLIFrameElement | null = null;
   base: Base;
+  userToLookup: { email: string; cartData: any } | null = null;
 
   constructor({ base }: Props) {
     this.base = base;
@@ -27,7 +33,7 @@ export class Messenger {
 
     switch (data.name) {
       case MESSAGE_NAMES.INIT:
-        return this.listenerInit(event);
+        return this.listenerInit();
       case MESSAGE_NAMES.GET_ENROLLMENT_INFO:
         return this.listenerEnrollmentInfo(event);
       case MESSAGE_NAMES.CLOSE_IFRAME:
@@ -36,71 +42,130 @@ export class Messenger {
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.ENROLLMENT_VALUE_CHANGED:
         return this.listenerEnrollmentValue(event);
-      case MESSAGE_NAMES.CLEAR_CART:
-        return this.listenerClearCart();
-      case MESSAGE_NAMES.GET_RETURNING_USER_INFO:
-        return this.listenerReturningUserInfo(event);
+      case MESSAGE_NAMES.DISPLAY_IFRAME:
+        return this.listenerDisplayIframe();
+      case MESSAGE_NAMES.ENROLLMENT_ELIGIBLE:
+        return this.listenerEnrollmentEligible();
+      case MESSAGE_NAMES.LOOKUP_ERROR:
+        return this.listenerLookupError();
       default:
         return;
     }
   }
 
-  /**
-   * The prepareIframe function is responsible for creating the overlay element
-   * and showing a loading animation, while we get the needed data for initializing the Iframe
-   */
-  prepareIframe() {
-    const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
-    if (existingOverlay) {
-      return;
-    }
-
+  getContainer() {
     const overlayEl = document.createElement("div");
     overlayEl.id = SkipifyElementIds.overlay;
-    overlayEl.style.display = "block";
+    overlayEl.style.display = "none";
     overlayEl.style.opacity = "0";
 
     document.body.appendChild(overlayEl);
-    document.body.classList.add("_SKIPIFY_body");
-
-    // Added a setTimeout here to ensure that the opacity transition is applied
-    setTimeout(() => {
-      overlayEl.style.opacity = "1";
-    }, 10);
-
     return overlayEl;
   }
 
   // The launchIframe function will create the iframe and overlay elements,
-  // and then append them to the body. They will be hidden by default and will
-  // be shown when the iframe sends the INIT message.
-  launchIframe(iframeSrc: string) {
-    this.base.setHasLaunchedIframe(true);
-    const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
+  // and then append them to the body. They will be hidden by default.
+  launchBaseIframe(iframeSrc: string) {
     const existingIframe = document.getElementById(SkipifyElementIds.iframe);
+    const existingContainer = document.getElementById(
+      SkipifyElementIds.overlay
+    );
 
     if (existingIframe) {
       return;
     }
 
-    let overlayEl = existingOverlay;
-    if (!existingOverlay) {
-      overlayEl = this.prepareIframe() as HTMLElement;
+    let containerEl = existingContainer;
+    if (!existingContainer) {
+      containerEl = this.getContainer() as HTMLElement;
     }
 
     const iframeEl = document.createElement("iframe");
+    iframeEl.style.border = "none";
     iframeEl.id = SkipifyElementIds.iframe;
     iframeEl.src = iframeSrc;
-    iframeEl.style.opacity = "0";
+    this.iframe = iframeEl;
 
-    iframeEl.onload = () => {
+    containerEl?.appendChild(iframeEl);
+  }
+
+  // This function launches the enrollment iframe, it also replaces the current lookup Iframe
+  launchEnrollmentIframe(iframeSrc: string) {
+    const existingIframe = document.getElementById(SkipifyElementIds.iframe);
+    const existingContainer = document.getElementById(
+      SkipifyElementIds.overlay
+    );
+
+    if (existingIframe && existingContainer) {
+      // If already an enrollment iframe, just skip
+      if (
+        existingIframe.classList.contains(SkipifyClassNames.enrollmentIframe)
+      ) {
+        return;
+      }
+      existingContainer.removeChild(existingIframe);
+    }
+
+    let containerEl = existingContainer;
+    if (!existingContainer) {
+      containerEl = this.getContainer() as HTMLElement;
+    }
+
+    const iframeEl = document.createElement("iframe");
+    iframeEl.style.border = "none";
+    iframeEl.id = SkipifyElementIds.iframe;
+    iframeEl.classList.add(SkipifyClassNames.enrollmentIframe);
+    iframeEl.src = iframeSrc;
+    this.iframe = iframeEl;
+
+    containerEl?.appendChild(iframeEl);
+
+    this.displayIframe();
+  }
+
+  lookupUser(email: string, cart?: any) {
+    const iframe = document.getElementById(
+      SkipifyElementIds.iframe
+    ) as HTMLIFrameElement;
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
+          payload: { email, cart },
+        },
+        SkipifyCheckoutUrl
+      );
+    }
+  }
+
+  displayIframe() {
+    const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
+
+    if (existingOverlay) {
+      document.body.classList.add(SkipifyClassNames.body);
+      existingOverlay.style.display = "block";
+
       // Added a setTimeout here to ensure that the opacity transition is applied
       setTimeout(() => {
-        iframeEl.style.opacity = "1";
-      }, 300);
-    };
+        existingOverlay.style.opacity = "1";
+      }, 10);
+    }
+  }
 
-    overlayEl?.appendChild(iframeEl);
+  listenerDisplayIframe() {
+    this.displayIframe();
+    this.clearUserToLookup();
+  }
+
+  listenerEnrollmentEligible() {
+    this.base.store.setState({
+      eligible: true,
+    });
+    this.clearUserToLookup();
+  }
+
+  listenerLookupError() {
+    this.closeIframe();
   }
 
   closeIframe() {
@@ -110,48 +175,38 @@ export class Messenger {
       document.body.removeChild(overlayEl);
     }
 
-    this.isIframeOpen = false;
-    document.body.classList.remove("_SKIPIFY_body");
+    this.base.setHasInitializedIframe(false);
+
+    document.body.classList.remove(SkipifyClassNames.body);
     this.base.reset();
+    this.base.launchBaseIframe();
+    this.clearUserToLookup();
   }
 
   // This is the listener for the INIT message from the iframe.
   // Once we receive this message, we can start sending messages to the iframe source that we stored.
-  listenerInit(event: MessageEvent) {
+  listenerInit() {
     this.base.setHasInitializedIframe(true);
-    this.iframeSource = event.source as Window;
-  }
-
-  // We are passing along the transactionId used on user lookup
-  async listenerReturningUserInfo(event: MessageEvent) {
-    const { transactionId, userEmail, isPhoneRequired } =
-      this.base.store.getState();
-
-    if (!transactionId) {
-      // An error occurred while getting the transactionId, not sending anything will trigger the iframe to close
-      return;
+    if (this.userToLookup) {
+      const { email, cartData } = this.userToLookup;
+      this.lookupUser(email, cartData);
     }
-
-    event.ports[0]?.postMessage({
-      payload: {
-        transactionId,
-        email: userEmail,
-        phoneRequired: isPhoneRequired,
-      },
-      name: MESSAGE_NAMES.RETURNING_USER_INFO_RECEIVED,
-    });
   }
 
   // Set up listener for the "get enrollment data" signal
   // This is a request-response, meaning that we receive a signal from the iframe,
   // and then we send a response back.
   async listenerEnrollmentInfo(event: MessageEvent) {
-    const enrollmentData = await this.base.getUserEnrollmentInformation();
+    const enrollmentData: UserEnrollmentInformationType | null =
+      await this.base.getUserEnrollmentInformation();
 
     if (!enrollmentData) {
       // An error occurred while fetching user information, not sending anything will trigger the iframe to close
+      console.error("-- Error getting enrollment information");
       return;
     }
+
+    this.base.reset();
 
     event.ports[0]?.postMessage({
       payload: enrollmentData,
@@ -186,7 +241,11 @@ export class Messenger {
     iframeEl.style.height = `${payload.height}px`;
   }
 
-  async listenerClearCart(): Promise<void> {
-    return this.base.clearCart();
+  addUserToLookup(email: string, cartData: any) {
+    this.userToLookup = { email, cartData };
+  }
+
+  clearUserToLookup() {
+    this.userToLookup = null;
   }
 }

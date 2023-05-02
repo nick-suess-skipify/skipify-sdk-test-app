@@ -1,7 +1,7 @@
 import { Messenger, SkipifyApi } from "./utils";
 import { store, defaultState } from "./state";
 import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
-import { UserEnrollmentInformationType, SkipifyAuthUser } from "./shared.types";
+import { UserEnrollmentInformationType, MerchantType } from "./shared.types";
 
 import "../styles/index.css";
 
@@ -10,16 +10,13 @@ export class Base {
    * Merchant data
    */
   merchantId: string | null = null;
-  merchant: any; // TODO Map all data we need from MMs
-  testMode: boolean;
+  merchant: MerchantType | null = null;
 
   /**
    * Internal
    */
   observer: MutationObserver;
-  hasLaunchedIframe = false; // Means the checkout iframe was launched
   hasInitializedIframe = false; // Means the checkout iframe is ready for communication
-  isIframeInitialized = false;
 
   /**
    * Feature classes
@@ -48,16 +45,10 @@ export class Base {
     this.store = store;
 
     /**
-     * default test mode set to false
-     */
-    this.testMode = false;
-
-    /**
      * All outside requests are handled by the SkipifyApi class
      */
     this.api = new SkipifyApi({ merchantId: this.merchantId });
-    this.getMerchantFromApi();
-    this.getTestModeFromApi();
+    this.getMerchant();
 
     /**
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
@@ -84,73 +75,32 @@ export class Base {
     }
   }
 
-  async getMerchantFromApi() {
-    const merchantFromApi = await this.api.getMerchant();
-    this.merchant = merchantFromApi;
-  }
-
-  /**
-   * used to get merchant configuration and check if test mode is enabled or not
-   */
-  async getTestModeFromApi() {
-    const { enabled } = await this.api.getMerchantTestModeStatus();
-    this.testMode = enabled;
-  }
-
-  async isExistingUser(email: string) {
-    if (!email) {
-      // Update state when searching an empty email
-      this.store.setState({
-        transactionId: "",
-        eligible: false,
-        isPhoneRequired: false,
-      });
-      return false;
-    }
-
-    // Checking ig testMode is enabled then check for if email is whitelisted
-    // if not white listed we return as null
-    // if testMode enabled and email is whitelisted then it would continue as expected
-    if (this.testMode && !(await this.api.isEmailWhitelisted(email))) {
-      return null;
-    }
-
-    const skipifyUser: SkipifyAuthUser = await this.api.emailLookup(email);
+  async getMerchant() {
+    const merchantPublicData = await this.api.getMerchant();
+    this.merchant = merchantPublicData;
 
     this.store.setState({
-      transactionId: skipifyUser && skipifyUser.transactionId,
-      isPhoneRequired: skipifyUser && skipifyUser.isPhoneRequired,
-      eligible: skipifyUser && skipifyUser.eligible,
+      testMode: merchantPublicData.checkoutTestMode,
     });
-
-    // Means it's an existing or eligible user, therefore the complete checkout flow should be triggered
-    return skipifyUser && skipifyUser.eligible;
   }
 
-  async existingUserCheck(email: string) {
-    const isExistingUser = await this.isExistingUser(email);
+  async launchBaseIframe() {
+    this.messenger.launchBaseIframe(
+      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup`
+    );
+  }
 
-    if (isExistingUser) {
-      this.messenger.prepareIframe();
+  async launchEnrollmentIframe() {
+    this.canProceedCheck();
 
-      const cartData = await this.getCartData();
-
-      if (!cartData) {
-        console.warn("-- Cant get cart data from platform");
-        this.messenger.closeIframe();
-        return;
-      }
-
-      const createdOrder = await this.api.createOrder(cartData);
-
-      this.messenger.launchIframe(
-        `${SkipifyCheckoutUrl}/embed/${this.merchantId}/checkout/${createdOrder.id}/login?source=listener`
-      );
-    }
+    this.messenger.launchEnrollmentIframe(
+      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`
+    );
   }
 
   start() {
     this.processDOM();
+    this.launchBaseIframe();
     this.observer.observe(document.body, {
       attributes: true,
       childList: true,
@@ -159,9 +109,10 @@ export class Base {
   }
 
   reset() {
-    this.store.setState({
+    this.store.setState((prev) => ({
       ...defaultState,
-    });
+      testMode: prev.testMode, // We don't want to reset this value
+    }));
   }
 
   makeMutationObserver() {
@@ -181,22 +132,44 @@ export class Base {
   }
 
   async setUserEmail(email: string) {
+    if (!email) {
+      return;
+    }
+
+    const { testMode } = this.store.getState();
     this.store.setState({
       userEmail: email,
+      eligible: false,
     });
-    await this.existingUserCheck(email);
+
+    const cartData = await this.getCartData();
+
+    if (testMode) {
+      const emailWhitelisted = await this.api.isEmailWhitelisted(email);
+      this.store.setState({
+        emailWhitelisted,
+      });
+      if (!emailWhitelisted) {
+        return;
+      }
+    }
+
+    if (this.hasInitializedIframe) {
+      this.messenger.lookupUser(email, cartData);
+    } else {
+      this.messenger.addUserToLookup(email, cartData);
+    }
   }
 
-  setHasLaunchedIframe(value: boolean) {
-    this.hasLaunchedIframe = value;
+  canProceedCheck() {
+    const { testMode, emailWhitelisted } = this.store.getState();
+    if (testMode && !emailWhitelisted) {
+      throw new Error("can't proceed, aborting");
+    }
   }
 
   setHasInitializedIframe(value: boolean) {
     this.hasInitializedIframe = value;
-  }
-
-  setIsIframeInitialized(value: boolean) {
-    this.isIframeInitialized = value;
   }
 
   /**

@@ -11,16 +11,9 @@ export interface AbstractSDK {
   getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null>;
 }
 
-export interface SkipifyAuthUser {
-  transactionId: string;
-  isPhoneRequired: boolean;
-  eligible: boolean;
-}
-export interface SkipifyTestMode {
-  enabled: boolean;
-}
-
-export type EnrollmentDataType = {
-  email: string;
-  phone?: string;
+export type MerchantType = {
+  checkoutTestMode: boolean;
+  urls: string[];
+  merchantId: string;
+  branding: { displayName: string };
 };
