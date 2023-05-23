@@ -46,10 +46,12 @@
 @media screen and (max-width: 550px) {
     #_SKIPIFY_iframe {
         width: 100vw;
-        min-height: 100vh;
         top: 0px;
         border-radius: 0px;
         box-shadow: none;
+        min-height: 100vh;
         max-height: 100vh;
+        min-height: -webkit-fill-available;
+        max-height: -webkit-fill-available;
     }
 }
