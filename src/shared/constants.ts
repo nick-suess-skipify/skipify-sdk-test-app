@@ -33,6 +33,7 @@ export const MESSAGE_NAMES = {
   LOOKUP_ERROR: `${MESSAGE_NAME_PREFIX}/lookup-error`,
   DISPLAY_IFRAME: `${MESSAGE_NAME_PREFIX}/display-iframe`,
   ENROLLMENT_ELIGIBLE: `${MESSAGE_NAME_PREFIX}/enrollment-eligible`,
+  ORDER_COMPLETED: `${MESSAGE_NAME_PREFIX}/order-completed`,
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,

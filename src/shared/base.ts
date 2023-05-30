@@ -17,6 +17,7 @@ export class Base {
    */
   observer: MutationObserver;
   hasInitializedIframe = false; // Means the checkout iframe is ready for communication
+  skipifyCheckoutCompleted = false; // Means the order was processed through Skipify
 
   /**
    * Feature classes
@@ -182,6 +183,12 @@ export class Base {
 
   async clearCart(): Promise<void> {
     console.warn("-- clearCart should be overwritten by platform class");
+  }
+
+  async handleOrderCompleted(externalOrderId: string): Promise<void> {
+    console.warn(
+      `-- handleOrderCompleted ${externalOrderId} should be overwritten by platform class`
+    );
   }
 
   async getCartData(): Promise<any> {

@@ -120,9 +120,8 @@ workflows:
           filters:
             branches:
               only:
-                - stage
-                - staging
-                - release/*
+                - dev
+                - development
       - code-quality:
           requires:
             - build-approval
@@ -145,7 +144,7 @@ workflows:
             branches:
               only:
                 - master
-                - main
+                - release/*
       - code-quality:
           requires:
             - build-approval

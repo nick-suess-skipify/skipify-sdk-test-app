@@ -48,6 +48,8 @@ export class Messenger {
         return this.listenerEnrollmentEligible();
       case MESSAGE_NAMES.LOOKUP_ERROR:
         return this.listenerLookupError();
+      case MESSAGE_NAMES.ORDER_COMPLETED:
+        return this.listenerOrderCompleted(event);
       default:
         return;
     }
@@ -168,7 +170,16 @@ export class Messenger {
     this.closeIframe();
   }
 
+  listenerOrderCompleted(event: MessageEvent) {
+    const { orderId } = event.data.payload;
+    this.base.handleOrderCompleted(orderId);
+  }
+
   closeIframe() {
+    if (this.base.skipifyCheckoutCompleted) {
+      this.base.skipifyCheckoutCompleted = false;
+      window.location.assign(`/`);
+    }
     const overlayEl = document.getElementById(SkipifyElementIds.overlay);
 
     if (overlayEl) {

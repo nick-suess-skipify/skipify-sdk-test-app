@@ -122,6 +122,12 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     await this.storeFrontApi.deleteCart(userCart.id);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async handleOrderCompleted(_externalOrderId: string): Promise<void> {
+    this.skipifyCheckoutCompleted = true;
+    this.clearCart();
+  }
+
   async getCartData(): Promise<BigCommerceLineItem[] | null> {
     const userCart = await this.storeFrontApi.getUserCart();
 
