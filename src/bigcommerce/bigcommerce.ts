@@ -182,8 +182,22 @@ class BigCommerceSDK extends Base implements AbstractSDK {
           enrollmentData.phone = cleanedPhoneNumber;
         }
       }
-    }
 
+      const [shippingItem] = completedOrder?.consignments?.shipping ?? [];
+
+      if (shippingItem) {
+        enrollmentData.shippingAddress = {
+          address1: shippingItem.address1,
+          city: shippingItem.city,
+          firstName: shippingItem.firstName,
+          lastName: shippingItem.lastName,
+          state: shippingItem.stateOrProvince,
+          zipCode: shippingItem.postalCode,
+          address2: shippingItem.address2,
+          phoneNumber: enrollmentData.phone,
+        };
+      }
+    }
     return enrollmentData;
   }
 }

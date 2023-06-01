@@ -16,6 +16,7 @@ export class Messenger {
   iframe: HTMLIFrameElement | null = null;
   base: Base;
   userToLookup: { email: string; cartData: any } | null = null;
+  prevUserEmail: string | null = null;
 
   constructor({ base }: Props) {
     this.base = base;
@@ -126,10 +127,15 @@ export class Messenger {
   }
 
   lookupUser(email: string, cart?: any) {
+    if (email === this.prevUserEmail) {
+      // Prevent lookup racing condition and sending multiple lookup requests on input blur
+      return;
+    }
     const iframe = document.getElementById(
       SkipifyElementIds.iframe
     ) as HTMLIFrameElement;
     if (iframe) {
+      this.prevUserEmail = email;
       iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
@@ -187,6 +193,7 @@ export class Messenger {
     }
 
     this.base.setHasInitializedIframe(false);
+    this.prevUserEmail = null;
 
     document.body.classList.remove(SkipifyClassNames.body);
     this.base.reset();
