@@ -84,7 +84,10 @@ class BigCommerceSDK extends Base implements AbstractSDK {
       userEmail &&
       eligible &&
       enrollmentCheckboxValue &&
-      this.merchantId
+      this.merchantId &&
+      // Check if the orderId is already available in the order confirmation page
+      // https://support.bigcommerce.com/s/question/0D54O00006sUx6PSAS/can-you-get-the-order-id-using-javascript-on-the-order-confirmation-page
+      document.querySelector(this.completedOrderSelector)
     ) {
       this.checkoutCompleted = new CheckoutCompleted({
         launchEnrollmentIframe: () => this.launchEnrollmentIframe(),
