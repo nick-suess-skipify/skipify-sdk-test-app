@@ -11,6 +11,7 @@ import {
   CheckoutCompleted,
   EnrollmentCheckbox,
   BigCommerceStoreFrontApi,
+  LoggedInCustomer,
 } from "./utils";
 import { BigCommerceLineItem } from "./bigcommerce.types";
 
@@ -27,7 +28,9 @@ class BigCommerceSDK extends Base implements AbstractSDK {
    * Default values are assigned based on default BigCommerce themes.
    */
   emailInputId = "email";
+  passwordInputId = "password";
   paymentButtonId = "checkout-payment-continue";
+  loggedInCustomerSelector = "[data-test=sign-out-link]";
   completedOrderSelector = ".orderConfirmation-section span strong";
   checkoutUrlMatch = "checkout";
   orderConfirmationUrlMatch = "order-confirmation";
@@ -38,6 +41,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
   emailInput: EmailInput | null = null;
   checkoutCompleted: CheckoutCompleted | null = null;
   enrollmentCheckbox: EnrollmentCheckbox | null = null;
+  loggedInCustomer: LoggedInCustomer | null = null;
 
   storeFrontApi: BigCommerceStoreFrontApi;
 
@@ -58,6 +62,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     this.processEmailInput();
     this.processCheckoutCompleted();
     this.processEnrollmentCheckbox();
+    this.processLoggedInCustomer();
   }
 
   processEmailInput() {
@@ -72,6 +77,26 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     this.emailInput = new EmailInput({
       node: emailInputElem,
       setUserEmail: (email) => this.setUserEmail(email),
+      passwordInputId: this.passwordInputId,
+    });
+  }
+
+  processLoggedInCustomer() {
+    const loggedInCustomerElem = document.querySelector(
+      this.loggedInCustomerSelector
+    );
+    if (
+      !loggedInCustomerElem ||
+      loggedInCustomerElem?.classList.contains(
+        SkipifyClassNames.loggedInCustomer
+      )
+    ) {
+      return;
+    }
+
+    this.loggedInCustomer = new LoggedInCustomer({
+      node: loggedInCustomerElem,
+      fetchUserEmailFromCart: () => this.fetchUserEmailFromCart(),
     });
   }
 

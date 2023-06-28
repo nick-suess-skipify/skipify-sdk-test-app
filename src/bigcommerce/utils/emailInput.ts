@@ -3,18 +3,21 @@ import { SkipifyClassNames } from "../../shared";
 interface OwnProps {
   node: HTMLElement;
   setUserEmail: (email: string) => void;
+  passwordInputId: string;
 }
 
 type Props = OwnProps;
 
 export class EmailInput {
   node: HTMLElement;
+  passwordInputId: string;
   setUserEmail: (email: string) => void;
 
-  constructor({ node, setUserEmail }: Props) {
+  constructor({ node, setUserEmail, passwordInputId }: Props) {
     this.node = node;
-    this.start();
+    this.passwordInputId = passwordInputId;
     this.setUserEmail = setUserEmail;
+    this.start();
   }
 
   start() {
@@ -23,6 +26,9 @@ export class EmailInput {
   }
 
   handleInput(e: FocusEvent) {
+    // We don't want to interrupt their login flow
+    if (document.getElementById(this.passwordInputId)) return;
+
     const emailValue = (e.target as HTMLInputElement).value;
     this.setUserEmail(emailValue);
   }

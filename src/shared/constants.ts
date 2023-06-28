@@ -8,6 +8,7 @@ export const SkipifyCheckoutUrl = import.meta.env.VITE_SKIPIFY_CHECKOUT_URL;
 
 export const SkipifyClassNames = {
   emailInput: "_SKIPIFY_email_input",
+  loggedInCustomer: "_SKIPIFY_logged_in_customer",
   paymentButton: "_SKIPIFY_payment_button",
   enrollmentIframe: "_SKIPIFY_enrollment_iframe",
   body: "_SKIPIFY_body",
