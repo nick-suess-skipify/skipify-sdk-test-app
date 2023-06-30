@@ -1,7 +1,8 @@
-import { Messenger, SkipifyApi } from "./utils";
+import { Messenger, SkipifyApi, Amplitude } from "./utils";
 import { store, defaultState } from "./state";
 import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
 import { UserEnrollmentInformationType, MerchantType } from "./shared.types";
+import { Analytics, BaseEventProperties, FlowType } from "./analytics";
 
 import "../styles/index.css";
 
@@ -24,6 +25,7 @@ export class Base {
    */
   api: SkipifyApi;
   messenger: Messenger;
+  amplitude: Amplitude;
   store;
 
   constructor() {
@@ -55,6 +57,11 @@ export class Base {
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
     this.messenger = new Messenger({ base: this });
+
+    /**
+     * Amplitude implements analytic track requests
+     */
+    this.amplitude = new Amplitude();
 
     /**
      * Mutation observer used to enable Skipify features on checkout
@@ -123,10 +130,54 @@ export class Base {
   }
 
   /**
+   * Analytics
+   */
+
+  async trackSdkInitiated() {
+    const { userEmail } = this.store.getState();
+    const { total, subtotal } = await this.getCartTotal();
+
+    const properties = {
+      flow_type: FlowType.egc,
+      user_id: userEmail,
+      email: userEmail,
+      merchant_id: this.merchantId,
+      merchant_name: this.merchant?.branding?.displayName,
+      parent_merchant_id: this.merchant?.topLevelMerchantId,
+      total,
+      subtotal,
+    };
+
+    this.amplitude.track(new Analytics.sdkInitiatedEvent(properties));
+  }
+
+  async trackEnrollmentUnchecked() {
+    const { userEmail } = this.store.getState();
+    const { total, subtotal } = await this.getCartTotal();
+
+    const properties = {
+      flow_type: FlowType.enrollment,
+      user_id: userEmail,
+      email: userEmail,
+      merchant_id: this.merchantId,
+      merchant_name: this.merchant?.branding?.displayName,
+      parent_merchant_id: this.merchant?.topLevelMerchantId,
+      total,
+      subtotal,
+    };
+
+    this.amplitude.track(new Analytics.enrollmentUncheckedEvent(properties));
+  }
+
+  /**
    * Setters
    */
 
   setEnrollmentCheckboxValue(value: boolean) {
+    if (!value) {
+      this.trackEnrollmentUnchecked();
+    }
+
     this.store.setState({
       enrollmentCheckboxValue: value,
     });
@@ -194,6 +245,11 @@ export class Base {
   async getCartData(): Promise<any> {
     console.warn("-- getCartData should be overwritten by platform class");
     return null;
+  }
+
+  async getCartTotal(): Promise<{ total: number; subtotal: number }> {
+    console.warn("-- getCartTotal should be overwritten by platform class");
+    return { total: 0, subtotal: 0 };
   }
 
   async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {

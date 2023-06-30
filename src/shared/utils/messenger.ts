@@ -147,6 +147,9 @@ export class Messenger {
   }
 
   displayIframe() {
+    // Track sdk initiation
+    this.base.trackSdkInitiated();
+
     const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
 
     if (existingOverlay) {

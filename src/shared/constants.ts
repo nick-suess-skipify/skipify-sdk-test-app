@@ -6,6 +6,8 @@ export const MerchantServiceUrl = import.meta.env.VITE_MERCHANT_SERVICE_URL;
 export const SdkUrl = import.meta.env.VITE_SDK_URL;
 export const SkipifyCheckoutUrl = import.meta.env.VITE_SKIPIFY_CHECKOUT_URL;
 
+export const AmplitudeApiKey = import.meta.env.VITE_AMPLITUDE_API_KEY;
+
 export const SkipifyClassNames = {
   emailInput: "_SKIPIFY_email_input",
   loggedInCustomer: "_SKIPIFY_logged_in_customer",

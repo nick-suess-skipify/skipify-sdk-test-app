@@ -36,4 +36,5 @@ export type MerchantType = {
   urls: string[];
   merchantId: string;
   branding: { displayName: string };
+  topLevelMerchantId?: string;
 };

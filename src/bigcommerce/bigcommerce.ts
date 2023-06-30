@@ -167,6 +167,17 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     return [...physicalItems, ...digitalItems];
   }
 
+  async getCartTotal() {
+    const userCart = await this.storeFrontApi.getUserCart();
+    if (!userCart) {
+      return { total: 0, subtotal: 0 };
+    }
+    return {
+      total: Number(userCart.cartAmount),
+      subtotal: Number(userCart.cartAmount),
+    };
+  }
+
   // If we have already have an user email in the cart, we can rely on that instead of asking the
   // user to input it again.
   async fetchUserEmailFromCart() {
