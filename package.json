@@ -1,7 +1,7 @@
 {
   "name": "skipify-sdk",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "./dist/skipify-sdk.cjs",
   "module": "./dist/skipify-sdk.mjs",
   "exports": {
@@ -11,9 +11,17 @@
     }
   },
   "scripts": {
-    "build:production": "vite build",
-    "build:staging": "vite build --mode staging",
-    "build:development": "vite build --mode development",
+    "build:bigcommerce:development": "vite build --mode development --config vite.config-bigcommerce.ts --emptyOutDir=false",
+    "build:shopify:development": "vite build --mode development --config vite.config-shopify.ts --emptyOutDir=false",
+    "build:all:development": "npm run build:shopify:development && npm run build:bigcommerce:development",
+    "build:bigcommerce:staging": "vite build --mode staging --config vite.config-bigcommerce.ts --emptyOutDir=false",
+    "build:shopify:staging": "vite build --mode staging --config vite.config-shopify.ts --emptyOutDir=false",
+    "build:all:staging": "npm run build:shopify:staging && npm run build:bigcommerce:staging",
+    "build:bigcommerce:production": "vite build --config vite.config-bigcommerce.ts --emptyOutDir=false",
+    "build:shopify:production": "vite build --config vite.config-shopify.ts --emptyOutDir=false",
+    "build:all:production": "npm run build:shopify:production && npm run build:bigcommerce:production",
+    "dev:bigcommerce": "vite build --mode development --config vite.config-bigcommerce.ts --watch",
+    "dev:shopify": "vite build --mode development --config vite.config-shopify.ts --watch",
     "dev": "vite build --mode development --watch",
     "host": "npx http-server ./dist -p 4200",
     "preview": "vite preview --port 4200",

@@ -1,63 +1,55 @@
 version: 2.1
 
 orbs:
-  gcr: circleci/gcp-gcr@0.15.1
-  node: circleci/node@5.1.0
+  gcr: circleci/gcp-gcr@0.15.0
+  node: circleci/node@5.0.3
   gcp-cli: circleci/gcp-cli@3.0.1
+
+prodTagFilter: &prodTagFilter
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+
+stageTagFilter: &stageTagFilter
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^v[0-9]+\.[0-9]+\.[0-9]+-stage$/
 
 jobs:
   code-quality:
-    machine:
-      image: ubuntu-2004:202104-01
+    executor: node/default
     resource_class: medium
     steps:
       - checkout
-
-      - node/install:
-          node-version: '16.13'
-
       - run:
-          name: Install dependencies
+          name: Configure npm for JFrog Artifactory
           command: |
-            npm i
-
-      - run:
-          name: Lint code
-          command: |
-            npm run lint:scripts
-
-#      - run:
-#          name: Run tests
-#          command: npm run test:coverage -- --coverageReporters=lcov
-
-#      - run:
-#          name: Send coverage report to coveralls
-#          when: always
-#          command: cat ./coverage/lcov.info | npx coveralls
+            npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
+      - run: npm ci
+      - run: npm run lint:scripts
 
   build:
     parameters:
-      branch:
-        description: The branch we are building. Accepted values - development, staging, or production
+      environment:
+        description: The environment we are building. Accepted values - development, staging, or production
         type: string
-    machine:
-      image: ubuntu-2004:202104-01
+    executor: node/default
     resource_class: medium
     steps:
       - checkout
-      - gcr/gcr-auth
-      - node/install:
-          node-version: "16.13"
-
       - run:
-          name: Install dependencies
+          name: Configure npm for JFrog Artifactory
           command: |
-            gcloud auth print-access-token
-            npm i
+            npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
+      - run: npm ci
 
       - run:
           name: "build code base"
-          command: npm run build:<< parameters.branch >>
+          command: npm run build:all:<< parameters.environment >>
 
       - persist_to_workspace:
           root: .
@@ -84,9 +76,10 @@ jobs:
 workflows:
   always:
     jobs:
-      - code-quality
+      - code-quality:
+          context: skipify-dev
       - build:
-          branch: development
+          environment: development
           context: skipify-dev
           requires:
             - code-quality
@@ -103,7 +96,7 @@ workflows:
           requires:
             - build-approval
       - build:
-          branch: development
+          environment: development
           context: skipify-dev
           requires:
             - code-quality
@@ -117,16 +110,12 @@ workflows:
     jobs:
       - build-approval:
           type: approval
-          filters:
-            branches:
-              only:
-                - dev
-                - development
+          <<: *stageTagFilter
       - code-quality:
           requires:
             - build-approval
       - build:
-          branch: staging
+          environment: staging
           context: skipify-stage
           requires:
             - code-quality
@@ -140,16 +129,12 @@ workflows:
     jobs:
       - build-approval:
           type: approval
-          filters:
-            branches:
-              only:
-                - master
-                - release/*
+          <<: *prodTagFilter
       - code-quality:
           requires:
             - build-approval
       - build:
-          branch: production
+          environment: production
           context: skipify-prod
           requires:
             - code-quality

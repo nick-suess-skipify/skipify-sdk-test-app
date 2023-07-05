@@ -29,7 +29,7 @@ Bundles get generated inside the dist folder
 
 ```
 // Start development server
-npm run dev
+npm run dev:bigcommerce
 ```
 
 Inside another terminal:
