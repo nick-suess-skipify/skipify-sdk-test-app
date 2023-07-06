@@ -93,6 +93,7 @@ workflows:
                 - dev
                 - development
       - code-quality:
+          context: skipify-dev
           requires:
             - build-approval
       - build:
@@ -112,6 +113,7 @@ workflows:
           type: approval
           <<: *stageTagFilter
       - code-quality:
+          context: skipify-stage
           requires:
             - build-approval
       - build:
@@ -131,6 +133,7 @@ workflows:
           type: approval
           <<: *prodTagFilter
       - code-quality:
+          context: skipify-prod
           requires:
             - build-approval
       - build:
