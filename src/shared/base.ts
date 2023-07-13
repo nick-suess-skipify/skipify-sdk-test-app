@@ -135,6 +135,7 @@ export class Base {
 
   async trackSdkInitiated() {
     const { userEmail } = this.store.getState();
+    await this.amplitude.identify(userEmail);
     const { total, subtotal } = await this.getCartTotal();
 
     const properties = {
@@ -153,6 +154,7 @@ export class Base {
 
   async trackEnrollmentUnchecked() {
     const { userEmail } = this.store.getState();
+    await this.amplitude.identify(userEmail);
     const { total, subtotal } = await this.getCartTotal();
 
     const properties = {

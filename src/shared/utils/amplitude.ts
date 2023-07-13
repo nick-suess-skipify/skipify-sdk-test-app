@@ -1,4 +1,4 @@
-import { Types, createInstance } from "@amplitude/analytics-browser";
+import { Types, createInstance, Identify } from "@amplitude/analytics-browser";
 import { AmplitudeApiKey } from "../constants";
 
 export class Amplitude {
@@ -7,10 +7,22 @@ export class Amplitude {
   constructor() {
     this.client = createInstance();
     this.client.init(AmplitudeApiKey, {
+      defaultTracking: false,
       plan: {
         source: "checkout-sdk",
       },
     });
+  }
+
+  /**
+   * Identify event
+   *
+   * @param userId The user's id or email
+   */
+  async identify(userId: string) {
+    const amplitudeIdentify = new Identify();
+    return this.client?.identify(amplitudeIdentify, { user_id: userId })
+      .promise;
   }
 
   /**
@@ -19,7 +31,7 @@ export class Amplitude {
    * @param event The event to track.
    * @param options Optional event options.
    */
-  track(event: Types.TrackEvent, options?: Types.EventOptions) {
+  async track(event: Types.TrackEvent, options?: Types.EventOptions) {
     return this.client?.track(event, undefined, options);
   }
 }
