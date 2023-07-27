@@ -139,7 +139,7 @@ export class Messenger {
       iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
-          payload: { email, cart },
+          payload: { email, cart: { items: cart } },
         },
         SkipifyCheckoutUrl
       );
