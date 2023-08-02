@@ -84,6 +84,7 @@ export class Messenger {
     }
 
     const iframeEl = document.createElement("iframe");
+    iframeEl.allow = "publickey-credentials-get *";
     iframeEl.style.border = "none";
     iframeEl.id = SkipifyElementIds.iframe;
     iframeEl.src = iframeSrc;
@@ -115,6 +116,7 @@ export class Messenger {
     }
 
     const iframeEl = document.createElement("iframe");
+    iframeEl.allow = "publickey-credentials-get *";
     iframeEl.style.border = "none";
     iframeEl.id = SkipifyElementIds.iframe;
     iframeEl.classList.add(SkipifyClassNames.enrollmentIframe);
