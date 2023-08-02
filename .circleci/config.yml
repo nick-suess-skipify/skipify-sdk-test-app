@@ -30,12 +30,12 @@ jobs:
           command: |
             npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
       - run: npm ci
-      - run: npm run lint:scripts
+      - run: npm run all:lint
 
   build:
     parameters:
       environment:
-        description: The environment we are building. Accepted values - development, staging, or production
+        description: The environment we are building. Accepted values - dev, stage, or prod
         type: string
     executor: node/default
     resource_class: medium
@@ -48,8 +48,8 @@ jobs:
       - run: npm ci
 
       - run:
-          name: "build code base"
-          command: npm run build:all:<< parameters.environment >>
+          name: "build all"
+          command: npm run all:build:<< parameters.environment >>
 
       - persist_to_workspace:
           root: .
@@ -79,7 +79,7 @@ workflows:
       - code-quality:
           context: skipify-dev
       - build:
-          environment: development
+          environment: dev
           context: skipify-dev
           requires:
             - code-quality
@@ -97,7 +97,7 @@ workflows:
           requires:
             - build-approval
       - build:
-          environment: development
+          environment: dev
           context: skipify-dev
           requires:
             - code-quality
@@ -117,7 +117,7 @@ workflows:
           requires:
             - build-approval
       - build:
-          environment: staging
+          environment: stage
           context: skipify-stage
           requires:
             - code-quality
@@ -137,7 +137,7 @@ workflows:
           requires:
             - build-approval
       - build:
-          environment: production
+          environment: prod
           context: skipify-prod
           requires:
             - code-quality

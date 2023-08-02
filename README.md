@@ -6,6 +6,7 @@ Checkout script generation, used for enabling Skipify checkout in a merchant sto
 
 ## Tooling
 
+- NX
 - Vite
 - Rollup
 - ESBuild
@@ -20,8 +21,7 @@ Checkout script generation, used for enabling Skipify checkout in a merchant sto
 
 The project contains the following scripts:
 
-- `dev` - starts dev server
-- `build:[environment]` - generates the bundles, environment can be development | staging | production
+- `nx run [platform]:build:[environment]` - generates the bundles, platform can be bigcommerce | custom, environment can be dev | stage | prod
 
 Bundles get generated inside the dist folder
 
@@ -29,7 +29,7 @@ Bundles get generated inside the dist folder
 
 ```
 // Start development server
-npm run dev:bigcommerce
+`nx run bigcommerce:build:dev --watch`
 ```
 
 Inside another terminal:

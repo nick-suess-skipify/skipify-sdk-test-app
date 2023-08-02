@@ -1,0 +1,67 @@
+{
+    "name": "bigcommerce",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "packages/bigcommerce/src",
+    "projectType": "library",
+    "targets": {
+        "build": {
+            "executor": "@nx/vite:build",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/bigcommerce"
+            },
+            "dependsOn": ["^build", "shared:build", "enrollment-checkbox:build"],
+            "configurations": {
+                "dev": {
+                    "mode": "development",
+                    "fileReplacements": [
+                        {
+                            "replace": "packages/shared/src/environments/environment.ts",
+                            "with": "packages/shared/src/environments/environment.dev.ts"
+                        }
+                    ]
+                },
+                "stage": {
+                    "mode": "staging",
+                    "fileReplacements": [
+                        {
+                            "replace": "packages/shared/src/environments/environment.ts",
+                            "with": "packages/shared/src/environments/environment.stage.ts"
+                        }
+                    ]
+                },
+                "prod": {
+                    "mode": "production",
+                    "fileReplacements": [
+                        {
+                            "replace": "packages/shared/src/environments/environment.ts",
+                            "with": "packages/shared/src/environments/environment.prod.ts"
+                        }
+                    ]
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["packages/bigcommerce/**/*.ts"]
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "packages/bigcommerce/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            }
+        }
+    },
+    "tags": []
+}
