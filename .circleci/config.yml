@@ -46,9 +46,8 @@ jobs:
           command: |
             npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
       - run: npm ci
-
       - run:
-          name: "build all"
+          name: 'build all'
           command: npm run all:build:<< parameters.environment >>
 
       - persist_to_workspace:
@@ -116,17 +115,20 @@ workflows:
           context: skipify-stage
           requires:
             - build-approval
+          <<: *stageTagFilter
       - build:
           environment: stage
           context: skipify-stage
           requires:
             - code-quality
+          <<: *stageTagFilter
       - deploy:
           name: deploy-stage
           bucket: checkout-sdk-stage
           context: skipify-stage
           requires:
             - build
+          <<: *stageTagFilter
   prod:
     jobs:
       - build-approval:
@@ -136,18 +138,22 @@ workflows:
           context: skipify-prod
           requires:
             - build-approval
+          <<: *prodTagFilter
       - build:
           environment: prod
           context: skipify-prod
           requires:
             - code-quality
+          <<: *prodTagFilter
       - deploy-approval:
           type: approval
           requires:
             - build
+          <<: *prodTagFilter
       - deploy:
           name: deploy-prod
           bucket: checkout-sdk
           context: skipify-prod
           requires:
             - deploy-approval
+          <<: *prodTagFilter
