@@ -78,7 +78,7 @@ export class Base {
   }
 
   getMerchantIdFromQuery(merchantId?: string) {
-    if (!!merchantId) {
+    if (merchantId) {
       this.merchantId = merchantId;
       return;
     }
