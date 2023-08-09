@@ -6,6 +6,13 @@ import { Analytics, BaseEventProperties, FlowType } from "./analytics";
 
 import "./styles/index.css";
 
+declare global {
+  interface Window {
+    BigCommerceSDK: any;
+    CustomSDK: any;
+  }
+}
+
 export class Base {
   /**
    * Merchant data
@@ -28,7 +35,7 @@ export class Base {
   amplitude: Amplitude;
   store;
 
-  constructor() {
+  constructor(merchantId?: string) {
     /**
      * Add values like SDK version to the window object
      * It's useful when debugging
@@ -40,7 +47,7 @@ export class Base {
     /**
      * Get Merchant Id from script query params, if not present script will fail
      */
-    this.getMerchantIdFromQuery();
+    this.getMerchantIdFromQuery(merchantId);
 
     /**
      * Persisted state
@@ -70,7 +77,12 @@ export class Base {
     this.start();
   }
 
-  getMerchantIdFromQuery() {
+  getMerchantIdFromQuery(merchantId?: string) {
+    if (!!merchantId) {
+      this.merchantId = merchantId;
+      return;
+    }
+
     const scriptSrc = (document.currentScript as any).src;
 
     if (scriptSrc) {

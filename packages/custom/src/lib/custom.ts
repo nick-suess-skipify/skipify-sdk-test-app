@@ -4,4 +4,6 @@ class CustomSDK {
     }
 }
 
+window.CustomSDK = CustomSDK;
+
 export default new CustomSDK();

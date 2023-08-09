@@ -18,6 +18,7 @@ import { BigCommerceLineItem } from "./bigcommerce.types";
 interface OwnProps {
   emailInputId?: string;
   paymentButtonId?: string;
+  merchantId?: string;
 }
 
 type Props = OwnProps;
@@ -45,8 +46,8 @@ class BigCommerceSDK extends Base implements AbstractSDK {
 
   storeFrontApi: BigCommerceStoreFrontApi;
 
-  constructor({ emailInputId, paymentButtonId }: Props = {}) {
-    super();
+  constructor({ emailInputId, paymentButtonId, merchantId }: Props = {}) {
+    super(merchantId);
     if (emailInputId) {
       this.emailInputId = emailInputId;
     }
@@ -240,5 +241,7 @@ class BigCommerceSDK extends Base implements AbstractSDK {
     return enrollmentData;
   }
 }
+
+window.BigCommerceSDK = BigCommerceSDK;
 
 export default new BigCommerceSDK();
