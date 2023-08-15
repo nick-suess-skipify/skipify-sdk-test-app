@@ -47,3 +47,10 @@ export const MESSAGE_NAMES = {
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,
 } as const;
+
+declare global {
+  interface Window {
+    BigCommerceSDK: any;
+    CustomSDK: any;
+  }
+}

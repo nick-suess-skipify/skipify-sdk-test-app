@@ -44,7 +44,6 @@ class CustomSDK {
   }
 }
 
-export default CustomSDK;
+window.CustomSDK = CustomSDK;
 
-// Testing purposes only
-(window as any).customSDK = CustomSDK;
+export default CustomSDK;
