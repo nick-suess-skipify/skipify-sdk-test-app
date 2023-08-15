@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { ReactComponent as MutedLogo } from '@checkout-sdk/shared/assets/mutedLogo.svg'
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 
 // Be careful with cyclic dependencies here
 
@@ -8,9 +8,17 @@ export const SkipifyButtonContent: React.FC = (props) => {
   // This will be used later for passing variables from checkout script to this component
   const params = new URL(window.location.href).searchParams;
 
+  const handleClick = () => {
+    window.top?.postMessage(
+      {
+        name: '@skipify/checkout-button-triggered',
+      },
+      '*'
+    );
+  };
 
   return (
-    <Container>
+    <Container onClick={() => handleClick()}>
       <StyledMutedLogo />
       Buy Now
     </Container>
@@ -27,7 +35,7 @@ const Container = styled.div`
   justify-content: center;
   border-radius: 4px;
   background: #000;
-  color: #FFF;
+  color: #fff;
   font-size: 19px;
   font-style: normal;
   font-weight: 600;
@@ -36,6 +44,4 @@ const Container = styled.div`
 
 const StyledMutedLogo = styled(MutedLogo)`
   margin-right: 10px;
-`
-
-
+`;

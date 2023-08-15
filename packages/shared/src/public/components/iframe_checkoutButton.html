@@ -13,8 +13,9 @@
   </style>
   <script type="text/javascript">
     var script = document.createElement("script");
+    script.type="module";
     script.src =
-      `./checkoutButton.js?date=${new Date().getTime()}`;
+      `./checkoutbutton.js?date=${new Date().getTime()}`;
     document.head.appendChild(script);
   </script>
 </head>
@@ -27,14 +28,14 @@
     font-family: Poppins;
     font-weight: 400;
     font-style: normal;
-    src: url(../shared/fonts/Poppins-Regular.ttf);
+    src: url(../fonts/Poppins-Regular.ttf);
   }
 
   @font-face {
     font-family: Poppins;
     font-weight: 600;
     font-style: normal;
-    src: url(../shared/fonts/Poppins-SemiBold.ttf);
+    src: url(../fonts/Poppins-SemiBold.ttf);
   }
 
   @font-face {

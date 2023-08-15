@@ -1,10 +1,10 @@
-import { Messenger, SkipifyApi, Amplitude } from "./utils";
-import { store, defaultState } from "./state";
-import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
-import { UserEnrollmentInformationType, MerchantType } from "./shared.types";
-import { Analytics, BaseEventProperties, FlowType } from "./analytics";
+import { Messenger, SkipifyApi, Amplitude } from './utils';
+import { store, defaultState } from './state';
+import { SkipifyCheckoutUrl, SDKVersion } from './constants';
+import { UserEnrollmentInformationType, MerchantType } from './shared.types';
+import { Analytics, BaseEventProperties, FlowType } from './analytics';
 
-import "./styles/index.css";
+import './styles/index.css';
 
 export class Base {
   /**
@@ -80,9 +80,9 @@ export class Base {
 
     if (scriptSrc) {
       const queryParams = new URLSearchParams(new URL(scriptSrc).search);
-      const merchantId = queryParams.get("merchantId");
+      const merchantId = queryParams.get('merchantId');
       if (!merchantId) {
-        throw new Error("Skipify SDK should be loaded with a MerchantId");
+        throw new Error('Skipify SDK should be loaded with a MerchantId');
       }
       this.merchantId = merchantId;
     }
@@ -98,17 +98,13 @@ export class Base {
   }
 
   async launchBaseIframe() {
-    this.messenger.launchBaseIframe(
-      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup`
-    );
+    this.messenger.launchBaseIframe(`${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup`);
   }
 
   async launchEnrollmentIframe() {
     this.canProceedCheck();
 
-    this.messenger.launchEnrollmentIframe(
-      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`
-    );
+    this.messenger.launchEnrollmentIframe(`${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`);
   }
 
   start() {
@@ -236,33 +232,29 @@ export class Base {
    */
 
   processDOM() {
-    console.warn("-- processDom should be overwritten by platform class");
+    console.warn('-- processDom should be overwritten by platform class');
   }
 
   async clearCart(): Promise<void> {
-    console.warn("-- clearCart should be overwritten by platform class");
+    console.warn('-- clearCart should be overwritten by platform class');
   }
 
   async handleOrderCompleted(externalOrderId: string): Promise<void> {
-    console.warn(
-      `-- handleOrderCompleted ${externalOrderId} should be overwritten by platform class`
-    );
+    console.warn(`-- handleOrderCompleted ${externalOrderId} should be overwritten by platform class`);
   }
 
   async getCartData(): Promise<any> {
-    console.warn("-- getCartData should be overwritten by platform class");
+    console.warn('-- getCartData should be overwritten by platform class');
     return null;
   }
 
   async getCartTotal(): Promise<{ total: number; subtotal: number }> {
-    console.warn("-- getCartTotal should be overwritten by platform class");
+    console.warn('-- getCartTotal should be overwritten by platform class');
     return { total: 0, subtotal: 0 };
   }
 
   async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {
-    console.warn(
-      "-- getUserEnrollmentInformation should be overwritten by platform class"
-    );
+    console.warn('-- getUserEnrollmentInformation should be overwritten by platform class');
     return null;
   }
 }

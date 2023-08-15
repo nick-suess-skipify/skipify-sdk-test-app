@@ -1,12 +1,7 @@
-import { Base } from "../base";
-import {
-  IFRAME_ORIGIN,
-  MESSAGE_NAMES,
-  SkipifyElementIds,
-  SkipifyClassNames,
-  SkipifyCheckoutUrl,
-} from "../constants";
-import { UserEnrollmentInformationType } from "../shared.types";
+import { Base } from '../base';
+import { IFRAME_ORIGIN, MESSAGE_NAMES, SkipifyElementIds, SkipifyClassNames, SkipifyCheckoutUrl } from '../constants';
+import { getContainer, launchHiddenIframe, displayIframe, closeIframe, changeIframeHeight } from './iframe';
+import { UserEnrollmentInformationType } from '../shared.types';
 
 interface Props {
   base: Base;
@@ -20,7 +15,7 @@ export class Messenger {
 
   constructor({ base }: Props) {
     this.base = base;
-    window.addEventListener("message", (e) => this.handleIframeMessage(e));
+    window.addEventListener('message', (e) => this.handleIframeMessage(e));
   }
 
   handleIframeMessage(event: MessageEvent) {
@@ -56,55 +51,23 @@ export class Messenger {
     }
   }
 
-  getContainer() {
-    const overlayEl = document.createElement("div");
-    overlayEl.id = SkipifyElementIds.overlay;
-    overlayEl.style.display = "none";
-    overlayEl.style.opacity = "0";
-
-    document.body.appendChild(overlayEl);
-    return overlayEl;
-  }
-
   // The launchIframe function will create the iframe and overlay elements,
   // and then append them to the body. They will be hidden by default.
   launchBaseIframe(iframeSrc: string) {
-    const existingIframe = document.getElementById(SkipifyElementIds.iframe);
-    const existingContainer = document.getElementById(
-      SkipifyElementIds.overlay
-    );
-
-    if (existingIframe) {
-      return;
+    const baseIframe = launchHiddenIframe(iframeSrc);
+    if (baseIframe) {
+      this.iframe = baseIframe;
     }
-
-    let containerEl = existingContainer;
-    if (!existingContainer) {
-      containerEl = this.getContainer() as HTMLElement;
-    }
-
-    const iframeEl = document.createElement("iframe");
-    iframeEl.allow = "publickey-credentials-get *";
-    iframeEl.style.border = "none";
-    iframeEl.id = SkipifyElementIds.iframe;
-    iframeEl.src = iframeSrc;
-    this.iframe = iframeEl;
-
-    containerEl?.appendChild(iframeEl);
   }
 
   // This function launches the enrollment iframe, it also replaces the current lookup Iframe
   launchEnrollmentIframe(iframeSrc: string) {
     const existingIframe = document.getElementById(SkipifyElementIds.iframe);
-    const existingContainer = document.getElementById(
-      SkipifyElementIds.overlay
-    );
+    const existingContainer = document.getElementById(SkipifyElementIds.overlay);
 
     if (existingIframe && existingContainer) {
       // If already an enrollment iframe, just skip
-      if (
-        existingIframe.classList.contains(SkipifyClassNames.enrollmentIframe)
-      ) {
+      if (existingIframe.classList.contains(SkipifyClassNames.enrollmentIframe)) {
         return;
       }
       existingContainer.removeChild(existingIframe);
@@ -112,12 +75,12 @@ export class Messenger {
 
     let containerEl = existingContainer;
     if (!existingContainer) {
-      containerEl = this.getContainer() as HTMLElement;
+      containerEl = getContainer();
     }
 
-    const iframeEl = document.createElement("iframe");
-    iframeEl.allow = "publickey-credentials-get *";
-    iframeEl.style.border = "none";
+    const iframeEl = document.createElement('iframe');
+    iframeEl.allow = 'publickey-credentials-get *';
+    iframeEl.style.border = 'none';
     iframeEl.id = SkipifyElementIds.iframe;
     iframeEl.classList.add(SkipifyClassNames.enrollmentIframe);
     iframeEl.src = iframeSrc;
@@ -133,9 +96,7 @@ export class Messenger {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
-    const iframe = document.getElementById(
-      SkipifyElementIds.iframe
-    ) as HTMLIFrameElement;
+    const iframe = document.getElementById(SkipifyElementIds.iframe) as HTMLIFrameElement;
     if (iframe) {
       this.prevUserEmail = email;
       iframe.contentWindow?.postMessage(
@@ -152,17 +113,7 @@ export class Messenger {
     // Track sdk initiation
     this.base.trackSdkInitiated();
 
-    const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
-
-    if (existingOverlay) {
-      document.body.classList.add(SkipifyClassNames.body);
-      existingOverlay.style.display = "block";
-
-      // Added a setTimeout here to ensure that the opacity transition is applied
-      setTimeout(() => {
-        existingOverlay.style.opacity = "1";
-      }, 10);
-    }
+    displayIframe();
   }
 
   listenerDisplayIframe() {
@@ -191,16 +142,11 @@ export class Messenger {
       this.base.skipifyCheckoutCompleted = false;
       window.location.assign(`/`);
     }
-    const overlayEl = document.getElementById(SkipifyElementIds.overlay);
 
-    if (overlayEl) {
-      document.body.removeChild(overlayEl);
-    }
-
+    closeIframe();
     this.base.setHasInitializedIframe(false);
     this.prevUserEmail = null;
 
-    document.body.classList.remove(SkipifyClassNames.body);
     this.base.reset();
     this.base.launchBaseIframe();
     this.clearUserToLookup();
@@ -220,12 +166,11 @@ export class Messenger {
   // This is a request-response, meaning that we receive a signal from the iframe,
   // and then we send a response back.
   async listenerEnrollmentInfo(event: MessageEvent) {
-    const enrollmentData: UserEnrollmentInformationType | null =
-      await this.base.getUserEnrollmentInformation();
+    const enrollmentData: UserEnrollmentInformationType | null = await this.base.getUserEnrollmentInformation();
 
     if (!enrollmentData) {
       // An error occurred while fetching user information, not sending anything will trigger the iframe to close
-      console.error("-- Error getting enrollment information");
+      console.error('-- Error getting enrollment information');
       return;
     }
 
@@ -253,15 +198,13 @@ export class Messenger {
   }
 
   listenerIframeHeightChange(event: MessageEvent) {
-    const iframeEl = document.getElementById(SkipifyElementIds.iframe);
-
     const { payload } = event.data;
 
-    if (!iframeEl || !payload.height) {
+    if (!payload.height) {
       return;
     }
 
-    iframeEl.style.height = `${payload.height}px`;
+    changeIframeHeight(payload.height);
   }
 
   addUserToLookup(email: string, cartData: any) {
