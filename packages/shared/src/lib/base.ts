@@ -6,13 +6,6 @@ import { Analytics, BaseEventProperties, FlowType } from "./analytics";
 
 import "./styles/index.css";
 
-declare global {
-  interface Window {
-    BigCommerceSDK: any;
-    CustomSDK: any;
-  }
-}
-
 export class Base {
   /**
    * Merchant data

@@ -45,3 +45,10 @@ export const MESSAGE_NAMES = {
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
 } as const;
+
+declare global {
+  interface Window {
+    BigCommerceSDK: any;
+    CustomSDK: any;
+  }
+}
