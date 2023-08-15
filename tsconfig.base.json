@@ -19,18 +19,39 @@
     "importHelpers": true,
     "target": "ESNext",
     "module": "esnext",
-    "lib": ["ESNext", "dom"],
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@checkout-sdk/bigcommerce": ["packages/bigcommerce/src/index.ts"],
-      "@checkout-sdk/shared": ["packages/shared/src/index.ts"],
-      "@checkout-sdk/shared/*": ["packages/shared/src/*"],
-      "@checkout-sdk/checkout-button": ["packages/checkout-button/src/index.ts"],
-      "@checkout-sdk/enrollment-checkbox": ["packages/enrollment-checkbox/src/index.ts"]
+      "@checkout-sdk/bigcommerce": [
+        "packages/bigcommerce/src/index.ts"
+      ],
+      "@checkout-sdk/shared": [
+        "packages/shared/src/index.ts"
+      ],
+      "@checkout-sdk/shared/*": [
+        "packages/shared/src/*"
+      ],
+      "@checkout-sdk/checkout-button": [
+        "packages/checkout-button/src/index.ts"
+      ],
+      "@checkout-sdk/enrollment-checkbox": [
+        "packages/enrollment-checkbox/src/index.ts"
+      ]
     },
-    "types": ["vite/client", "node", "jest", "vite-plugin-svgr/client"]
+    "types": [
+      "vite/client",
+      "node",
+      "jest",
+      "vite-plugin-svgr/client"
+    ]
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

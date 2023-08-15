@@ -22,7 +22,7 @@ export class EnrollmentCheckbox {
     wrapperEl.id = SkipifyElementIds.enrollmentCheckbox;
 
     const enrollmentCheckboxFrame = document.createElement("iframe");
-    let enrollmentCheckBoxUrl = `${SdkUrl}/enrollment-checkbox/iframe_enrollmentCheckbox.html?date=${new Date().getTime()}`;
+    let enrollmentCheckBoxUrl = `${SdkUrl}/shared/components/iframe_enrollmentCheckbox.html?date=${new Date().getTime()}`;
     if (isDarkColor) {
       enrollmentCheckBoxUrl += "&darkMode=true";
     }

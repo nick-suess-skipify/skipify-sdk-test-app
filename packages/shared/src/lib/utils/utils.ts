@@ -1,7 +1,5 @@
 export function getIsDarkColor(color: string) {
-  const formattedColor = color.match(
-    /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/
-  ) as any;
+  const formattedColor = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/) as any;
 
   const r = formattedColor[1];
   const g = formattedColor[2];
@@ -19,11 +17,11 @@ export function getIsDarkColor(color: string) {
 
 export const phoneRegex = new RegExp(/^\d{10}$/);
 
-export function cleanPhoneNumber(phoneNumber = "") {
-  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, "");
+export function cleanPhoneNumber(phoneNumber = '') {
+  const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
   if (phoneRegex.test(cleanedPhoneNumber)) {
     return cleanedPhoneNumber;
   } else {
-    return "";
+    return '';
   }
 }

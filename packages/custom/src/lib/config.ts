@@ -1,0 +1,15 @@
+const requiredProperties = ['merchantId'];
+
+export class Config {
+  merchantId: string | null = null;
+
+  constructor(props: { merchantId: string } & any) {
+    requiredProperties.forEach((key) => {
+      if (props && props[key]) {
+        this[key as keyof Config] = props[key];
+      } else {
+        throw new Error(`missing required property: '${key}'`);
+      }
+    });
+  }
+}
