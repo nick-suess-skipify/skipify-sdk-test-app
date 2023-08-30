@@ -22,9 +22,9 @@ export const SkipifyEnrollmentCheckboxContent: React.FC = (props) => {
     <Container>
       <Checkbox checked={checked} onChange={() => handleCheckbox()} darkMode={darkMode} />
       <Content>
-        <ContentTitle darkMode={darkMode}>Save my information for faster checkouts</ContentTitle>
+        <ContentTitle darkMode={darkMode}>Save my details for future checkouts</ContentTitle>
         <ContentDescription darkMode={darkMode}>
-          Securely save my info and payment method for the next time I pay anywhere that accepts Skipify.
+          Save your contact information and payment method to breeze through checkouts that are powered by Skipify.
         </ContentDescription>
         <Terms darkMode={darkMode}>
           By continuing, you agree to the Skipify{' '}
