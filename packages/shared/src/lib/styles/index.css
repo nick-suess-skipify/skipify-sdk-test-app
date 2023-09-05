@@ -52,7 +52,10 @@
     min-height: 100vh;
     max-height: 100vh;
     min-height: -webkit-fill-available;
-    min-height: 100lvh;
     max-height: -webkit-fill-available;
+    min-height: -moz-available;
+    max-height: -moz-available;
+    min-height: 100dvh;
+    max-height: 100dvh;
   }
 }
