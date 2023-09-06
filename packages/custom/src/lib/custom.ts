@@ -1,6 +1,9 @@
 import { SkipifyCheckoutUrl, SdkUrl } from '@checkout-sdk/shared/lib/constants';
 import { Config } from './config';
 import { Messenger } from './messenger';
+import { Button } from './button/button';
+
+import '@checkout-sdk/shared/lib/styles';
 
 /*
  * This is the SDK for merchants
@@ -10,40 +13,28 @@ import { Messenger } from './messenger';
  */
 
 class CustomSDK {
-  config: Config;
-  messenger: Messenger;
+    config: Config;
+    messenger: Messenger;
 
-  constructor(config: any) {
-    this.config = new Config(config);
-    this.messenger = new Messenger();
-    this.start();
-  }
+    constructor(config: any) {
+        this.config = new Config(config);
+        this.messenger = new Messenger(this);
+        this.start();
+    }
 
-  start() {
-    this.launchBaseIframe();
-  }
+    start() {
+        this.launchBaseIframe();
+    }
 
-  async launchBaseIframe() {
-    this.messenger.launchBaseIframe(`${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`);
-  }
+    async launchBaseIframe() {
+        this.messenger.launchBaseIframe(`${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`);
+    }
 
-  checkoutButton(elem: HTMLElement, createOrder: () => any) {
-    const wrapperEl = document.createElement('div');
-
-    const checkoutButtonFrame = document.createElement('iframe');
-    checkoutButtonFrame.style.border = 'none';
-    checkoutButtonFrame.style.cursor = 'pointer';
-    checkoutButtonFrame.style.height = '54px';
-    const checkoutButtonUrl = `${SdkUrl}/shared/components/iframe_checkoutButton.html?date=${new Date().getTime()}`;
-    checkoutButtonFrame.src = checkoutButtonUrl;
-
-    this.messenger.buttonCheckoutCallback = createOrder;
-    wrapperEl.appendChild(checkoutButtonFrame);
-
-    elem.append(wrapperEl);
-  }
+    public button(options: { createOrder: () => any }) {
+        return new Button(this.config, this.messenger, options);
+    }
 }
 
-window.CustomSDK = CustomSDK;
+window.skipify = CustomSDK;
 
 export default CustomSDK;

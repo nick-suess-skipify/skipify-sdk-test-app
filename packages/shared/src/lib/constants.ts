@@ -52,5 +52,6 @@ declare global {
   interface Window {
     BigCommerceSDK: any;
     CustomSDK: any;
+    skipify: any;
   }
 }
