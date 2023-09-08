@@ -22,7 +22,6 @@ declare global {
 class ShopifySDK extends Base implements AbstractSDK {
   /**
    * Attributes that can be customizable on SDK instantiation.
-   * Default values are assigned based on default BigCommerce themes.
    */
   emailInputId = "checkout_email";
   discountCodeSelector = ".reduction-code"; // selects shopify discount code elements
