@@ -34,4 +34,41 @@ export class Amplitude {
   async track(event: Types.TrackEvent, options?: Types.EventOptions) {
     return this.client?.track(event, undefined, options);
   }
+
+  /**
+   * Get session id
+   */
+  getSessionId() {
+    return this.client?.getSessionId();
+  }
+
+  /**
+   * Set session id
+   * @param sessionId
+   */
+  setSessionId(sessionId: number) {
+    this.client?.setSessionId(sessionId);
+  }
+
+  /**
+   * Set device id
+   * @param deviceId
+   */
+  setDeviceId(deviceId: string) {
+    this.client?.setDeviceId(deviceId);
+  }
+
+  /**
+   * Get device id
+   */
+  getDeviceId() {
+    this.client?.getDeviceId();
+  }
+
+  /**
+   * Reset amplitude session
+   */
+  reset() {
+    this.client?.reset();
+  }
 }

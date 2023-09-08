@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "license": "MIT",
   "scripts": {
-    "host": "npx http-server ./dist -p 4200",
+    "host": "npx http-server ./dist -p 4200  --cors",
     "all:build:dev": "npx nx run-many --targets=build --all --configuration=dev",
     "all:build:stage": "npx nx run-many --targets=build --all --configuration=stage",
     "all:build:prod": "npx nx run-many --targets=build --all --configuration=prod",
