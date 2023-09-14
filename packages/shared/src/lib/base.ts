@@ -137,26 +137,6 @@ export class Base {
   /**
    * Analytics
    */
-
-  async trackSdkInitiated(flowType: FlowType = FlowType.egc) {
-    const { userEmail } = this.store.getState();
-    await this.amplitude.identify(userEmail);
-    const { total, subtotal } = await this.getCartTotal();
-
-    const properties = {
-      flow_type: flowType,
-      user_id: userEmail,
-      email: userEmail,
-      merchant_id: this.merchantId,
-      merchant_name: this.merchant?.branding?.displayName,
-      parent_merchant_id: this.merchant?.topLevelMerchantId,
-      total,
-      subtotal,
-    };
-
-    this.amplitude.track(new Analytics.sdkInitiatedEvent(properties));
-  }
-
   async trackEnrollmentUnchecked() {
     const { userEmail } = this.store.getState();
     await this.amplitude.identify(userEmail);

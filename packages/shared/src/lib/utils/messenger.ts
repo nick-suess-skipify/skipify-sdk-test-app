@@ -14,7 +14,7 @@ import {
   changeIframeHeight,
 } from "./iframe";
 import { UserEnrollmentInformationType } from "../shared.types";
-import { FlowType, log } from "../../lib";
+import { log } from "../../lib";
 
 interface Props {
   base: Base;
@@ -114,7 +114,7 @@ export class Messenger {
 
     containerEl?.appendChild(iframeEl);
 
-    this.displayIframe(FlowType.enrollment); // enrollment iframe has a different flow type value
+    displayIframe();
   }
 
   requestDeviceId() {
@@ -163,15 +163,8 @@ export class Messenger {
     }
   }
 
-  displayIframe(flowType: FlowType = FlowType.egc) {
-    // Track sdk initiation
-    this.base.trackSdkInitiated(flowType);
-
-    displayIframe();
-  }
-
   listenerDisplayIframe() {
-    this.displayIframe();
+    displayIframe();
     this.clearUserToLookup();
   }
 
