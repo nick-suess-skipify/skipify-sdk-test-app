@@ -15,14 +15,6 @@ export type BaseEventProperties = {
   email: string;
 };
 
-class SdkInitiatedEvent {
-  event_type = "fe_sdk_initiated";
-
-  constructor(public event_properties?: BaseEventProperties) {
-    this.event_properties = event_properties;
-  }
-}
-
 class EnrollmentUncheckedEvent {
   event_type = "fe_enrollment_unchecked";
 
@@ -32,6 +24,5 @@ class EnrollmentUncheckedEvent {
 }
 
 export const Analytics = {
-  sdkInitiatedEvent: SdkInitiatedEvent,
   enrollmentUncheckedEvent: EnrollmentUncheckedEvent,
 };
