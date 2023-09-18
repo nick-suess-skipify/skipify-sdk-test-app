@@ -89,7 +89,12 @@ export class Base {
   }
 
   async getMerchant() {
-    const merchantPublicData = await this.api.getMerchant();
+    let merchantPublicData;
+    try {
+      merchantPublicData = await this.api.getMerchant();
+    } catch (e) {
+      throw new Error(`Unable to retrieve merchant ${e}`);
+    }
     this.merchant = merchantPublicData;
 
     this.store.setState({
