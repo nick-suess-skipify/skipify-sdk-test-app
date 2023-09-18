@@ -1,7 +1,14 @@
 {
-  "name": "@checkout-sdk/source",
-  "version": "0.0.4",
+  "name": "@skipifycheckout/checkout-sdk",
+  "version": "0.0.7",
   "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SkipifyCheckout/checkout-sdk.git"
+  },
   "scripts": {
     "host": "npx http-server ./dist -p 4200  --cors",
     "all:build:dev": "npx nx run-many --targets=build --all --configuration=dev",
@@ -12,7 +19,6 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage --silent"
   },
-  "private": true,
   "dependencies": {
     "@amplitude/analytics-browser": "^2.1.2",
     "react": "^18.2.0",

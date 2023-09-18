@@ -1,5 +1,5 @@
 export const environment = {
-  SDK_VERSION: '0.0.1',
+  SDK_VERSION: '0.0.7',
   NODE_ENV: 'production',
   MERCHANT_SERVICE_URL: 'https://stage-merchants.skipify.com',
   SDK_URL: 'https://storage.googleapis.com/checkout-sdk-stage',

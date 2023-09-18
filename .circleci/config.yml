@@ -75,6 +75,27 @@ jobs:
       - run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"Deployed checkout-sdk to << parameters.bucket >> env from circleci, version: https://github.com/deeperlooknetwork/checkout-sdk/commit/'"$(git rev-parse --short HEAD)"'"}' https://hooks.slack.com/services/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
 
+  publish:
+    parameters:
+      environment:
+        description: The environment we are building. Accepted values - dev, stage, or prod
+        type: string
+    executor: node/default
+    steps:
+      - checkout
+      - run:
+          name: Configure npm for JFrog Artifactory
+          command: |
+            npm set $ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN
+      - run: npm install
+      - run: npm run all:build:<< parameters.environment >>
+      - run:
+          name: Publish to NPM
+          command: |
+            npm set @skipifycheckout:registry=$NPM_PUBLISH_URL
+            npm set $NPM_PUBLISH_URL:_authToken=$NPM_PUBLISH_TOKEN
+            npm publish
+
 workflows:
   always:
     jobs:
@@ -85,6 +106,7 @@ workflows:
           context: skipify-dev
           requires:
             - code-quality
+      
   dev:
     jobs:
       - build-approval:
@@ -109,6 +131,7 @@ workflows:
           context: skipify-dev
           requires:
             - build
+
   stage:
     jobs:
       - build-approval:
@@ -159,4 +182,10 @@ workflows:
           context: skipify-prod
           requires:
             - deploy-approval
+          <<: *prodTagFilter
+      - publish:
+          environment: prod
+          context: skipify-dev
+          requires:
+            - build
           <<: *prodTagFilter

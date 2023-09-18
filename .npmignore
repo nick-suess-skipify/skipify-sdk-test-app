@@ -1,0 +1,43 @@
+.circleci/*
+.github/*
+.eslintignore
+.eslintrc.json
+.lintstagedrc
+.prettierignore
+.stylelintignore
+.stylelintrc
+CODEOWNERS
+packages/shared/src/environments/*
+jest.config.ts
+jest.preset.js
+tsconfig.base.json
+
+# Logs
+logs
+*.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+coverage
+.env
+
+# Editor directories and files
+.vscode/*
+.history/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# coveralls
+.coveralls.yml
