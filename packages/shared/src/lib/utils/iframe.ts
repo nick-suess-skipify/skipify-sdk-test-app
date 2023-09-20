@@ -3,7 +3,9 @@ import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 export function getContainer(): HTMLElement {
   const overlayEl = document.createElement('div');
   overlayEl.id = SkipifyElementIds.overlay;
-  overlayEl.style.display = 'none';
+  overlayEl.style.visibility = 'hidden';
+  overlayEl.style.width = '0';
+  overlayEl.style.pointerEvents = 'none';
   overlayEl.style.opacity = '0';
 
   document.body.appendChild(overlayEl);
@@ -30,6 +32,10 @@ export function launchHiddenIframe(iframeSrc: string) {
   const iframeEl = document.createElement('iframe');
   iframeEl.allow = 'publickey-credentials-get *';
   iframeEl.style.border = 'none';
+  iframeEl.style.visibility = 'hidden';
+  iframeEl.style.width = '0';
+  iframeEl.style.pointerEvents = 'none';
+
   iframeEl.id = SkipifyElementIds.iframe;
   iframeEl.src = iframeSrc;
 
