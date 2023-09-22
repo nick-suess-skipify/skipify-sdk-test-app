@@ -32,9 +32,6 @@ export function launchHiddenIframe(iframeSrc: string) {
   const iframeEl = document.createElement('iframe');
   iframeEl.allow = 'publickey-credentials-get *';
   iframeEl.style.border = 'none';
-  iframeEl.style.visibility = 'hidden';
-  iframeEl.style.width = '0';
-  iframeEl.style.pointerEvents = 'none';
 
   iframeEl.id = SkipifyElementIds.iframe;
   iframeEl.src = iframeSrc;
@@ -50,6 +47,7 @@ export function displayIframe() {
   if (existingOverlay) {
     document.body.classList.add(SkipifyClassNames.body);
     existingOverlay.style.display = 'block';
+    existingOverlay.style.visibility = 'visible';
 
     // Added a setTimeout here to ensure that the opacity transition is applied
     setTimeout(() => {
