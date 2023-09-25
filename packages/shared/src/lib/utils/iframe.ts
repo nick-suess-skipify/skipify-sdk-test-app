@@ -49,7 +49,7 @@ export function displayIframe() {
     existingOverlay.style.display = 'block';
     existingOverlay.style.visibility = 'visible';
     existingOverlay.style.width = '100%';
-
+    existingOverlay.style.pointerEvents = 'auto';
 
     // Added a setTimeout here to ensure that the opacity transition is applied
     setTimeout(() => {
