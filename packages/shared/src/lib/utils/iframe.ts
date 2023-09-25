@@ -48,6 +48,8 @@ export function displayIframe() {
     document.body.classList.add(SkipifyClassNames.body);
     existingOverlay.style.display = 'block';
     existingOverlay.style.visibility = 'visible';
+    existingOverlay.style.width = '100%';
+
 
     // Added a setTimeout here to ensure that the opacity transition is applied
     setTimeout(() => {
