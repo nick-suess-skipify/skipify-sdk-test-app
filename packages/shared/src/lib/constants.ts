@@ -19,10 +19,12 @@ export const SkipifyClassNames = {
 };
 
 export const SkipifyElementIds = {
-  iframe: "_SKIPIFY_iframe",
-  overlay: "_SKIPIFY_overlay",
-  enrollmentCheckbox: "_SKIPIFY_enrollment_checkbox",
-  container: "_SKIPIFY_container",
+  iframe: '_SKIPIFY_iframe',
+  overlay: '_SKIPIFY_overlay',
+  enrollmentCheckbox: '_SKIPIFY_enrollment_checkbox',
+  container: '_SKIPIFY_container',
+  checkButton: '_SKIPIFY_check_button',
+  emailWrapper: '_SKIPIFY_email_wrapper',
 };
 
 /**
