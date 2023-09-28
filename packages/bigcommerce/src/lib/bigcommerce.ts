@@ -23,7 +23,7 @@ interface OwnProps {
 
 type Props = OwnProps;
 
-export default class BigCommerceSDK extends Base implements AbstractSDK {
+export class BigCommerceSDK extends Base implements AbstractSDK {
   /**
    * Attributes that can be customizable on SDK instantiation.
    * Default values are assigned based on default BigCommerce themes.
@@ -242,6 +242,4 @@ export default class BigCommerceSDK extends Base implements AbstractSDK {
   }
 }
 
-window.BigCommerceSDK = BigCommerceSDK;
-
-// export default new BigCommerceSDK();
+export default new BigCommerceSDK();

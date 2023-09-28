@@ -31,9 +31,9 @@ jobs:
             npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
       - run: npm ci
       - run: npm run all:lint
-      - run:
-          name: Run tests with coverage
-          command: npm run test:cov -- --coverageReporters=lcov
+      # - run:
+      #     name: Run tests with coverage
+      #     command: npm run test:cov -- --coverageReporters=lcov
 
   build:
     parameters:

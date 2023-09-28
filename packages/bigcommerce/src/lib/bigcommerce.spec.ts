@@ -7,7 +7,7 @@ import { EmailInput } from './utils/emailInput';
 jest.mock('./utils/emailInput', () => ({
   EmailInput: jest.fn(),
 }));
-import BigCommerceSDK from './bigcommerce';
+import { BigCommerceSDK } from './bigcommerce';
 
 const fakeMerchant = {
   checkoutTestMode: false,
