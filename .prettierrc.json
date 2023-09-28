@@ -1,0 +1,7 @@
+{
+  "quoteProps": "as-needed",
+  "requirePragma": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "useTabs": false
+}
