@@ -1,4 +1,4 @@
-import { environment } from "../environments/environment";
+import { environment } from '../environments/environment';
 
 export const SDKVersion = environment.SDK_VERSION;
 
@@ -11,11 +11,12 @@ export const SkipifyCheckoutUrl = environment.SKIPIFY_CHECKOUT_URL;
 export const AmplitudeApiKey = environment.AMPLITUDE_API_KEY;
 
 export const SkipifyClassNames = {
-  emailInput: "_SKIPIFY_email_input",
-  loggedInCustomer: "_SKIPIFY_logged_in_customer",
-  paymentButton: "_SKIPIFY_payment_button",
-  enrollmentIframe: "_SKIPIFY_enrollment_iframe",
-  body: "_SKIPIFY_body",
+  emailInput: '_SKIPIFY_email_input',
+  loggedInCustomer: '_SKIPIFY_logged_in_customer',
+  paymentButton: '_SKIPIFY_payment_button',
+  enrollmentIframe: '_SKIPIFY_enrollment_iframe',
+  body: '_SKIPIFY_body',
+  skipifyV2: '_SKIPIFY_V2',
 };
 
 export const SkipifyElementIds = {
@@ -30,7 +31,7 @@ export const SkipifyElementIds = {
 /**
  * These definitions come from the Shakira code-- but they could be shared as part of a library to reduce redundancy
  */
-const MESSAGE_NAME_PREFIX = "@skipify";
+const MESSAGE_NAME_PREFIX = '@skipify';
 export const MESSAGE_NAMES = {
   // Inbound
   INIT: `${MESSAGE_NAME_PREFIX}/init`,
@@ -42,11 +43,13 @@ export const MESSAGE_NAMES = {
   ENROLLMENT_ELIGIBLE: `${MESSAGE_NAME_PREFIX}/enrollment-eligible`,
   ORDER_COMPLETED: `${MESSAGE_NAME_PREFIX}/order-completed`,
   DEVICE_ID: `${MESSAGE_NAME_PREFIX}/device-id`,
+  SKIPIFY_VERSION: `${MESSAGE_NAME_PREFIX}/skipify-version`,
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
   CREATE_ORDER: `${MESSAGE_NAME_PREFIX}/create-order`,
   REQUEST_DEVICE_ID: `${MESSAGE_NAME_PREFIX}/request-device-id`,
+  REQUEST_SKIPIFY_VERSION: `${MESSAGE_NAME_PREFIX}/request-skipify-version`,
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,

@@ -15,10 +15,6 @@
 
 #_SKIPIFY_iframe {
   position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translate(-50%, 0);
-  width: 500px;
   height: 500px;
   z-index: 9999;
   border: none;
@@ -26,7 +22,20 @@
   border-radius: 16px;
   background-color: transparent;
   transition: opacity 600ms ease-in;
+}
+
+#_SKIPIFY_iframe:not(._SKIPIFY_V2) {
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 500px;
   max-height: calc(100vh - 40px);
+}
+
+#_SKIPIFY_iframe._SKIPIFY_V2 {
+  max-width: 360px;
+  min-width: 320px;
+  min-height: 300px;
 }
 
 #_SKIPIFY_enrollment_checkbox {
@@ -43,8 +52,27 @@
   overflow: hidden;
 }
 
+#_SKIPIFY_email_wrapper {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+#_SKIPIFY_check_button {
+  background-color: black;
+  padding: 10px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#_SKIPIFY_check_icon {
+  fill: white;
+}
+
 @media screen and (max-width: 550px) {
-  #_SKIPIFY_iframe {
+  #_SKIPIFY_iframe:not(._SKIPIFY_V2) {
     width: 100vw;
     top: 0px;
     border-radius: 0px;

@@ -1,5 +1,7 @@
 export function getIsDarkColor(color: string) {
-  const formattedColor = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/) as any;
+  const formattedColor = color.match(
+    /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/
+  ) as any;
 
   const r = formattedColor[1];
   const g = formattedColor[2];
@@ -24,4 +26,9 @@ export function cleanPhoneNumber(phoneNumber = '') {
   } else {
     return '';
   }
+}
+
+export function roundByDPR(value: number) {
+  const dpr = window.devicePixelRatio || 1;
+  return Math.round(value * dpr) / dpr;
 }
