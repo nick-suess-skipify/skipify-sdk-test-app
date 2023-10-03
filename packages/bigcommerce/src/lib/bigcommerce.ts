@@ -80,7 +80,10 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       node: emailInputElem,
       setUserEmail: (email) => this.setUserEmail(email),
       passwordInputId: this.passwordInputId,
-      resetIframe: () => this.skipifyV2 && this.launchBaseIframe(),
+      onChange: () => {
+        if (this.skipifyV2) this.launchBaseIframe();
+        if (this.button) this.button.style.display = 'none';
+      },
     });
   }
 

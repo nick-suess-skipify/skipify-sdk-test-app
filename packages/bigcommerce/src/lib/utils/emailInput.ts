@@ -4,7 +4,7 @@ interface OwnProps {
   node: HTMLElement;
   setUserEmail: (email: string) => void;
   passwordInputId: string;
-  resetIframe: () => void;
+  onChange: () => void;
 }
 
 type Props = OwnProps;
@@ -13,13 +13,13 @@ export class EmailInput {
   node: HTMLElement;
   passwordInputId: string;
   setUserEmail: (email: string) => void;
-  resetIframe: () => void;
+  onChange: () => void;
 
-  constructor({ node, setUserEmail, passwordInputId, resetIframe }: Props) {
+  constructor({ node, setUserEmail, passwordInputId, onChange }: Props) {
     this.node = node;
     this.passwordInputId = passwordInputId;
     this.setUserEmail = setUserEmail;
-    this.resetIframe = resetIframe;
+    this.onChange = onChange;
     this.start();
   }
 
@@ -35,9 +35,5 @@ export class EmailInput {
 
     const emailValue = (e.target as HTMLInputElement).value;
     this.setUserEmail(emailValue);
-  }
-
-  onChange() {
-    this.resetIframe();
   }
 }

@@ -191,6 +191,7 @@ export class Messenger {
       });
     }
     displayIframe();
+    this.base.setHasInitializedIframe(false);
     this.clearUserToLookup();
   }
 
