@@ -1,10 +1,11 @@
-import { Messenger, SkipifyApi, Amplitude } from "./utils";
-import { store, defaultState } from "./state";
-import { SkipifyCheckoutUrl, SDKVersion } from "./constants";
-import { UserEnrollmentInformationType, MerchantType } from "./shared.types";
-import { Analytics, BaseEventProperties, FlowType } from "./analytics";
+import { Messenger, SkipifyApi, Amplitude, roundByDPR } from './utils';
+import { store, defaultState } from './state';
+import { SkipifyCheckoutUrl, SDKVersion, SkipifyElementIds } from './constants';
+import { UserEnrollmentInformationType, MerchantType } from './shared.types';
+import { Analytics, FlowType } from './analytics';
 
-import "./styles/index.css";
+import { displayIframe } from './utils/iframe';
+import './styles/index.css';
 
 export class Base {
   /**
@@ -27,6 +28,13 @@ export class Base {
   messenger: Messenger;
   amplitude: Amplitude;
   store;
+
+  /**
+   * Elements
+   *
+   */
+  button?: HTMLButtonElement;
+  skipifyV2 = false;
 
   constructor(merchantId?: string) {
     /**
@@ -70,6 +78,10 @@ export class Base {
     this.start();
   }
 
+  setSkipifyV2(enable: boolean) {
+    this.skipifyV2 = enable;
+  }
+
   getMerchantIdFromQuery(merchantId?: string) {
     if (merchantId) {
       this.merchantId = merchantId;
@@ -80,9 +92,9 @@ export class Base {
 
     if (scriptSrc) {
       const queryParams = new URLSearchParams(new URL(scriptSrc).search);
-      const merchantId = queryParams.get("merchantId");
+      const merchantId = queryParams.get('merchantId');
       if (!merchantId) {
-        throw new Error("Skipify SDK should be loaded with a MerchantId");
+        throw new Error('Skipify SDK should be loaded with a MerchantId');
       }
       this.merchantId = merchantId;
     }
@@ -114,6 +126,29 @@ export class Base {
     this.messenger.launchEnrollmentIframe(
       `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`
     );
+  }
+
+  positionIframe(shouldScroll = false) {
+    if (!this.messenger.iframe) return;
+
+    const buttonPosition = this.button?.getBoundingClientRect();
+    if (shouldScroll && buttonPosition?.y) {
+      window.scrollBy(0, roundByDPR(buttonPosition.y - 16));
+    }
+
+    const iframeSize = this.messenger.iframe.getBoundingClientRect();
+    if (!buttonPosition || !iframeSize) return;
+
+    const translateX = Math.max(
+      roundByDPR(buttonPosition.right - iframeSize.width),
+      0
+    );
+    const translateY = roundByDPR(buttonPosition.bottom + 16);
+    const remainingSpace = roundByDPR(window.innerHeight - translateY);
+    const maxHeight = Math.max(remainingSpace - 24, 0);
+
+    this.messenger.iframe.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    this.messenger.iframe.style.maxHeight = `${maxHeight}px`;
   }
 
   start() {
@@ -216,16 +251,34 @@ export class Base {
     this.hasInitializedIframe = value;
   }
 
+  insertButton(emailInput: HTMLElement) {
+    const wrapper = document.createElement('div');
+    wrapper.id = SkipifyElementIds.emailWrapper;
+    const parent = emailInput.parentNode;
+    this.button = document.createElement('button');
+    this.button.id = SkipifyElementIds.checkButton;
+    this.button.style.width = `${emailInput.getBoundingClientRect().height}px`;
+    this.button.innerHTML = `<svg id="_SKIPIFY_check_icon" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg>`;
+    this.button.onclick = (e) => {
+      e.preventDefault();
+      displayIframe();
+      this.positionIframe(true);
+    };
+    parent?.replaceChild(wrapper, emailInput);
+    wrapper.appendChild(emailInput);
+    wrapper.appendChild(this.button);
+  }
+
   /**
    * Overwritten methods
    */
 
   processDOM() {
-    console.warn("-- processDom should be overwritten by platform class");
+    console.warn('-- processDom should be overwritten by platform class');
   }
 
   async clearCart(): Promise<void> {
-    console.warn("-- clearCart should be overwritten by platform class");
+    console.warn('-- clearCart should be overwritten by platform class');
   }
 
   async handleOrderCompleted(externalOrderId: string): Promise<void> {
@@ -235,18 +288,18 @@ export class Base {
   }
 
   async getCartData(): Promise<any> {
-    console.warn("-- getCartData should be overwritten by platform class");
+    console.warn('-- getCartData should be overwritten by platform class');
     return null;
   }
 
   async getCartTotal(): Promise<{ total: number; subtotal: number }> {
-    console.warn("-- getCartTotal should be overwritten by platform class");
+    console.warn('-- getCartTotal should be overwritten by platform class');
     return { total: 0, subtotal: 0 };
   }
 
   async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {
     console.warn(
-      "-- getUserEnrollmentInformation should be overwritten by platform class"
+      '-- getUserEnrollmentInformation should be overwritten by platform class'
     );
     return null;
   }

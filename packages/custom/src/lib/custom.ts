@@ -1,4 +1,4 @@
-import { SkipifyCheckoutUrl, SdkUrl } from '@checkout-sdk/shared/lib/constants';
+import { SkipifyCheckoutUrl } from '@checkout-sdk/shared/lib/constants';
 import { Config } from './config';
 import { Messenger } from './messenger';
 import { Button } from './button/button';
@@ -13,26 +13,28 @@ import '@checkout-sdk/shared/lib/styles';
  */
 
 class CustomSDK {
-    config: Config;
-    messenger: Messenger;
+  config: Config;
+  messenger: Messenger;
 
-    constructor(config: any) {
-        this.config = new Config(config);
-        this.messenger = new Messenger(this);
-        this.start();
-    }
+  constructor(config: any) {
+    this.config = new Config(config);
+    this.messenger = new Messenger(this);
+    this.start();
+  }
 
-    start() {
-        this.launchBaseIframe();
-    }
+  start() {
+    this.launchBaseIframe();
+  }
 
-    async launchBaseIframe() {
-        this.messenger.launchBaseIframe(`${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`);
-    }
+  async launchBaseIframe() {
+    this.messenger.launchBaseIframe(
+      `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`
+    );
+  }
 
-    public button(options: { createOrder: () => any }) {
-        return new Button(this.config, this.messenger, options);
-    }
+  public button(options: { createOrder: () => any }) {
+    return new Button(this.config, this.messenger, options);
+  }
 }
 
 window.skipify = CustomSDK;

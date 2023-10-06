@@ -5,15 +5,15 @@ import {
   SkipifyElementIds,
   UserEnrollmentInformationType,
   cleanPhoneNumber,
-} from "@checkout-sdk/shared";
+} from '@checkout-sdk/shared';
 import {
   EmailInput,
   CheckoutCompleted,
   EnrollmentCheckbox,
   BigCommerceStoreFrontApi,
   LoggedInCustomer,
-} from "./utils";
-import { BigCommerceLineItem } from "./bigcommerce.types";
+} from './utils';
+import { BigCommerceLineItem } from './bigcommerce.types';
 
 interface OwnProps {
   emailInputId?: string;
@@ -28,13 +28,13 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
    * Attributes that can be customizable on SDK instantiation.
    * Default values are assigned based on default BigCommerce themes.
    */
-  emailInputId = "email";
-  passwordInputId = "password";
-  paymentButtonId = "checkout-payment-continue";
-  loggedInCustomerSelector = "[data-test=sign-out-link]";
-  completedOrderSelector = ".orderConfirmation-section span strong";
-  checkoutUrlMatch = "checkout";
-  orderConfirmationUrlMatch = "order-confirmation";
+  emailInputId = 'email';
+  passwordInputId = 'password';
+  paymentButtonId = 'checkout-payment-continue';
+  loggedInCustomerSelector = '[data-test=sign-out-link]';
+  completedOrderSelector = '.orderConfirmation-section span strong';
+  checkoutUrlMatch = 'checkout';
+  orderConfirmationUrlMatch = 'order-confirmation';
 
   /**
    * Child classes that implements specific business logic.
@@ -74,11 +74,16 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     ) {
       return;
     }
+    this.insertButton(emailInputElem);
 
     this.emailInput = new EmailInput({
       node: emailInputElem,
       setUserEmail: (email) => this.setUserEmail(email),
       passwordInputId: this.passwordInputId,
+      onChange: () => {
+        if (this.skipifyV2) this.launchBaseIframe();
+        if (this.button) this.button.style.display = 'none';
+      },
     });
   }
 

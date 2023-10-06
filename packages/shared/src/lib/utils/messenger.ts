@@ -1,20 +1,20 @@
-import { Base } from "../base";
+import { Base } from '../base';
 import {
   IFRAME_ORIGIN,
   MESSAGE_NAMES,
   SkipifyElementIds,
   SkipifyClassNames,
   SkipifyCheckoutUrl,
-} from "../constants";
+} from '../constants';
 import {
   getContainer,
   launchHiddenIframe,
   displayIframe,
-  closeIframe,
+  hideIframe,
   changeIframeHeight,
-} from "./iframe";
-import { UserEnrollmentInformationType } from "../shared.types";
-import { log } from "../../lib";
+} from './iframe';
+import { UserEnrollmentInformationType } from '../shared.types';
+import { log } from '../../lib';
 
 interface Props {
   base: Base;
@@ -23,19 +23,19 @@ interface Props {
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
   base: Base;
-  userToLookup: { email: string; cartData: any } | null = null;
+  userToLookup: { email: string; cartData: unknown } | null = null;
   prevUserEmail: string | null = null;
 
   constructor({ base }: Props) {
     this.base = base;
-    window.addEventListener("message", (e) => this.handleIframeMessage(e));
+    window.addEventListener('message', (e) => this.handleIframeMessage(e));
   }
 
   handleIframeMessage(event: MessageEvent) {
     const { data, origin } = event;
 
     if (origin?.match(/\.skipify\.com/) || origin === IFRAME_ORIGIN) {
-      log("Received message from iframe", {
+      log('Received message from iframe', {
         name: data?.name,
         payload: data?.payload,
       });
@@ -53,7 +53,7 @@ export class Messenger {
       case MESSAGE_NAMES.GET_ENROLLMENT_INFO:
         return this.listenerEnrollmentInfo(event);
       case MESSAGE_NAMES.CLOSE_IFRAME:
-        return this.listenerCloseIframe();
+        return this.listenerCloseIframe(event);
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.ENROLLMENT_VALUE_CHANGED:
@@ -68,6 +68,8 @@ export class Messenger {
         return this.listenerOrderCompleted(event);
       case MESSAGE_NAMES.DEVICE_ID:
         return this.listenerDeviceId(event);
+      case MESSAGE_NAMES.SKIPIFY_VERSION:
+        return this.listenerSkipifyVersion(event);
       default:
         return;
     }
@@ -76,7 +78,10 @@ export class Messenger {
   // The launchIframe function will create the iframe and overlay elements,
   // and then append them to the body. They will be hidden by default.
   launchBaseIframe(iframeSrc: string) {
-    const baseIframe = launchHiddenIframe(iframeSrc);
+    const baseIframe = launchHiddenIframe(
+      iframeSrc,
+      this.base.hasInitializedIframe
+    );
     if (baseIframe) {
       this.iframe = baseIframe;
     }
@@ -99,14 +104,11 @@ export class Messenger {
       existingContainer.removeChild(existingIframe);
     }
 
-    let containerEl = existingContainer;
-    if (!existingContainer) {
-      containerEl = getContainer();
-    }
+    const containerEl = existingContainer ?? getContainer();
 
-    const iframeEl = document.createElement("iframe");
-    iframeEl.allow = "publickey-credentials-get *";
-    iframeEl.style.border = "none";
+    const iframeEl = document.createElement('iframe');
+    iframeEl.allow = 'publickey-credentials-get *';
+    iframeEl.style.border = 'none';
     iframeEl.id = SkipifyElementIds.iframe;
     iframeEl.classList.add(SkipifyClassNames.enrollmentIframe);
     iframeEl.src = iframeSrc;
@@ -115,6 +117,20 @@ export class Messenger {
     containerEl?.appendChild(iframeEl);
 
     displayIframe();
+  }
+
+  requestSkipifyVersion() {
+    const iframe = document.getElementById(
+      SkipifyElementIds.iframe
+    ) as HTMLIFrameElement;
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.REQUEST_SKIPIFY_VERSION,
+        },
+        SkipifyCheckoutUrl
+      );
+    }
   }
 
   requestDeviceId() {
@@ -138,7 +154,7 @@ export class Messenger {
     }
     const iframe = document.getElementById(
       SkipifyElementIds.iframe
-    ) as HTMLIFrameElement;
+    ) as HTMLIFrameElement | null;
     if (iframe) {
       this.prevUserEmail = email;
 
@@ -148,7 +164,7 @@ export class Messenger {
         amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
       };
 
-      log("Posting lookup data to iframe", {
+      log('Posting lookup data to iframe', {
         name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
         payload,
       });
@@ -164,7 +180,18 @@ export class Messenger {
   }
 
   listenerDisplayIframe() {
+    if (this.base.skipifyV2) {
+      if (this.base.button) this.base.button.style.display = 'flex';
+      this.base.positionIframe(true);
+      window.addEventListener('resize', () => {
+        this.base.positionIframe(true);
+      });
+      window.addEventListener('scroll', () => {
+        this.base.positionIframe();
+      });
+    }
     displayIframe();
+    this.base.setHasInitializedIframe(false);
     this.clearUserToLookup();
   }
 
@@ -176,7 +203,7 @@ export class Messenger {
   }
 
   listenerLookupError() {
-    this.closeIframe();
+    this.closeIframe(true);
   }
 
   listenerOrderCompleted(event: MessageEvent) {
@@ -184,13 +211,23 @@ export class Messenger {
     this.base.handleOrderCompleted(orderId);
   }
 
-  closeIframe() {
+  closeIframe(reload: boolean) {
     if (this.base.skipifyCheckoutCompleted) {
       this.base.skipifyCheckoutCompleted = false;
       window.location.assign(`/`);
     }
 
-    closeIframe();
+    if (reload) {
+      this.resetIframe();
+    } else {
+      hideIframe();
+      this.prevUserEmail = null;
+      this.clearUserToLookup();
+    }
+  }
+
+  resetIframe() {
+    hideIframe();
     this.base.setHasInitializedIframe(false);
     this.prevUserEmail = null;
 
@@ -204,6 +241,7 @@ export class Messenger {
   listenerInit() {
     this.base.setHasInitializedIframe(true);
     this.requestDeviceId(); // immediately request device id from iframe after iframe is initialized
+    this.requestSkipifyVersion();
     if (this.userToLookup) {
       const { email, cartData } = this.userToLookup;
       this.lookupUser(email, cartData);
@@ -219,7 +257,7 @@ export class Messenger {
 
     if (!enrollmentData) {
       // An error occurred while fetching user information, not sending anything will trigger the iframe to close
-      console.error("-- Error getting enrollment information");
+      console.error('-- Error getting enrollment information');
       return;
     }
 
@@ -230,7 +268,7 @@ export class Messenger {
       amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id, so it can stay at the same session even user refreshes the page
     };
 
-    log("Posting enrollment data to iframe...", {
+    log('Posting enrollment data to iframe...', {
       name: MESSAGE_NAMES.ENROLLMENT_INFO_RECEIVED,
       payload,
     });
@@ -252,8 +290,8 @@ export class Messenger {
   // Set up listener for the "close iframe" signal
   // This is a one-way signal, meaning that we receive a signal from the iframe,
   // and then we do something in response.
-  listenerCloseIframe() {
-    this.closeIframe();
+  listenerCloseIframe(event: MessageEvent) {
+    this.closeIframe(event.data.payload?.reload);
   }
 
   listenerIframeHeightChange(event: MessageEvent) {
@@ -278,5 +316,11 @@ export class Messenger {
     // we want to use the device id generated by the iframe (fingerprint js)
     const { deviceId } = event.data.payload;
     this.base.amplitude.setDeviceId(deviceId);
+  }
+
+  listenerSkipifyVersion(event: MessageEvent) {
+    const { skipifyV2 } = event.data.payload;
+    this.base.setSkipifyV2(skipifyV2);
+    if (skipifyV2) this.iframe?.classList.add(SkipifyClassNames.skipifyV2);
   }
 }
