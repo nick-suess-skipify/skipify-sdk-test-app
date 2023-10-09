@@ -124,7 +124,7 @@ export class Base {
       SkipifyElementIds.iframe
     ) as HTMLIFrameElement;
 
-    // skip launch lookup iframe if we are on enrollment flow, they
+    // skip launch lookup iframe if we are on enrollment flow
     if (
       existingIframe?.classList.contains(SkipifyClassNames.enrollmentIframe)
     ) {
