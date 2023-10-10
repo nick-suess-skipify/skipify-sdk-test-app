@@ -150,11 +150,11 @@ export class Base {
 
     const iframeSize = this.messenger.iframe.getBoundingClientRect();
     if (!buttonPosition || !iframeSize) return;
-
-    const translateX = Math.max(
-      roundByDPR(buttonPosition.right - iframeSize.width),
-      0
-    );
+    const totalWidth = window.innerWidth;
+    const translateX =
+      totalWidth > 430
+        ? Math.max(roundByDPR(buttonPosition.right - iframeSize.width), 36)
+        : roundByDPR((totalWidth - iframeSize.width) / 2);
     const translateY = roundByDPR(buttonPosition.bottom + 16);
     const remainingSpace = roundByDPR(window.innerHeight - translateY);
     const maxHeight = Math.max(remainingSpace - 24, 0);

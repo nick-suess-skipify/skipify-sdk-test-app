@@ -33,8 +33,7 @@
 }
 
 #_SKIPIFY_iframe._SKIPIFY_V2 {
-  max-width: 360px;
-  min-width: 320px;
+  min-width: 360px;
   min-height: 300px;
 }
 
@@ -85,5 +84,11 @@
     max-height: -moz-available;
     min-height: 100dvh;
     max-height: 100dvh;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  #_SKIPIFY_iframe._SKIPIFY_V2 {
+    min-width: 100vw;
   }
 }

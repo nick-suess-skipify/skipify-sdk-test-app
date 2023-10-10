@@ -124,7 +124,7 @@ export class Messenger {
     if (iframe) {
       const payload = { skipifyV2 };
 
-      log('Posting lookup data to iframe', {
+      log('Posting skipify v2 to iframe', {
         name: MESSAGE_NAMES.SET_SKIPIFY_VERSION,
         payload,
       });
@@ -136,7 +136,7 @@ export class Messenger {
         SkipifyCheckoutUrl
       );
 
-      if (isSkipifyV2) {
+      if (skipifyV2) {
         this.iframe?.classList.add(SkipifyClassNames.skipifyV2);
       } else {
         this.iframe?.classList.remove(SkipifyClassNames.skipifyV2);
@@ -254,7 +254,11 @@ export class Messenger {
   // This is the listener for the INIT message from the iframe.
   // Once we receive this message, we can start sending messages to the iframe source that we stored.
   listenerInit() {
+    if (this.base.hasInitializedIframe) {
+      return;
+    }
     this.base.setHasInitializedIframe(true);
+    this.setSkipifyVersion(localStorage.getItem('SKIPIFY_V2') === 'true');
     this.requestDeviceId(); // immediately request device id from iframe after iframe is initialized
     if (this.userToLookup) {
       const { email, cartData } = this.userToLookup;

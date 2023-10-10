@@ -13,20 +13,18 @@ import CustomSDK from './custom';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
-  buttonCheckoutCallback: (() => any) | null = null;
+  buttonCheckoutCallback: (() => unknown) | null = null;
 
   constructor(private sdk: CustomSDK) {
     window.addEventListener('message', (e) => this.handleIframeMessage(e));
   }
 
   handleIframeMessage(event: MessageEvent) {
-    const { data, origin } = event;
+    const { data } = event;
 
     if (!data) {
       return;
     }
-
-    console.log(data);
 
     switch (data.name) {
       case MESSAGE_NAMES.CLOSE_IFRAME:
@@ -34,7 +32,7 @@ export class Messenger {
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.CHECKOUT_BUTTON_TRIGGERED:
-        return this.listenerCheckoutButtonTriggered(event);
+        return this.listenerCheckoutButtonTriggered();
       case MESSAGE_NAMES.DISPLAY_IFRAME:
         return this.listenerDisplayIframe();
       default:
@@ -42,7 +40,7 @@ export class Messenger {
     }
   }
 
-  listenerCheckoutButtonTriggered(event: MessageEvent) {
+  listenerCheckoutButtonTriggered() {
     if (this.buttonCheckoutCallback) {
       const checkoutData = this.buttonCheckoutCallback();
       console.log(checkoutData);
