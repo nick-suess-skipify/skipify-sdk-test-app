@@ -1,6 +1,11 @@
 import { Messenger, SkipifyApi, Amplitude, roundByDPR } from './utils';
 import { store, defaultState } from './state';
-import { SkipifyCheckoutUrl, SDKVersion, SkipifyElementIds } from './constants';
+import {
+  SkipifyCheckoutUrl,
+  SDKVersion,
+  SkipifyElementIds,
+  SkipifyClassNames,
+} from './constants';
 import { UserEnrollmentInformationType, MerchantType } from './shared.types';
 import { Analytics, FlowType } from './analytics';
 
@@ -115,6 +120,17 @@ export class Base {
   }
 
   async launchBaseIframe() {
+    const existingIframe = document.getElementById(
+      SkipifyElementIds.iframe
+    ) as HTMLIFrameElement;
+
+    // skip launch lookup iframe if we are on enrollment flow
+    if (
+      existingIframe?.classList.contains(SkipifyClassNames.enrollmentIframe)
+    ) {
+      return;
+    }
+
     this.messenger.launchBaseIframe(
       `${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup`
     );
