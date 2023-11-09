@@ -44,12 +44,15 @@ export const MESSAGE_NAMES = {
   ENROLLMENT_ELIGIBLE: `${MESSAGE_NAME_PREFIX}/enrollment-eligible`,
   ORDER_COMPLETED: `${MESSAGE_NAME_PREFIX}/order-completed`,
   DEVICE_ID: `${MESSAGE_NAME_PREFIX}/device-id`,
+  ORDER_ID: `${MESSAGE_NAME_PREFIX}/order-id`,
+  ASK_FOR_ORDER_ID: `${MESSAGE_NAME_PREFIX}/request-order-id`,
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
   CREATE_ORDER: `${MESSAGE_NAME_PREFIX}/create-order`,
   REQUEST_DEVICE_ID: `${MESSAGE_NAME_PREFIX}/request-device-id`,
   SET_SKIPIFY_VERSION: `${MESSAGE_NAME_PREFIX}/set-skipify-version`,
+  RECIEVE_ORDER_ID: `${MESSAGE_NAME_PREFIX}/receive-order-id`,
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,

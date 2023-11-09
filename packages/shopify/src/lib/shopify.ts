@@ -10,6 +10,7 @@ import {
 
 import { ShopifyCart, ShopifyGlobalObject, ShopifyLine } from "./shopify.types";
 import { CheckoutCompleted, EmailInput, EnrollmentCheckbox } from "./utils";
+import { insertResumableBtn } from "./utils/resumableOrderBtn";
 
 /**
  * Global window.Shopify object available on checkout page
@@ -43,7 +44,6 @@ class ShopifySDK extends Base implements AbstractSDK {
   override start(): void {
     const { step } = window.Shopify?.Checkout || {};
     if (step === "shipping_method") return; // current we don't do anything on shipping method page, skip
-
     super.start();
   }
 
@@ -108,6 +108,8 @@ class ShopifySDK extends Base implements AbstractSDK {
     }
   }
 
+
+
   processEmailInput(): void {
     const emailInputElem = document.getElementById(
       this.emailInputId
@@ -120,7 +122,9 @@ class ShopifySDK extends Base implements AbstractSDK {
       return;
     }
 
-    const { userEmail } = this.store.getState();
+    insertResumableBtn(emailInputElem);
+
+      const { userEmail } = this.store.getState();
 
     if (!!emailInputElem.value && emailInputElem.value === userEmail) {
       // if email input already has a value, and it's the same as userEmail in store,

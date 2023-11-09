@@ -14,6 +14,7 @@ import {
   changeIframeHeight,
 } from './iframe';
 import { UserEnrollmentInformationType } from '../shared.types';
+import isEqual from 'lodash.isequal';
 import { log } from '../../lib';
 
 interface Props {
@@ -35,7 +36,7 @@ export class Messenger {
     const { data, origin } = event;
 
     if (origin?.match(/\.skipify\.com/) || origin === IFRAME_ORIGIN) {
-      log('Received message from iframe', {
+      log('Received message from iframe cool23', {
         name: data?.name,
         payload: data?.payload,
       });
@@ -68,6 +69,10 @@ export class Messenger {
         return this.listenerOrderCompleted(event);
       case MESSAGE_NAMES.DEVICE_ID:
         return this.listenerDeviceId(event);
+      case MESSAGE_NAMES.ORDER_ID:
+        return this.listenerOid(event)
+      case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
+        return this.listenerSendOid(event)
       default:
         return;
     }
@@ -294,6 +299,28 @@ export class Messenger {
     event.ports[0]?.postMessage({
       payload,
       name: MESSAGE_NAMES.ENROLLMENT_INFO_RECEIVED,
+    });
+  }
+
+  async listenerOid(event: MessageEvent) {
+    // received order id from iframe, save it to local storage along with cart data
+    const orderData = {
+      OID: event.data.payload?.orderId,
+      OID_TTL: Date.now() + 25 * 60 * 1000, // Current time + 25 minutes in milliseconds
+      CART: await this.base.getCartData() 
+    };
+    localStorage.setItem("ORDER_DATA", JSON.stringify(orderData));
+  }
+
+  async listenerSendOid(event: MessageEvent) {
+    const cartData = await this.base.getCartData();
+    //Did cart change from when we saved it?
+    //If so - send "" oid which will discard order on shakira but not fail the transactional message
+    const savedOrderData = JSON.parse(localStorage.getItem("ORDER_DATA") || "{}")
+    const cartsEqual = isEqual(cartData, savedOrderData.CART)
+    event.ports[0]?.postMessage({
+      payload: cartsEqual ? savedOrderData.OID : "",
+      name: MESSAGE_NAMES.RECIEVE_ORDER_ID,
     });
   }
 
