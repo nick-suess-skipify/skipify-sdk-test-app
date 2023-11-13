@@ -122,9 +122,9 @@ class ShopifySDK extends Base implements AbstractSDK {
       return;
     }
 
-    insertResumableBtn(emailInputElem);
+   
 
-      const { userEmail } = this.store.getState();
+    const { userEmail } = this.store.getState();
 
     if (!!emailInputElem.value && emailInputElem.value === userEmail) {
       // if email input already has a value, and it's the same as userEmail in store,
@@ -159,6 +159,8 @@ class ShopifySDK extends Base implements AbstractSDK {
         this.setUserEmail(email);
       },
     });
+
+    insertResumableBtn(emailInputElem, this.messenger);
 
     log("Email input found, listener added");
   }

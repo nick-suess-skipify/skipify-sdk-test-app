@@ -15,7 +15,7 @@ import {
 } from './iframe';
 import { UserEnrollmentInformationType } from '../shared.types';
 import isEqual from 'lodash.isequal';
-import { log } from '../../lib';
+import { log, removeCheckmarkButton, showCheckmarkButton } from '../../lib';
 
 interface Props {
   base: Base;
@@ -73,6 +73,8 @@ export class Messenger {
         return this.listenerOid(event)
       case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
         return this.listenerSendOid(event)
+      case MESSAGE_NAMES.CLEAR_ORDER:
+        return this.clearOid()
       default:
         return;
     }
@@ -163,8 +165,8 @@ export class Messenger {
     }
   }
 
-  lookupUser(email: string, cart?: any) {
-    if (email === this.prevUserEmail) {
+  lookupUser(email: string, cart?: any, forceLookup = false) {
+    if ((email === this.prevUserEmail) && !forceLookup) {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
@@ -172,8 +174,8 @@ export class Messenger {
       SkipifyElementIds.iframe
     ) as HTMLIFrameElement | null;
     if (iframe) {
+      console.log("We do have iframe")
       this.prevUserEmail = email;
-
       const payload = {
         email,
         cart: { items: cart },
@@ -269,6 +271,8 @@ export class Messenger {
       const { email, cartData } = this.userToLookup;
       this.lookupUser(email, cartData);
     }
+    //Enable checkmarkhtml if present
+    showCheckmarkButton();
   }
 
   // Set up listener for the "get enrollment data" signal
@@ -302,12 +306,19 @@ export class Messenger {
     });
   }
 
+  async clearOid() {
+    localStorage.removeItem("ORDER_DATA")
+    //Remove button if present
+    removeCheckmarkButton();
+  }
+
   async listenerOid(event: MessageEvent) {
     // received order id from iframe, save it to local storage along with cart data
     const orderData = {
       OID: event.data.payload?.orderId,
       OID_TTL: Date.now() + 25 * 60 * 1000, // Current time + 25 minutes in milliseconds
-      CART: await this.base.getCartData() 
+      CART: await this.base.getCartData(),
+      EMAIL: this.prevUserEmail,
     };
     localStorage.setItem("ORDER_DATA", JSON.stringify(orderData));
   }

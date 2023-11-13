@@ -45,6 +45,7 @@ export const MESSAGE_NAMES = {
   ORDER_COMPLETED: `${MESSAGE_NAME_PREFIX}/order-completed`,
   DEVICE_ID: `${MESSAGE_NAME_PREFIX}/device-id`,
   ORDER_ID: `${MESSAGE_NAME_PREFIX}/order-id`,
+  CLEAR_ORDER: `${MESSAGE_NAME_PREFIX}/clear-order`,
   ASK_FOR_ORDER_ID: `${MESSAGE_NAME_PREFIX}/request-order-id`,
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
