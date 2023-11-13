@@ -3,11 +3,11 @@ import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 export function getContainer(): HTMLElement {
   const overlayEl = document.createElement('div');
   overlayEl.id = SkipifyElementIds.overlay;
-  overlayEl.style.visibility = 'hidden';
-  overlayEl.style.width = '0';
-  overlayEl.style.pointerEvents = 'none';
-  overlayEl.style.opacity = '0';
 
+  const arrowEl = document.createElement('div');
+  arrowEl.id = SkipifyElementIds.iframeArrow;
+
+  overlayEl.appendChild(arrowEl);
   document.body.appendChild(overlayEl);
   return overlayEl;
 }
@@ -50,10 +50,6 @@ export function displayIframe() {
 
   if (existingOverlay) {
     document.body.classList.add(SkipifyClassNames.body);
-    existingOverlay.style.display = 'block';
-    existingOverlay.style.visibility = 'visible';
-    existingOverlay.style.width = '100%';
-    existingOverlay.style.pointerEvents = 'auto';
 
     // Added a setTimeout here to ensure that the opacity transition is applied
     setTimeout(() => {
@@ -63,14 +59,12 @@ export function displayIframe() {
 }
 
 export function hideIframe() {
-  const overlayEl = document.getElementById(SkipifyElementIds.overlay);
-
-  if (overlayEl) {
-    overlayEl.style.display = 'none';
-    overlayEl.style.opacity = '0';
-  }
-
-  document.body.classList.remove(SkipifyClassNames.body);
+  document.body.classList.add(SkipifyClassNames.hiding);
+  // Added a setTimeout here to ensure that the hiding animation is visible
+  setTimeout(() => {
+    document.body.classList.remove(SkipifyClassNames.body);
+    document.body.classList.remove(SkipifyClassNames.hiding);
+  }, 400);
 }
 
 export function changeIframeHeight(height: number) {
@@ -79,6 +73,8 @@ export function changeIframeHeight(height: number) {
   if (!iframeEl) {
     return;
   }
-
-  iframeEl.style.height = `${height}px`;
+  // Added a setTimeout here to ensure that the height transition is applied
+  setTimeout(() => {
+    iframeEl.style.height = `${height}px`;
+  }, 10);
 }

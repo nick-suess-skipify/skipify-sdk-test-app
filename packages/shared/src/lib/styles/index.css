@@ -2,6 +2,10 @@
   overflow: hidden;
 }
 
+._SKIPIFY_body #_SKIPIFY_overlay {
+  display: block;
+}
+
 #_SKIPIFY_overlay {
   position: fixed;
   top: 0;
@@ -10,7 +14,10 @@
   height: 100%;
   z-index: 99999;
   background-color: rgba(0, 0, 0, 0.6);
-  transition: opacity 400ms ease-in-out;
+  transition: opacity 300ms ease-in-out;
+  pointer-events: auto;
+  display: none;
+  opacity: 0;
 }
 
 #_SKIPIFY_iframe {
@@ -18,23 +25,51 @@
   height: 500px;
   z-index: 9999;
   border: none;
-  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   background-color: transparent;
-  transition: opacity 600ms ease-in;
+  left: 50%;
 }
 
 #_SKIPIFY_iframe:not(._SKIPIFY_V2) {
   top: 20px;
-  left: 50%;
   transform: translate(-50%, 0);
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
   width: 500px;
   max-height: calc(100vh - 40px);
+  transition: opacity 600ms ease-in;
 }
 
 #_SKIPIFY_iframe._SKIPIFY_V2 {
+  transform: translate(-50%, 20px);
   min-width: 360px;
-  min-height: 300px;
+  height: 0px;
+  max-height: 90vh;
+  transition: height 300ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+#_SKIPIFY_iframe_arrow {
+  display: none;
+}
+
+._SKIPIFY_body #_SKIPIFY_iframe_arrow::before {
+  opacity: 1;
+}
+
+._SKIPIFY_body._SKIPIFY_hiding #_SKIPIFY_iframe_arrow::before {
+  opacity: 0;
+}
+
+#_SKIPIFY_iframe_arrow::before {
+  position: fixed;
+  content: '';
+  opacity: 0;
+  display: block;
+  background-color: #fff;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  rotate: 45deg;
+  transition: opacity 150ms cubic-bezier(0, 0, 0.2, 1) 100ms;
 }
 
 #_SKIPIFY_enrollment_checkbox {

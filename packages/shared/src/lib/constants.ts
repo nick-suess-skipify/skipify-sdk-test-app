@@ -17,10 +17,12 @@ export const SkipifyClassNames = {
   enrollmentIframe: '_SKIPIFY_enrollment_iframe',
   body: '_SKIPIFY_body',
   skipifyV2: '_SKIPIFY_V2',
+  hiding: '_SKIPIFY_hiding',
 };
 
 export const SkipifyElementIds = {
   iframe: '_SKIPIFY_iframe',
+  iframeArrow: '_SKIPIFY_iframe_arrow',
   overlay: '_SKIPIFY_overlay',
   enrollmentCheckbox: '_SKIPIFY_enrollment_checkbox',
   container: '_SKIPIFY_container',
