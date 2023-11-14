@@ -330,7 +330,7 @@ export class Messenger {
     const cartsEqual = isEqual(cartData, savedOrderData.CART)
     event.ports[0]?.postMessage({
       payload: cartsEqual ? savedOrderData.OID : "",
-      name: MESSAGE_NAMES.RECIEVE_ORDER_ID,
+      name: MESSAGE_NAMES.RECEIVE_ORDER_ID,
     });
   }
 
