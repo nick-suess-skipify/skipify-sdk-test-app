@@ -4,6 +4,6 @@ export const environment = {
   MERCHANT_SERVICE_URL: 'https://dev-merchants.skipify.com',
   SDK_URL: 'https://storage.googleapis.com/checkout-sdk-dev',
   IFRAME_ORIGIN: 'http://localhost:3002',
-  SKIPIFY_CHECKOUT_URL: 'http://localhost:3000',
+  SKIPIFY_CHECKOUT_URL: 'https://devcheckout.skipify.com',
   AMPLITUDE_API_KEY: '0a59bd9dc086ef77a71d80e1a62fce87',
 };

@@ -36,7 +36,7 @@ export class Messenger {
     const { data, origin } = event;
 
     if (origin?.match(/\.skipify\.com/) || origin === IFRAME_ORIGIN) {
-      log('Received message from iframe cool23', {
+      log('Received message from iframe', {
         name: data?.name,
         payload: data?.payload,
       });
@@ -174,7 +174,6 @@ export class Messenger {
       SkipifyElementIds.iframe
     ) as HTMLIFrameElement | null;
     if (iframe) {
-      console.log("We do have iframe")
       this.prevUserEmail = email;
       const payload = {
         email,
