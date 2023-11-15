@@ -144,12 +144,16 @@ export class Base {
     if (!this.messenger.iframe) return;
 
     const buttonPosition = this.button?.getBoundingClientRect();
+    const iframeSize = this.messenger.iframe.getBoundingClientRect();
+
+    if (!buttonPosition || !iframeSize) {
+      return;
+    }
+
     if (shouldScroll && buttonPosition?.y) {
       window.scrollBy(0, roundByDPR(buttonPosition.y - 16));
     }
 
-    const iframeSize = this.messenger.iframe.getBoundingClientRect();
-    if (!buttonPosition || !iframeSize) return;
     const totalWidth = window.innerWidth;
     const translateX =
       totalWidth > 430
@@ -159,8 +163,17 @@ export class Base {
     const remainingSpace = roundByDPR(window.innerHeight - translateY);
     const maxHeight = Math.max(remainingSpace - 24, 0);
 
+    this.messenger.iframe.style.left = '0';
     this.messenger.iframe.style.transform = `translate(${translateX}px, ${translateY}px)`;
     this.messenger.iframe.style.maxHeight = `${maxHeight}px`;
+
+    const arrowIframe = document.getElementById(SkipifyElementIds.iframeArrow);
+    const arrowPositionX = roundByDPR(buttonPosition.x + 9);
+    const arrowPositionY = roundByDPR(iframeSize.y - 5);
+    if (arrowIframe) {
+      arrowIframe.style.display = 'block';
+      arrowIframe.style.transform = `translate(${arrowPositionX}px, ${arrowPositionY}px)`;
+    }
   }
 
   start() {
@@ -274,6 +287,7 @@ export class Base {
     this.button.onclick = (e) => {
       e.preventDefault();
       displayIframe();
+      this.messenger.restoreIframeHeight();
       this.positionIframe(true);
     };
     parent?.replaceChild(wrapper, emailInput);
