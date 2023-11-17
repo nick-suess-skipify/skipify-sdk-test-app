@@ -25,6 +25,7 @@ export class Base {
   observer: MutationObserver;
   hasInitializedIframe = false; // Means the checkout iframe is ready for communication
   skipifyCheckoutCompleted = false; // Means the order was processed through Skipify
+  isSkipifyResumable = false;
 
   /**
    * Feature classes
@@ -143,15 +144,21 @@ export class Base {
   positionIframe(shouldScroll = false) {
     if (!this.messenger.iframe) return;
 
-    const buttonPosition = this.button?.getBoundingClientRect();
+    if (!this.button || !document.body.contains(this.button)) {
+      this.messenger.resetIframeStyles();
+      return;
+    }
+    if (shouldScroll) {
+      const scrollY = this.button.getBoundingClientRect().y - 16;
+      console.log(scrollY);
+      window.scrollBy(0, scrollY);
+    }
+
+    const buttonPosition = this.button.getBoundingClientRect();
     const iframeSize = this.messenger.iframe.getBoundingClientRect();
 
     if (!buttonPosition || !iframeSize) {
       return;
-    }
-
-    if (shouldScroll && buttonPosition?.y) {
-      window.scrollBy(0, roundByDPR(buttonPosition.y - 16));
     }
 
     const totalWidth = window.innerWidth;
@@ -169,7 +176,7 @@ export class Base {
 
     const arrowIframe = document.getElementById(SkipifyElementIds.iframeArrow);
     const arrowPositionX = roundByDPR(buttonPosition.x + 9);
-    const arrowPositionY = roundByDPR(iframeSize.y - 5);
+    const arrowPositionY = roundByDPR(translateY - 5);
     if (arrowIframe) {
       arrowIframe.style.display = 'block';
       arrowIframe.style.transform = `translate(${arrowPositionX}px, ${arrowPositionY}px)`;
@@ -276,20 +283,27 @@ export class Base {
     this.hasInitializedIframe = value;
   }
 
+  setSkipifyResumable(value: boolean) {
+    this.isSkipifyResumable = value;
+  }
+
   insertButton(emailInput: HTMLElement) {
     const wrapper = document.createElement('div');
     wrapper.id = SkipifyElementIds.emailWrapper;
     const parent = emailInput.parentNode;
-    this.button = document.createElement('button');
-    this.button.id = SkipifyElementIds.checkButton;
+    if (!this.button) {
+      this.button = document.createElement('button');
+      this.button.id = SkipifyElementIds.checkButton;
+      this.button.innerHTML = `<svg id="_SKIPIFY_check_icon" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg>`;
+      this.button.onclick = (e) => {
+        e.preventDefault();
+        displayIframe();
+        this.messenger.restoreIframeHeight();
+        this.positionIframe(true);
+      };
+    }
     this.button.style.width = `${emailInput.getBoundingClientRect().height}px`;
-    this.button.innerHTML = `<svg id="_SKIPIFY_check_icon" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg>`;
-    this.button.onclick = (e) => {
-      e.preventDefault();
-      displayIframe();
-      this.messenger.restoreIframeHeight();
-      this.positionIframe(true);
-    };
+    this.button.style.display = this.isSkipifyResumable ? 'flex' : 'none';
     parent?.replaceChild(wrapper, emailInput);
     wrapper.appendChild(emailInput);
     wrapper.appendChild(this.button);

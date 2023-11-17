@@ -191,23 +191,24 @@ export class Messenger {
     }
   }
 
+  resizeListener = () => {
+    this.base.positionIframe();
+  };
+
   listenerDisplayIframe() {
     if (this.base.skipifyV2Checkbox) {
-      if (this.base.skipifyV2Checkbox.checked) {
-        if (this.base.button) this.base.button.style.display = 'flex';
-        this.base.positionIframe(true);
-        window.addEventListener('resize', () => {
-          this.base.positionIframe(true);
-        });
-        window.addEventListener('scroll', () => {
-          this.base.positionIframe();
-        });
-      }
       //if we display the iframe, we aren't listening for version changes so disable the checkbox
       this.base.skipifyV2Checkbox.disabled = true;
     }
+    if (localStorage.getItem('SKIPIFY_V2') === 'true') {
+      if (this.base.button) this.base.button.style.display = 'flex';
+      this.base.positionIframe(true);
+      window.removeEventListener('resize', this.resizeListener);
+      window.addEventListener('resize', this.resizeListener);
+    }
     displayIframe();
     this.base.setHasInitializedIframe(false);
+    this.base.setSkipifyResumable(true);
     this.clearUserToLookup();
   }
 
@@ -245,9 +246,24 @@ export class Messenger {
     }
   }
 
+  resetIframeStyles() {
+    if (this.iframe?.style.left) {
+      this.iframe?.style.removeProperty('left');
+      this.iframe?.style.removeProperty('transform');
+      this.iframe?.style.removeProperty('maxHeight');
+      const arrowIframe = document.getElementById(
+        SkipifyElementIds.iframeArrow
+      );
+      if (arrowIframe) {
+        arrowIframe.style.display = 'none';
+      }
+    }
+  }
+
   resetIframe() {
     hideIframe();
     this.base.setHasInitializedIframe(false);
+    this.base.setSkipifyResumable(false);
     this.prevUserEmail = null;
 
     this.base.reset();
