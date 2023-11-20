@@ -32,3 +32,17 @@ export function roundByDPR(value: number) {
   const dpr = window.devicePixelRatio || 1;
   return Math.round(value * dpr) / dpr;
 }
+
+export function removeCheckmarkButton() {
+  const checkmarkContainer = document.getElementById('checkmarkContainer');
+  if (checkmarkContainer) {
+    checkmarkContainer.remove();
+  }
+}
+
+export function showCheckmarkButton() {
+  const checkmarkContainer = document.getElementById('checkmarkContainer');
+  if (checkmarkContainer) {
+    checkmarkContainer.style.display = 'flex';
+  }
+}

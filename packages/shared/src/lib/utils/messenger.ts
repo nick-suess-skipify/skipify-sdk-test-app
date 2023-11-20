@@ -14,7 +14,8 @@ import {
   changeIframeHeight,
 } from './iframe';
 import { UserEnrollmentInformationType } from '../shared.types';
-import { log } from '../../lib';
+import isEqual from 'lodash.isequal';
+import { log, removeCheckmarkButton, showCheckmarkButton } from '../../lib';
 
 interface Props {
   base: Base;
@@ -69,6 +70,12 @@ export class Messenger {
         return this.listenerOrderCompleted(event);
       case MESSAGE_NAMES.DEVICE_ID:
         return this.listenerDeviceId(event);
+      case MESSAGE_NAMES.ORDER_ID:
+        return this.listenerOid(event)
+      case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
+        return this.listenerSendOid(event)
+      case MESSAGE_NAMES.CLEAR_ORDER:
+        return this.clearOid()
       default:
         return;
     }
@@ -159,8 +166,8 @@ export class Messenger {
     }
   }
 
-  lookupUser(email: string, cart?: any) {
-    if (email === this.prevUserEmail) {
+  lookupUser(email: string, cart?: any, forceLookup = false) {
+    if ((email === this.prevUserEmail) && !forceLookup) {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
@@ -169,7 +176,6 @@ export class Messenger {
     ) as HTMLIFrameElement | null;
     if (iframe) {
       this.prevUserEmail = email;
-
       const payload = {
         email,
         cart: { items: cart },
@@ -268,6 +274,8 @@ export class Messenger {
       const { email, cartData } = this.userToLookup;
       this.lookupUser(email, cartData);
     }
+    //Enable checkmarkhtml if present
+    showCheckmarkButton();
   }
 
   // Set up listener for the "get enrollment data" signal
@@ -298,6 +306,35 @@ export class Messenger {
     event.ports[0]?.postMessage({
       payload,
       name: MESSAGE_NAMES.ENROLLMENT_INFO_RECEIVED,
+    });
+  }
+
+  async clearOid() {
+    localStorage.removeItem("ORDER_DATA")
+    //Remove button if present
+    removeCheckmarkButton();
+  }
+
+  async listenerOid(event: MessageEvent) {
+    // received order id from iframe, save it to local storage along with cart data
+    const orderData = {
+      OID: event.data.payload?.orderId,
+      OID_TTL: Date.now() + 25 * 60 * 1000, // Current time + 25 minutes in milliseconds
+      CART: await this.base.getCartData(),
+      EMAIL: this.prevUserEmail,
+    };
+    localStorage.setItem("ORDER_DATA", JSON.stringify(orderData));
+  }
+
+  async listenerSendOid(event: MessageEvent) {
+    const cartData = await this.base.getCartData();
+    //Did cart change from when we saved it?
+    //If so - send "" oid which will discard order on shakira but not fail the transactional message
+    const savedOrderData = JSON.parse(localStorage.getItem("ORDER_DATA") || "{}")
+    const cartsEqual = isEqual(cartData, savedOrderData.CART)
+    event.ports[0]?.postMessage({
+      payload: cartsEqual ? savedOrderData.OID : "",
+      name: MESSAGE_NAMES.RECEIVE_ORDER_ID,
     });
   }
 
