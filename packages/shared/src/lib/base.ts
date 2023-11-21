@@ -150,7 +150,6 @@ export class Base {
     }
     if (shouldScroll) {
       const scrollY = this.button.getBoundingClientRect().y - 16;
-      console.log(scrollY);
       window.scrollBy(0, scrollY);
     }
 
