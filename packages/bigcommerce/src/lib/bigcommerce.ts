@@ -68,10 +68,11 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
 
   processEmailInput() {
     const emailInputElem = document.getElementById(this.emailInputId);
-    if (
-      !emailInputElem ||
-      emailInputElem?.classList.contains(SkipifyClassNames.emailInput)
-    ) {
+    if (!emailInputElem) {
+      this.messenger.resetIframeStyles();
+      return;
+    }
+    if (emailInputElem?.classList.contains(SkipifyClassNames.emailInput)) {
       return;
     }
     this.insertButton(emailInputElem);
