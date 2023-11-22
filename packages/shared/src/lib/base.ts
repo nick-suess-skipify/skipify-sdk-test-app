@@ -154,17 +154,17 @@ export class Base {
     }
 
     const buttonPosition = this.button.getBoundingClientRect();
-    const iframeSize = this.messenger.iframe.getBoundingClientRect();
-
-    if (!buttonPosition || !iframeSize) {
-      return;
-    }
+    const { width: iframeWidth } =
+      this.messenger.iframe.getBoundingClientRect();
+    if (!buttonPosition) return;
 
     const totalWidth = window.innerWidth;
     const translateX =
       totalWidth > 430
-        ? Math.max(roundByDPR(buttonPosition.right - iframeSize.width), 36)
-        : roundByDPR((totalWidth - iframeSize.width) / 2);
+        ? Math.max(roundByDPR(buttonPosition.right - iframeWidth), 36)
+        : totalWidth > iframeWidth
+        ? roundByDPR((totalWidth - iframeWidth) / 2)
+        : 0;
     const translateY = roundByDPR(buttonPosition.bottom + 16);
     const remainingSpace = roundByDPR(window.innerHeight - translateY);
     const maxHeight = Math.max(remainingSpace - 24, 0);
