@@ -93,6 +93,9 @@ function isOidValid(orderData: OrderData | null) {
           console.log("Email input not found.");
         }
       }
+    } else {
+      //IF OID not valid
+      localStorage.removeItem("ORDER_DATA")
     }
   }
   

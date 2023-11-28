@@ -46,6 +46,7 @@ export const MESSAGE_NAMES = {
   ENROLLMENT_ELIGIBLE: `${MESSAGE_NAME_PREFIX}/enrollment-eligible`,
   ORDER_COMPLETED: `${MESSAGE_NAME_PREFIX}/order-completed`,
   DEVICE_ID: `${MESSAGE_NAME_PREFIX}/device-id`,
+  RESUMABLE_ORDER_ID: `${MESSAGE_NAME_PREFIX}/resumable-order-id`,
   ORDER_ID: `${MESSAGE_NAME_PREFIX}/order-id`,
   CLEAR_ORDER: `${MESSAGE_NAME_PREFIX}/clear-order`,
   ASK_FOR_ORDER_ID: `${MESSAGE_NAME_PREFIX}/request-order-id`,
