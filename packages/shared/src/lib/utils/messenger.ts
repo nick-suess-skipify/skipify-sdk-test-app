@@ -70,7 +70,7 @@ export class Messenger {
         return this.listenerOrderCompleted(event);
       case MESSAGE_NAMES.DEVICE_ID:
         return this.listenerDeviceId(event);
-      case MESSAGE_NAMES.ORDER_ID:
+      case MESSAGE_NAMES.RESUMABLE_ORDER_ID:
         return this.listenerOid(event)
       case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
         return this.listenerSendOid(event)
