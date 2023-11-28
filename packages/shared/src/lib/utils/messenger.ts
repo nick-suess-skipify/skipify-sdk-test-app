@@ -73,9 +73,9 @@ export class Messenger {
       case MESSAGE_NAMES.RESUMABLE_ORDER_ID:
         return this.listenerOid(event)
       case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
-        return this.listenerSendOid(event)
+        return this.listenerSendOid(event);
       case MESSAGE_NAMES.CLEAR_ORDER:
-        return this.clearOid()
+        return this.clearOid();
       default:
         return;
     }
@@ -167,7 +167,7 @@ export class Messenger {
   }
 
   lookupUser(email: string, cart?: any, forceLookup = false) {
-    if ((email === this.prevUserEmail) && !forceLookup) {
+    if (email === this.prevUserEmail && !forceLookup) {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
@@ -202,17 +202,17 @@ export class Messenger {
   };
 
   listenerDisplayIframe() {
+    displayIframe();
     if (this.base.skipifyV2Checkbox) {
       //if we display the iframe, we aren't listening for version changes so disable the checkbox
       this.base.skipifyV2Checkbox.disabled = true;
     }
     if (localStorage.getItem('SKIPIFY_V2') === 'true') {
       if (this.base.button) this.base.button.style.display = 'flex';
-      this.base.positionIframe(true);
       window.removeEventListener('resize', this.resizeListener);
       window.addEventListener('resize', this.resizeListener);
+      this.base.positionIframe(true);
     }
-    displayIframe();
     this.base.setHasInitializedIframe(false);
     this.base.setSkipifyResumable(true);
     this.clearUserToLookup();
@@ -270,6 +270,7 @@ export class Messenger {
     hideIframe();
     this.base.setHasInitializedIframe(false);
     this.base.setSkipifyResumable(false);
+    if (this.base.button) this.base.button.style.display = 'none';
     this.prevUserEmail = null;
 
     this.base.reset();
@@ -326,7 +327,7 @@ export class Messenger {
   }
 
   async clearOid() {
-    localStorage.removeItem("ORDER_DATA")
+    localStorage.removeItem('ORDER_DATA');
     //Remove button if present
     removeCheckmarkButton();
   }
@@ -339,17 +340,19 @@ export class Messenger {
       CART: await this.base.getCartData(),
       EMAIL: this.prevUserEmail,
     };
-    localStorage.setItem("ORDER_DATA", JSON.stringify(orderData));
+    localStorage.setItem('ORDER_DATA', JSON.stringify(orderData));
   }
 
   async listenerSendOid(event: MessageEvent) {
     const cartData = await this.base.getCartData();
     //Did cart change from when we saved it?
     //If so - send "" oid which will discard order on shakira but not fail the transactional message
-    const savedOrderData = JSON.parse(localStorage.getItem("ORDER_DATA") || "{}")
-    const cartsEqual = isEqual(cartData, savedOrderData.CART)
+    const savedOrderData = JSON.parse(
+      localStorage.getItem('ORDER_DATA') || '{}'
+    );
+    const cartsEqual = isEqual(cartData, savedOrderData.CART);
     event.ports[0]?.postMessage({
-      payload: cartsEqual ? savedOrderData.OID : "",
+      payload: cartsEqual ? savedOrderData.OID : '',
       name: MESSAGE_NAMES.RECEIVE_ORDER_ID,
     });
   }

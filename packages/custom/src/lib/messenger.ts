@@ -43,7 +43,6 @@ export class Messenger {
   listenerCheckoutButtonTriggered() {
     if (this.buttonCheckoutCallback) {
       const checkoutData = this.buttonCheckoutCallback();
-      console.log(checkoutData);
 
       const iframe = getBaseIframe();
       if (iframe) {
