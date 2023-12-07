@@ -305,7 +305,6 @@ export class Base {
     emailInput.parentNode?.replaceChild(wrapper, emailInput);
     wrapper.appendChild(emailInput);
     wrapper.appendChild(this.button);
-
   }
 
   /**

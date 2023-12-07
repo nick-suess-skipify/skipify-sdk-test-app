@@ -1,4 +1,4 @@
-import { SkipifyClassNames } from "@checkout-sdk/shared";
+import { SkipifyClassNames } from '@checkout-sdk/shared';
 
 interface OwnProps {
   node: HTMLElement;
@@ -13,7 +13,7 @@ export class EmailInput {
   setUserEmail: (email: string) => void;
   onChange: () => void;
 
-  constructor({ node, setUserEmail,onChange }: Props) {
+  constructor({ node, setUserEmail, onChange }: Props) {
     this.node = node;
     this.setUserEmail = setUserEmail;
     this.onChange = onChange;
@@ -22,7 +22,7 @@ export class EmailInput {
 
   start() {
     this.node.classList.add(SkipifyClassNames.emailInput);
-    this.node.addEventListener("blur", (e) => this.handleInput(e));
+    this.node.addEventListener('blur', (e) => this.handleInput(e));
     this.node.addEventListener('change', () => this.onChange());
   }
 
