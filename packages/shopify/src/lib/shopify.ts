@@ -6,6 +6,7 @@ import {
   SkipifyElementIds,
   UserEnrollmentInformationType,
   log,
+  SkipifyCheckoutUrl,
 } from "@checkout-sdk/shared";
 
 import { ShopifyCart, ShopifyGlobalObject, ShopifyLine } from "./shopify.types";
@@ -114,15 +115,17 @@ class ShopifySDK extends Base implements AbstractSDK {
     const emailInputElem = document.getElementById(
       this.emailInputId
     ) as HTMLInputElement;
-    const listenerAlreadyAdded = emailInputElem?.classList.contains(
-      SkipifyClassNames.emailInput
-    );
-    if (!emailInputElem || listenerAlreadyAdded) {
+    
+    if (!emailInputElem) {
       if (!emailInputElem) log("Email input not found.");
+      this.messenger.resetIframeStyles();
       return;
     }
-
-   
+    
+    if (emailInputElem?.classList.contains(SkipifyClassNames.emailInput)) {
+      return;
+    }
+    this.insertButton(emailInputElem);
 
     const { userEmail } = this.store.getState();
 
@@ -158,6 +161,10 @@ class ShopifySDK extends Base implements AbstractSDK {
         log("Email input on blur", email);
         this.setUserEmail(email);
       },
+      onChange: () => {
+        if (this.skipifyV2Checkbox?.checked) this.launchBaseIframe();
+        if (this.button) this.button.style.display = 'none';
+      },
     });
 
     insertResumableBtn(emailInputElem, this.messenger);
@@ -180,6 +187,44 @@ class ShopifySDK extends Base implements AbstractSDK {
       await response.json();
     } catch (error) {
       console.error("An error occurred while clearing the cart:", error);
+    }
+  }
+
+  override insertButton(emailInput: HTMLElement): void {
+    super.insertButton(emailInput);
+    // TODO [Jesus] - 12/06/2023 : Remove when V1 gets obsolete
+    if (
+      !this.skipifyV2Checkbox &&
+      (SkipifyCheckoutUrl.includes('devcheckout') ||
+        SkipifyCheckoutUrl.includes('localhost'))
+    ) {
+      this.skipifyV2Checkbox = document.createElement('input');
+      this.skipifyV2Checkbox.type = 'checkbox';
+      this.skipifyV2Checkbox.id = SkipifyElementIds.v2Checkbox;
+      this.skipifyV2Checkbox.style.appearance = "auto"
+      this.skipifyV2Checkbox.checked =
+        localStorage.getItem('SKIPIFY_V2') === 'true';
+      this.messenger.setSkipifyVersion(this.skipifyV2Checkbox.checked);
+
+      const label = document.createElement('label');
+      label.htmlFor = SkipifyElementIds.v2Checkbox;
+      label.textContent = 'Skipify V2';
+
+      this.skipifyV2Checkbox.addEventListener('change', () => {
+        localStorage.setItem(
+          'SKIPIFY_V2',
+          `${this.skipifyV2Checkbox?.checked}`
+        );
+
+        this.messenger.setSkipifyVersion(
+          Boolean(this.skipifyV2Checkbox?.checked)
+        );
+      });
+
+      const skipifyModified = document.getElementById("skipify-modified")
+      skipifyModified?.appendChild(document.createElement('br'))
+      skipifyModified?.appendChild(this.skipifyV2Checkbox);
+      skipifyModified?.appendChild(label);
     }
   }
 

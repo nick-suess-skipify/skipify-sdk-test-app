@@ -71,7 +71,7 @@ export class Messenger {
       case MESSAGE_NAMES.DEVICE_ID:
         return this.listenerDeviceId(event);
       case MESSAGE_NAMES.RESUMABLE_ORDER_ID:
-        return this.listenerOid(event)
+        return this.listenerOid(event);
       case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
         return this.listenerSendOid(event);
       case MESSAGE_NAMES.CLEAR_ORDER:
@@ -126,17 +126,14 @@ export class Messenger {
   }
 
   setSkipifyVersion(skipifyV2: boolean) {
-    const iframe = document.getElementById(
-      SkipifyElementIds.iframe
-    ) as HTMLIFrameElement;
-    if (iframe) {
+    if (this.iframe) {
       const payload = { skipifyV2 };
 
       log('Posting skipify v2 to iframe', {
         name: MESSAGE_NAMES.SET_SKIPIFY_VERSION,
         payload,
       });
-      iframe.contentWindow?.postMessage(
+      this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.SET_SKIPIFY_VERSION,
           payload,
@@ -153,11 +150,8 @@ export class Messenger {
   }
 
   requestDeviceId() {
-    const iframe = document.getElementById(
-      SkipifyElementIds.iframe
-    ) as HTMLIFrameElement;
-    if (iframe) {
-      iframe.contentWindow?.postMessage(
+    if (this.iframe) {
+      this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_DEVICE_ID,
         },
@@ -171,10 +165,7 @@ export class Messenger {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
-    const iframe = document.getElementById(
-      SkipifyElementIds.iframe
-    ) as HTMLIFrameElement | null;
-    if (iframe) {
+    if (this.iframe) {
       this.prevUserEmail = email;
       const payload = {
         email,
@@ -187,7 +178,7 @@ export class Messenger {
         payload,
       });
 
-      iframe.contentWindow?.postMessage(
+      this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
           payload,
@@ -197,7 +188,7 @@ export class Messenger {
     }
   }
 
-  resizeListener = () => {
+  positionListener = () => {
     this.base.positionIframe();
   };
 
@@ -209,8 +200,10 @@ export class Messenger {
     }
     if (localStorage.getItem('SKIPIFY_V2') === 'true') {
       if (this.base.button) this.base.button.style.display = 'flex';
-      window.removeEventListener('resize', this.resizeListener);
-      window.addEventListener('resize', this.resizeListener);
+      window.removeEventListener('resize', this.positionListener);
+      window.addEventListener('resize', this.positionListener);
+      window.removeEventListener('scroll', this.positionListener);
+      window.addEventListener('scroll', this.positionListener);
       this.base.positionIframe(true);
     }
     this.base.setHasInitializedIframe(false);

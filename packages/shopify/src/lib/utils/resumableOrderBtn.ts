@@ -1,4 +1,4 @@
-import { Messenger } from "@checkout-sdk/shared";
+import { Messenger, SkipifyElementIds } from "@checkout-sdk/shared";
 
 interface OrderData {
   OID_TTL: number;
@@ -66,7 +66,7 @@ function isOidValid(orderData: OrderData | null) {
     const orderData = parseOrderData();
     if (isOidValid(orderData)) {
       // Check if the checkmark has already been added to prevent duplicates
-      if (!document.getElementById('checkmarkContainer')) {
+      if (!document.getElementById('checkmarkContainer') && !document.getElementById(SkipifyElementIds.checkButton)) {
         // Get the computed styles of the element
         const styles = window.getComputedStyle(emailInputElem);
         // Calculate the height without the border
