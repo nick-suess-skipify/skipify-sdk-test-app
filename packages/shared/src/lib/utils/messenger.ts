@@ -126,17 +126,14 @@ export class Messenger {
   }
 
   setSkipifyVersion(skipifyV2: boolean) {
-    const iframe = document.getElementById(
-      SkipifyElementIds.iframe
-    ) as HTMLIFrameElement;
-    if (iframe) {
+    if (this.iframe) {
       const payload = { skipifyV2 };
 
       log('Posting skipify v2 to iframe', {
         name: MESSAGE_NAMES.SET_SKIPIFY_VERSION,
         payload,
       });
-      iframe.contentWindow?.postMessage(
+      this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.SET_SKIPIFY_VERSION,
           payload,
@@ -153,11 +150,8 @@ export class Messenger {
   }
 
   requestDeviceId() {
-    const iframe = document.getElementById(
-      SkipifyElementIds.iframe
-    ) as HTMLIFrameElement;
-    if (iframe) {
-      iframe.contentWindow?.postMessage(
+    if (this.iframe) {
+      this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_DEVICE_ID,
         },
@@ -171,10 +165,7 @@ export class Messenger {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
-    const iframe = document.getElementById(
-      SkipifyElementIds.iframe
-    ) as HTMLIFrameElement | null;
-    if (iframe) {
+    if (this.iframe) {
       this.prevUserEmail = email;
       const payload = {
         email,
@@ -187,7 +178,7 @@ export class Messenger {
         payload,
       });
 
-      iframe.contentWindow?.postMessage(
+      this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
           payload,
