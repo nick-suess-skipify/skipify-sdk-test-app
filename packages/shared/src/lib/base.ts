@@ -289,11 +289,10 @@ export class Base {
   insertButton(emailInput: HTMLElement) {
     const wrapper = document.createElement('div');
     wrapper.id = SkipifyElementIds.emailWrapper;
-    const parent = emailInput.parentNode;
     if (!this.button) {
       this.button = document.createElement('button');
       this.button.id = SkipifyElementIds.checkButton;
-      this.button.innerHTML = `<svg id="_SKIPIFY_check_icon" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg>`;
+      this.button.innerHTML = `<svg id="_SKIPIFY_check_icon" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>`;
       this.button.onclick = (e) => {
         e.preventDefault();
         displayIframe();
@@ -303,43 +302,10 @@ export class Base {
     }
     this.button.style.width = `${emailInput.getBoundingClientRect().height}px`;
     this.button.style.display = this.isSkipifyResumable ? 'flex' : 'none';
-    parent?.replaceChild(wrapper, emailInput);
+    emailInput.parentNode?.replaceChild(wrapper, emailInput);
     wrapper.appendChild(emailInput);
     wrapper.appendChild(this.button);
 
-    // TODO [Jesus] - 10/10/2023 : Remove when V1 gets obsolete
-    if (
-      !this.skipifyV2Checkbox &&
-      (SkipifyCheckoutUrl.includes('devcheckout') ||
-        SkipifyCheckoutUrl.includes('localhost'))
-    ) {
-      this.skipifyV2Checkbox = document.createElement('input');
-      this.skipifyV2Checkbox.type = 'checkbox';
-      this.skipifyV2Checkbox.id = SkipifyElementIds.v2Checkbox;
-      this.skipifyV2Checkbox.classList.add('form-checkbox');
-      this.skipifyV2Checkbox.checked =
-        localStorage.getItem('SKIPIFY_V2') === 'true';
-      this.messenger.setSkipifyVersion(this.skipifyV2Checkbox.checked);
-
-      const label = document.createElement('label');
-      label.htmlFor = SkipifyElementIds.v2Checkbox;
-      label.textContent = 'Skipify V2';
-      label.classList.add('form-label');
-
-      this.skipifyV2Checkbox.addEventListener('change', () => {
-        localStorage.setItem(
-          'SKIPIFY_V2',
-          `${this.skipifyV2Checkbox?.checked}`
-        );
-
-        this.messenger.setSkipifyVersion(
-          Boolean(this.skipifyV2Checkbox?.checked)
-        );
-      });
-
-      parent?.parentNode?.appendChild(this.skipifyV2Checkbox);
-      parent?.parentNode?.appendChild(label);
-    }
   }
 
   /**
