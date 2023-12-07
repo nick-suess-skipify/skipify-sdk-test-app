@@ -71,7 +71,7 @@ export class Messenger {
       case MESSAGE_NAMES.DEVICE_ID:
         return this.listenerDeviceId(event);
       case MESSAGE_NAMES.RESUMABLE_ORDER_ID:
-        return this.listenerOid(event)
+        return this.listenerOid(event);
       case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
         return this.listenerSendOid(event);
       case MESSAGE_NAMES.CLEAR_ORDER:
@@ -188,7 +188,7 @@ export class Messenger {
     }
   }
 
-  resizeListener = () => {
+  positionListener = () => {
     this.base.positionIframe();
   };
 
@@ -200,8 +200,10 @@ export class Messenger {
     }
     if (localStorage.getItem('SKIPIFY_V2') === 'true') {
       if (this.base.button) this.base.button.style.display = 'flex';
-      window.removeEventListener('resize', this.resizeListener);
-      window.addEventListener('resize', this.resizeListener);
+      window.removeEventListener('resize', this.positionListener);
+      window.addEventListener('resize', this.positionListener);
+      window.removeEventListener('scroll', this.positionListener);
+      window.addEventListener('scroll', this.positionListener);
       this.base.positionIframe(true);
     }
     this.base.setHasInitializedIframe(false);
