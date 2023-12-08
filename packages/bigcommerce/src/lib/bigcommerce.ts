@@ -94,7 +94,8 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     // TODO [Jesus] - 10/10/2023 : Remove when V1 gets obsolete
     if (
       !this.skipifyV2Checkbox &&
-      (SkipifyCheckoutUrl.includes('devcheckout') ||
+      (SkipifyCheckoutUrl.includes('stagecheckout') ||
+        SkipifyCheckoutUrl.includes('devcheckout') ||
         SkipifyCheckoutUrl.includes('localhost'))
     ) {
       this.skipifyV2Checkbox = document.createElement('input');
