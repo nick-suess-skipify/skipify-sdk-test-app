@@ -76,6 +76,8 @@ export class Messenger {
         return this.listenerSendOid(event);
       case MESSAGE_NAMES.CLEAR_ORDER:
         return this.clearOid();
+      case MESSAGE_NAMES.SEND_LD_FLAGS:
+        return this.setFlags(event);
       default:
         return;
     }
@@ -86,7 +88,8 @@ export class Messenger {
   launchBaseIframe(iframeSrc: string) {
     const baseIframe = launchHiddenIframe(
       iframeSrc,
-      this.base.hasInitializedIframe
+      this.base.hasInitializedIframe,
+      this.base.isSkipifyLayerEnabled
     );
     if (baseIframe) {
       this.iframe = baseIframe;
@@ -123,30 +126,6 @@ export class Messenger {
     containerEl?.appendChild(iframeEl);
 
     displayIframe();
-  }
-
-  setSkipifyVersion(skipifyV2: boolean) {
-    if (this.iframe) {
-      const payload = { skipifyV2 };
-
-      log('Posting skipify v2 to iframe', {
-        name: MESSAGE_NAMES.SET_SKIPIFY_VERSION,
-        payload,
-      });
-      this.iframe.contentWindow?.postMessage(
-        {
-          name: MESSAGE_NAMES.SET_SKIPIFY_VERSION,
-          payload,
-        },
-        SkipifyCheckoutUrl
-      );
-
-      if (skipifyV2) {
-        this.iframe?.classList.add(SkipifyClassNames.skipifyV2);
-      } else {
-        this.iframe?.classList.remove(SkipifyClassNames.skipifyV2);
-      }
-    }
   }
 
   requestDeviceId() {
@@ -194,11 +173,7 @@ export class Messenger {
 
   listenerDisplayIframe() {
     displayIframe();
-    if (this.base.skipifyV2Checkbox) {
-      //if we display the iframe, we aren't listening for version changes so disable the checkbox
-      this.base.skipifyV2Checkbox.disabled = true;
-    }
-    if (localStorage.getItem('SKIPIFY_V2') === 'true') {
+    if (this.base.isSkipifyLayerEnabled) {
       if (this.base.button) this.base.button.style.display = 'flex';
       window.removeEventListener('resize', this.positionListener);
       window.addEventListener('resize', this.positionListener);
@@ -236,8 +211,8 @@ export class Messenger {
     if (reload) {
       this.resetIframe();
     } else {
-      if (this.base.messenger.iframe) {
-        this.base.messenger.iframe.style.height = '0';
+      if (this.iframe) {
+        this.iframe.style.height = '0';
       }
       hideIframe();
       this.prevUserEmail = null;
@@ -278,7 +253,6 @@ export class Messenger {
       return;
     }
     this.base.setHasInitializedIframe(true);
-    this.setSkipifyVersion(localStorage.getItem('SKIPIFY_V2') === 'true');
     this.requestDeviceId(); // immediately request device id from iframe after iframe is initialized
     if (this.userToLookup) {
       const { email, cartData } = this.userToLookup;
@@ -394,5 +368,10 @@ export class Messenger {
     if (this.iframeHeight) {
       changeIframeHeight(this.iframeHeight);
     }
+  }
+
+  setFlags(event: MessageEvent) {
+    const { flags } = event.data.payload;
+    this.base.store.setState({ flags });
   }
 }

@@ -50,16 +50,20 @@ export const MESSAGE_NAMES = {
   ORDER_ID: `${MESSAGE_NAME_PREFIX}/order-id`,
   CLEAR_ORDER: `${MESSAGE_NAME_PREFIX}/clear-order`,
   ASK_FOR_ORDER_ID: `${MESSAGE_NAME_PREFIX}/request-order-id`,
+  SEND_LD_FLAGS: `${MESSAGE_NAME_PREFIX}/send-ld-flags`,
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
   CREATE_ORDER: `${MESSAGE_NAME_PREFIX}/create-order`,
   REQUEST_DEVICE_ID: `${MESSAGE_NAME_PREFIX}/request-device-id`,
-  SET_SKIPIFY_VERSION: `${MESSAGE_NAME_PREFIX}/set-skipify-version`,
   RECEIVE_ORDER_ID: `${MESSAGE_NAME_PREFIX}/receive-order-id`,
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,
+} as const;
+
+export const flagsNames = {
+  SKIPIFY_LAYER_ENABLED: 'skipify-layer',
 } as const;
 
 declare global {
