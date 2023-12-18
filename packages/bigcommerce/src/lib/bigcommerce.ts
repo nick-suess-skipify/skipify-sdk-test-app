@@ -1,7 +1,6 @@
 import {
   AbstractSDK,
   Base,
-  SkipifyCheckoutUrl,
   SkipifyClassNames,
   SkipifyElementIds,
   UserEnrollmentInformationType,
@@ -83,49 +82,12 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       setUserEmail: (email) => this.setUserEmail(email),
       passwordInputId: this.passwordInputId,
       onChange: () => {
-        if (this.skipifyV2Checkbox?.checked) this.launchBaseIframe();
+        if (this.isSkipifyLayerEnabled) this.launchBaseIframe();
         if (this.button) this.button.style.display = 'none';
       },
     });
   }
 
-  override insertButton(emailInput: HTMLElement): void {
-    super.insertButton(emailInput);
-    // TODO [Jesus] - 10/10/2023 : Remove when V1 gets obsolete
-    if (
-      !this.skipifyV2Checkbox &&
-      (SkipifyCheckoutUrl.includes('stagecheckout') ||
-        SkipifyCheckoutUrl.includes('devcheckout') ||
-        SkipifyCheckoutUrl.includes('localhost'))
-    ) {
-      this.skipifyV2Checkbox = document.createElement('input');
-      this.skipifyV2Checkbox.type = 'checkbox';
-      this.skipifyV2Checkbox.id = SkipifyElementIds.v2Checkbox;
-      this.skipifyV2Checkbox.classList.add('form-checkbox');
-      this.skipifyV2Checkbox.checked =
-        localStorage.getItem('SKIPIFY_V2') === 'true';
-      this.messenger.setSkipifyVersion(this.skipifyV2Checkbox.checked);
-
-      const label = document.createElement('label');
-      label.htmlFor = SkipifyElementIds.v2Checkbox;
-      label.textContent = 'Skipify V2';
-      label.classList.add('form-label');
-
-      this.skipifyV2Checkbox.addEventListener('change', () => {
-        localStorage.setItem(
-          'SKIPIFY_V2',
-          `${this.skipifyV2Checkbox?.checked}`
-        );
-
-        this.messenger.setSkipifyVersion(
-          Boolean(this.skipifyV2Checkbox?.checked)
-        );
-      });
-
-      emailInput.parentNode?.parentNode?.appendChild(this.skipifyV2Checkbox);
-      emailInput.parentNode?.parentNode?.appendChild(label);
-    }
-  }
   processLoggedInCustomer() {
     const loggedInCustomerElem = document.querySelector(
       this.loggedInCustomerSelector

@@ -5,6 +5,7 @@ import {
   SDKVersion,
   SkipifyElementIds,
   SkipifyClassNames,
+  flagsNames,
 } from './constants';
 import { UserEnrollmentInformationType, MerchantType } from './shared.types';
 import { Analytics, FlowType } from './analytics';
@@ -40,7 +41,6 @@ export class Base {
    *
    */
   button?: HTMLButtonElement;
-  skipifyV2Checkbox?: HTMLInputElement;
 
   constructor(merchantId?: string) {
     /**
@@ -305,6 +305,12 @@ export class Base {
     emailInput.parentNode?.replaceChild(wrapper, emailInput);
     wrapper.appendChild(emailInput);
     wrapper.appendChild(this.button);
+  }
+
+  get isSkipifyLayerEnabled() {
+    return Boolean(
+      this.store.getState().flags?.[flagsNames.SKIPIFY_LAYER_ENABLED]
+    );
   }
 
   /**

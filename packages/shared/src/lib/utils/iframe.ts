@@ -18,7 +18,8 @@ export function getBaseIframe() {
 
 export function launchHiddenIframe(
   iframeSrc: string,
-  hasInitializedIframe: boolean
+  hasInitializedIframe: boolean,
+  isSkipifyLayerEnabled = false
 ) {
   const existingIframe = document.getElementById(
     SkipifyElementIds.iframe
@@ -40,6 +41,13 @@ export function launchHiddenIframe(
 
   iframeEl.id = SkipifyElementIds.iframe;
   iframeEl.src = iframeSrc;
+
+  if (isSkipifyLayerEnabled) {
+    iframeEl.classList.add(SkipifyClassNames.skipifyV2);
+  } else {
+    iframeEl.classList.remove(SkipifyClassNames.skipifyV2);
+  }
+
   containerEl?.appendChild(iframeEl);
 
   return iframeEl;
