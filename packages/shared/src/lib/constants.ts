@@ -62,10 +62,6 @@ export const MESSAGE_NAMES = {
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,
 } as const;
 
-export const flagsNames = {
-  SKIPIFY_LAYER_ENABLED: 'skipify-layer',
-} as const;
-
 declare global {
   interface Window {
     BigCommerceSDK: any;
