@@ -66,7 +66,7 @@ function isOidValid(orderData: OrderData | null) {
     const orderData = parseOrderData();
     if (isOidValid(orderData)) {
       // Check if the checkmark has already been added to prevent duplicates
-      if (!document.getElementById('checkmarkContainer') && !document.getElementById(SkipifyElementIds.checkButton)) {
+      if (!document.getElementById('checkmarkContainer') && (!document.getElementById(SkipifyElementIds.checkButton) || document.getElementById(SkipifyElementIds.checkButton)?.style.display === "none")) {
         // Get the computed styles of the element
         const styles = window.getComputedStyle(emailInputElem);
         // Calculate the height without the border
@@ -74,7 +74,6 @@ function isOidValid(orderData: OrderData | null) {
         const height = emailInputElem.offsetHeight - 2 * borderWidth; // Subtract top and bottom borders
         
         const checkmarkHTML = createCheckMarkHtml(borderWidth, height);
-    
         // Inject the HTML using insertAdjacentHTML
         if (emailInputElem) {
           // Ensure the parent element is positioned relatively
@@ -97,5 +96,14 @@ function isOidValid(orderData: OrderData | null) {
       //IF OID not valid
       localStorage.removeItem("ORDER_DATA")
     }
+  }
+
+  export async function injectSavedEmail(emailInputElem: HTMLInputElement) {
+    const orderData = parseOrderData();
+    //If orderdata has an email, and the emailInputElement is empty add email
+    if (orderData?.EMAIL && emailInputElem?.value === '') {
+      // Set the email input element's value to the saved email
+      emailInputElem.value = orderData.EMAIL;
+    } 
   }
   
