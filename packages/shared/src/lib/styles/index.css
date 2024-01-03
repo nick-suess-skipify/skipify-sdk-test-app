@@ -41,7 +41,7 @@
 
 #_SKIPIFY_iframe._SKIPIFY_V2 {
   transform: translate(-50%, 20px);
-  min-width: 360px;
+  min-width: 420px;
   height: 0px;
   max-height: 90vh;
   transition: height 300ms cubic-bezier(0, 0, 0.2, 1);
@@ -122,7 +122,7 @@
   }
 }
 
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 420px) {
   #_SKIPIFY_iframe._SKIPIFY_V2 {
     min-width: 100vw;
   }
