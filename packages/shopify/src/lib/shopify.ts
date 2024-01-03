@@ -10,7 +10,7 @@ import {
 
 import { ShopifyCart, ShopifyGlobalObject, ShopifyLine } from "./shopify.types";
 import { CheckoutCompleted, EmailInput, EnrollmentCheckbox } from "./utils";
-import { insertResumableBtn } from "./utils/resumableOrderBtn";
+import { injectSavedEmail, insertResumableBtn } from "./utils/resumableOrderBtn";
 
 /**
  * Global window.Shopify object available on checkout page
@@ -165,7 +165,9 @@ class ShopifySDK extends Base implements AbstractSDK {
         if (this.button) this.button.style.display = 'none';
       },
     });
-
+    //inserts email to input if OID is saved
+    injectSavedEmail(emailInputElem)
+    //inserts resumable button if applicable
     insertResumableBtn(emailInputElem, this.messenger);
 
     log("Email input found, listener added");
