@@ -13,7 +13,7 @@ import CustomSDK from './custom';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
-  buttonCheckoutCallback: (() => unknown) | null = null;
+  buttonCheckoutCallback: (() => any) | null = null;
 
   constructor(private sdk: CustomSDK) {
     window.addEventListener('message', (e) => this.handleIframeMessage(e));
@@ -32,7 +32,7 @@ export class Messenger {
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.CHECKOUT_BUTTON_TRIGGERED:
-        return this.listenerCheckoutButtonTriggered();
+        return this.listenerCheckoutButtonTriggered(event);
       case MESSAGE_NAMES.DISPLAY_IFRAME:
         return this.listenerDisplayIframe();
       default:
@@ -40,16 +40,16 @@ export class Messenger {
     }
   }
 
-  listenerCheckoutButtonTriggered() {
+  listenerCheckoutButtonTriggered(event: MessageEvent) {
     if (this.buttonCheckoutCallback) {
       const checkoutData = this.buttonCheckoutCallback();
 
       const iframe = getBaseIframe();
-      if (iframe) {
+      if (checkoutData.items && iframe) {
         iframe.contentWindow?.postMessage(
           {
             name: MESSAGE_NAMES.CREATE_ORDER,
-            payload: { cart: { items: checkoutData } },
+            payload: { cart: { items: checkoutData.items } },
           },
           SkipifyCheckoutUrl
         );

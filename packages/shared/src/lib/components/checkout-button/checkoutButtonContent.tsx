@@ -40,6 +40,9 @@ const Container = styled.div`
   font-style: normal;
   font-weight: 600;
   cursor: pointer;
+  &:hover {
+    background-color: #444444;
+  }
 `;
 
 const StyledMutedLogo = styled(MutedLogo)`

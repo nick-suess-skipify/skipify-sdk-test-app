@@ -97,29 +97,10 @@ jobs:
             npm publish
 
 workflows:
-  always:
-    jobs:
-      - code-quality:
-          context: skipify-dev
-      - build:
-          environment: dev
-          context: skipify-dev
-          requires:
-            - code-quality
-      
   dev:
     jobs:
-      - build-approval:
-          type: approval
-          filters:
-            branches:
-              only:
-                - dev
-                - development
       - code-quality:
           context: skipify-dev
-          requires:
-            - build-approval
       - build:
           environment: dev
           context: skipify-dev
@@ -131,6 +112,11 @@ workflows:
           context: skipify-dev
           requires:
             - build
+          filters:
+            branches:
+              only:
+                - dev
+                - development
 
   stage:
     jobs:
@@ -171,17 +157,12 @@ workflows:
           requires:
             - code-quality
           <<: *prodTagFilter
-      - deploy-approval:
-          type: approval
-          requires:
-            - build
-          <<: *prodTagFilter
       - deploy:
           name: deploy-prod
           bucket: checkout-sdk
           context: skipify-prod
           requires:
-            - deploy-approval
+            - build
           <<: *prodTagFilter
       - publish:
           environment: prod
