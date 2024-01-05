@@ -167,6 +167,33 @@ export class Messenger {
     }
   }
 
+  /**
+   * Trying to lookup a user by the device fingerprint
+   * We pull cart data from the this.base.getCartData upon the call of this method
+   */
+  async lookupByFingerprint() {
+    const cart = await this.base.getCartData();
+    if (cart && this.iframe) {
+      const payload = {
+        cart: { items: cart },
+        amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
+      };
+
+      log('Posting lookup by fingerprint data to iframe', {
+        name: MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT,
+        payload,
+      });
+
+      this.iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT,
+          payload,
+        },
+        SkipifyCheckoutUrl
+      );
+    }
+  }
+
   positionListener = () => {
     this.base.positionIframe();
   };
@@ -257,6 +284,10 @@ export class Messenger {
     if (this.userToLookup) {
       const { email, cartData } = this.userToLookup;
       this.lookupUser(email, cartData);
+    } else {
+      // Since we do not have a user to lookup by email, try to lookup by device
+      // We will pull a cart from the base
+      this.lookupByFingerprint();
     }
     //Enable checkmarkhtml if present
     showCheckmarkButton();

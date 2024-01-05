@@ -57,6 +57,7 @@ export const MESSAGE_NAMES = {
   CREATE_ORDER: `${MESSAGE_NAME_PREFIX}/create-order`,
   REQUEST_DEVICE_ID: `${MESSAGE_NAME_PREFIX}/request-device-id`,
   RECEIVE_ORDER_ID: `${MESSAGE_NAME_PREFIX}/receive-order-id`,
+  LOOKUP_BY_FINGERPRINT: `${MESSAGE_NAME_PREFIX}/lookup-by-fingerprint`,
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,
