@@ -159,7 +159,7 @@ export class Base {
 
     const totalWidth = window.innerWidth;
     const translateX =
-      totalWidth > 430
+      totalWidth > 490
         ? Math.max(roundByDPR(buttonPosition.right - iframeWidth), 36)
         : totalWidth > iframeWidth
         ? roundByDPR((totalWidth - iframeWidth) / 2)
