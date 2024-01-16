@@ -37,7 +37,7 @@ export class EmailInput {
     setUserEmail,
     onChange,
     // Assume that desired default behavior is debounce.
-    options = { mode: 'onChange', debounceTime: 300 },
+    options = { mode: 'onChange', debounceTime: 400 },
   }: Props) {
     this.node = node;
     this.setUserEmail = setUserEmail;
@@ -73,7 +73,7 @@ export class EmailInput {
       default:
       case 'onChange':
         controllerFunction = debounce(boundHandler, dt);
-        node.addEventListener('change', controllerFunction);
+        node.addEventListener('input', controllerFunction);
         break;
     }
 
@@ -98,6 +98,8 @@ export class EmailInput {
     }
 
     const emailValue = e.target.value;
-    this.setUserEmail(emailValue);
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+      this.setUserEmail(emailValue);
+    }
   }
 }
