@@ -71,7 +71,6 @@ class ShopifySDK extends Base implements AbstractSDK {
 
     // for samsung demo
     if (this.useButtonCheckout) {
-      // this.processEmailInput();
       const checkoutButton = document.querySelector(this.checkoutButtonSelector);
       if (checkoutButton && !this.checkoutButton) {
         log('Adding event listener to checkout button.');
