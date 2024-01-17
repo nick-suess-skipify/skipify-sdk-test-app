@@ -26,6 +26,7 @@ export class Base {
   hasInitializedIframe = false; // Means the checkout iframe is ready for communication
   skipifyCheckoutCompleted = false; // Means the order was processed through Skipify
   isSkipifyResumable = false;
+  useButtonCheckout = false;
 
   /**
    * Feature classes
@@ -56,6 +57,11 @@ export class Base {
     this.getMerchantIdFromQuery(merchantId);
 
     /**
+     * Experiential code for samsung demo, determine if we use button checkout or not
+     */
+    this.getUseButtonCheckout();
+
+    /**
      * Persisted state
      */
     this.store = store;
@@ -81,6 +87,26 @@ export class Base {
      */
     this.observer = this.makeMutationObserver();
     this.start();
+  }
+
+  /**
+   * Check current script url and look for useButtonCheckout flag, if = true, update base setting
+   */
+  getUseButtonCheckout() {
+    // Get the current script element
+    const currentScript = document.currentScript as HTMLScriptElement | null;
+
+    if (currentScript && currentScript.src) {
+      // Extract the URL of the current script
+      const scriptUrl = new URL(currentScript.src);
+
+      // Get query parameters from the script URL
+      const urlParams = new URLSearchParams(scriptUrl.search);
+      const useButtonCheckoutParam = urlParams.get('useButtonCheckout');
+
+      // Set the class property based on the parameter
+      this.useButtonCheckout = useButtonCheckoutParam === 'true';
+    }
   }
 
   getMerchantIdFromQuery(merchantId?: string) {
