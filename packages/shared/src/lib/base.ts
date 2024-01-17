@@ -26,8 +26,9 @@ export class Base {
   hasInitializedIframe = false; // Means the checkout iframe is ready for communication
   skipifyCheckoutCompleted = false; // Means the order was processed through Skipify
   isSkipifyResumable = false;
-  useButtonCheckout = false;
 
+  useButtonCheckout = false; // for samsung demo
+  checkoutButton: Element | null = null; // for samsung demo
   /**
    * Feature classes
    */
@@ -76,7 +77,6 @@ export class Base {
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
     this.messenger = new Messenger({ base: this });
-
     /**
      * Amplitude implements analytic track requests
      */
@@ -90,13 +90,14 @@ export class Base {
   }
 
   /**
-   * Check current script url and look for useButtonCheckout flag, if = true, update base setting
+   * Check current script url and look for useButtonCheckout flag, if = true and have force device id, update base setting
    */
   getUseButtonCheckout() {
     // Get the current script element
     const currentScript = document.currentScript as HTMLScriptElement | null;
+    const forceDeviceId = localStorage.getItem("skipify_force_device_id");
 
-    if (currentScript && currentScript.src) {
+    if (currentScript && currentScript.src && forceDeviceId) {
       // Extract the URL of the current script
       const scriptUrl = new URL(currentScript.src);
 

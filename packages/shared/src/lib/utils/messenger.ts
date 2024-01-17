@@ -205,6 +205,32 @@ export class Messenger {
     }
   }
 
+
+  // for samsung demo, send create order directly to iframe
+  async createOrder() {
+    const cart = await this.base.getCartData();
+    if (cart && this.iframe) {
+      const payload = {
+        cart: {
+          items: cart
+        }
+      };
+
+      log('Posting create-order message to iframe', {
+        name: MESSAGE_NAMES.CREATE_ORDER,
+        payload,
+      });
+
+      this.iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.CREATE_ORDER,
+          payload,
+        },
+        SkipifyCheckoutUrl
+      );
+    }
+  }
+
   positionListener = () => {
     this.base.positionIframe();
   };
