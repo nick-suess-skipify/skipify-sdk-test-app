@@ -171,7 +171,7 @@ export class Messenger {
    * Trying to lookup a user by the device fingerprint
    * We pull cart data from the this.base.getCartData upon the call of this method
    */
-  async lookupByFingerprint(useButtonCheckout: boolean = false) {
+  async lookupByFingerprint(useButtonCheckout = false) {
     const cart = await this.base.getCartData();
     if (cart && this.iframe) {
       let payload;
