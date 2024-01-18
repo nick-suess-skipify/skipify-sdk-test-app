@@ -444,11 +444,14 @@ export class Messenger {
       this.base.store.setState({ flags });
       if (flags.skipifyLayer) {
         this.iframe?.classList.add(SkipifyClassNames.skipifyV2);
-        if (flags.samsungDemo) {
-          this.iframe?.classList.add(SkipifyClassNames.samsungDemo);
-        }
       } else {
         this.iframe?.classList.remove(SkipifyClassNames.skipifyV2);
+      }
+
+      if (flags.samsungDemo) {
+        this.iframe?.classList.add(SkipifyClassNames.samsungDemo);
+      } else {
+        this.iframe?.classList.remove(SkipifyClassNames.samsungDemo);
       }
     }
   }
