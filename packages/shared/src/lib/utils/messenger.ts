@@ -446,7 +446,7 @@ export class Messenger {
         this.iframe?.classList.add(SkipifyClassNames.skipifyV2);
       } if (flags.samsungDemo) {
         this.iframe?.classList.add(SkipifyClassNames.samsungDemo);
-      }else {
+      } else {
         this.iframe?.classList.remove(SkipifyClassNames.skipifyV2);
       }
     }
