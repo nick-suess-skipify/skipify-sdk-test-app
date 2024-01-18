@@ -18,6 +18,7 @@ export const SkipifyClassNames = {
   body: '_SKIPIFY_body',
   skipifyV2: '_SKIPIFY_V2',
   hiding: '_SKIPIFY_hiding',
+  samsungDemo: '_SAMSUNG_DEMO',
 };
 
 export const SkipifyElementIds = {
