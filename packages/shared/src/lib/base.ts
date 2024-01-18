@@ -27,6 +27,8 @@ export class Base {
   skipifyCheckoutCompleted = false; // Means the order was processed through Skipify
   isSkipifyResumable = false;
 
+  useButtonCheckout = false; // for samsung demo
+  checkoutButton: Element | null = null; // for samsung demo
   /**
    * Feature classes
    */
@@ -56,6 +58,11 @@ export class Base {
     this.getMerchantIdFromQuery(merchantId);
 
     /**
+     * Experiential code for samsung demo, determine if we use button checkout or not
+     */
+    this.getUseButtonCheckout();
+
+    /**
      * Persisted state
      */
     this.store = store;
@@ -70,7 +77,6 @@ export class Base {
      * Messenger implements a communication system between Skipify SDK and Skipify Iframe
      */
     this.messenger = new Messenger({ base: this });
-
     /**
      * Amplitude implements analytic track requests
      */
@@ -81,6 +87,27 @@ export class Base {
      */
     this.observer = this.makeMutationObserver();
     this.start();
+  }
+
+  /**
+   * Check current script url and look for useButtonCheckout flag, if = true and have force device id, update base setting
+   */
+  getUseButtonCheckout() {
+    // Get the current script element
+    const currentScript = document.currentScript as HTMLScriptElement | null;
+    const forceDeviceId = localStorage.getItem("skipify_force_device_id");
+
+    if (currentScript && currentScript.src && forceDeviceId) {
+      // Extract the URL of the current script
+      const scriptUrl = new URL(currentScript.src);
+
+      // Get query parameters from the script URL
+      const urlParams = new URLSearchParams(scriptUrl.search);
+      const useButtonCheckoutParam = urlParams.get('useButtonCheckout');
+
+      // Set the class property based on the parameter
+      this.useButtonCheckout = useButtonCheckoutParam === 'true';
+    }
   }
 
   getMerchantIdFromQuery(merchantId?: string) {

@@ -30,6 +30,8 @@ class ShopifySDK extends Base implements AbstractSDK {
   lookupDisabled = false; // global flag to disable lookup
   whitelistedDomains = ["skipify.com", "skipifyqa.msdc.co", "plae.co"];
 
+  checkoutButtonSelector = "button[type=\"submit\"][name=\"checkout\"]" // for samsung demo
+
   /**
    * Child classes that implements specific business logic.
    */
@@ -64,6 +66,24 @@ class ShopifySDK extends Base implements AbstractSDK {
     // check if order_id is present in checkout object
     if (step === "thank_you" || window.Shopify?.checkout?.order_id) {
       this.processCheckoutCompleted();
+    }
+
+
+    // for samsung demo
+    if (this.useButtonCheckout) {
+      const checkoutButton = document.querySelector(this.checkoutButtonSelector);
+      if (checkoutButton && !this.checkoutButton) {
+        log('Adding event listener to checkout button.');
+        checkoutButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.messenger.createOrder();
+
+          log('Checkout button clicked. Default action prevented.');
+        });
+
+        this.checkoutButton = checkoutButton;
+      }
+
     }
   }
 

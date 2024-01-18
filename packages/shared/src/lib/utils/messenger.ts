@@ -171,13 +171,24 @@ export class Messenger {
    * Trying to lookup a user by the device fingerprint
    * We pull cart data from the this.base.getCartData upon the call of this method
    */
-  async lookupByFingerprint() {
+  async lookupByFingerprint(useButtonCheckout = false) {
     const cart = await this.base.getCartData();
     if (cart && this.iframe) {
-      const payload = {
-        cart: { items: cart },
-        amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
-      };
+      let payload;
+
+      if (useButtonCheckout) {
+        // If isButtonCheckout is true, exclude cart data and add buttonCheckout
+        payload = {
+          amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
+          buttonCheckout: true
+        };
+      } else {
+        // If isButtonCheckout is false, include the cart data
+        payload = {
+          cart: { items: cart },
+          amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
+        };
+      }
 
       log('Posting lookup by fingerprint data to iframe', {
         name: MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT,
@@ -187,6 +198,32 @@ export class Messenger {
       this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT,
+          payload,
+        },
+        SkipifyCheckoutUrl
+      );
+    }
+  }
+
+
+  // for samsung demo, send create order directly to iframe
+  async createOrder() {
+    const cart = await this.base.getCartData();
+    if (cart && this.iframe) {
+      const payload = {
+        cart: {
+          items: cart
+        }
+      };
+
+      log('Posting create-order message to iframe', {
+        name: MESSAGE_NAMES.CREATE_ORDER,
+        payload,
+      });
+
+      this.iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.CREATE_ORDER,
           payload,
         },
         SkipifyCheckoutUrl
@@ -287,7 +324,7 @@ export class Messenger {
     } else {
       // Since we do not have a user to lookup by email, try to lookup by device
       // We will pull a cart from the base
-      this.lookupByFingerprint();
+      this.lookupByFingerprint(this.base.useButtonCheckout);
     }
     //Enable checkmarkhtml if present
     showCheckmarkButton();
