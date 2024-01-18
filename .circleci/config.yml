@@ -115,7 +115,7 @@ workflows:
           filters:
             branches:
               only:
-                - samsung-demo
+                - dev
                 - development
 
   stage:
