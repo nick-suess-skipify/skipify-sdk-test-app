@@ -105,7 +105,8 @@
   transform: translateY(-50%);
 }
 
-#_SKIPIFY_check_icon {
+#_SKIPIFY_check_icon,
+#_SKIPIFY_expand_more_icon {
   fill: white;
 }
 

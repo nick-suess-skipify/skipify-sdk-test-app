@@ -88,8 +88,7 @@ export class Messenger {
   launchBaseIframe(iframeSrc: string) {
     const baseIframe = launchHiddenIframe(
       iframeSrc,
-      this.base.hasInitializedIframe,
-      this.base.isSkipifyLayerEnabled
+      this.base.hasInitializedIframe
     );
     if (baseIframe) {
       this.iframe = baseIframe;
@@ -125,7 +124,7 @@ export class Messenger {
 
     containerEl?.appendChild(iframeEl);
 
-    displayIframe();
+    displayIframe(this.base.isSkipifyLayerEnabled);
   }
 
   requestDeviceId() {
@@ -235,7 +234,7 @@ export class Messenger {
   };
 
   listenerDisplayIframe() {
-    displayIframe();
+    displayIframe(this.base.isSkipifyLayerEnabled);
     if (this.base.isSkipifyLayerEnabled) {
       if (this.base.button) this.base.button.style.display = 'flex';
       window.removeEventListener('resize', this.positionListener);
@@ -277,7 +276,7 @@ export class Messenger {
       if (this.iframe) {
         this.iframe.style.height = '0';
       }
-      hideIframe();
+      hideIframe(this.base.isSkipifyLayerEnabled);
       this.prevUserEmail = null;
       this.clearUserToLookup();
     }
@@ -298,7 +297,7 @@ export class Messenger {
   }
 
   resetIframe() {
-    hideIframe();
+    hideIframe(this.base.isSkipifyLayerEnabled);
     this.base.setHasInitializedIframe(false);
     this.base.setSkipifyResumable(false);
     if (this.base.button) this.base.button.style.display = 'none';

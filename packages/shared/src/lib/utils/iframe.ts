@@ -18,13 +18,11 @@ export function getBaseIframe() {
 
 export function launchHiddenIframe(
   iframeSrc: string,
-  hasInitializedIframe: boolean,
-  isSkipifyLayerEnabled = false
+  hasInitializedIframe: boolean
 ) {
-
   // SP-2455 : Retrieve forced device id if any, this will replace fingerprint js device id
   // todo: re-evaluate after fingerprint js issue resolved (mark)
-  const forceDeviceId = localStorage.getItem("skipify_force_device_id");
+  const forceDeviceId = localStorage.getItem('skipify_force_device_id');
 
   if (forceDeviceId) {
     const url = new URL(iframeSrc);
@@ -58,7 +56,13 @@ export function launchHiddenIframe(
   return iframeEl;
 }
 
-export function displayIframe() {
+export function displayIframe(isSkipifyLayerEnabled = false) {
+  if (isSkipifyLayerEnabled) {
+    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+    if (checkIcon) checkIcon.style.display = 'block';
+    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+    if (expandIcon) expandIcon.style.display = 'none';
+  }
   const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
 
   if (existingOverlay) {
@@ -71,7 +75,14 @@ export function displayIframe() {
   }
 }
 
-export function hideIframe() {
+export function hideIframe(isSkipifyLayerEnabled = false) {
+  if (isSkipifyLayerEnabled) {
+    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+    if (checkIcon) checkIcon.style.display = 'none';
+    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+    if (expandIcon) expandIcon.style.display = 'block';
+  }
+
   document.body.classList.add(SkipifyClassNames.hiding);
   // Added a setTimeout here to ensure that the hiding animation is visible
   setTimeout(() => {
