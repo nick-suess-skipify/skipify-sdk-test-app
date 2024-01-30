@@ -95,7 +95,7 @@ export class Base {
   getUseButtonCheckout() {
     // Get the current script element
     const currentScript = document.currentScript as HTMLScriptElement | null;
-    const forceDeviceId = localStorage.getItem("skipify_force_device_id");
+    const forceDeviceId = localStorage.getItem('skipify_force_device_id');
 
     if (currentScript && currentScript.src && forceDeviceId) {
       // Extract the URL of the current script
@@ -326,7 +326,18 @@ export class Base {
         this.positionIframe(true);
       };
     }
-    this.button.style.width = `${emailInput.getBoundingClientRect().height}px`;
+    const buttonSize = emailInput.getBoundingClientRect().height - 4;
+    this.button.style.width = `${buttonSize}px`;
+    this.button.style.height = `${buttonSize}px`;
+
+    const borderRadius = emailInput
+      .computedStyleMap()
+      ?.get('border-top-right-radius') as CSSUnitValue | undefined;
+
+    if (borderRadius?.value) {
+      this.button.style.borderRadius = `${buttonSize / borderRadius.value}%`;
+    }
+
     this.button.style.display = this.isSkipifyResumable ? 'flex' : 'none';
     emailInput.parentNode?.replaceChild(wrapper, emailInput);
     wrapper.appendChild(emailInput);

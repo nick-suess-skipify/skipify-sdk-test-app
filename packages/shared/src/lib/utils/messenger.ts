@@ -180,7 +180,7 @@ export class Messenger {
         // If isButtonCheckout is true, exclude cart data and add buttonCheckout
         payload = {
           amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
-          buttonCheckout: true
+          buttonCheckout: true,
         };
       } else {
         // If isButtonCheckout is false, include the cart data
@@ -205,15 +205,14 @@ export class Messenger {
     }
   }
 
-
   // for samsung demo, send create order directly to iframe
   async createOrder() {
     const cart = await this.base.getCartData();
     if (cart && this.iframe) {
       const payload = {
         cart: {
-          items: cart
-        }
+          items: cart,
+        },
       };
 
       log('Posting create-order message to iframe', {
