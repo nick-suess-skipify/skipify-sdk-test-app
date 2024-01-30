@@ -100,9 +100,8 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 50%;
   right: 2px;
-  transform: translateY(-50%);
+  bottom: 2px;
 }
 
 #_SKIPIFY_check_icon,
