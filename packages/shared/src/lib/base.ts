@@ -331,12 +331,23 @@ export class Base {
     this.button.style.width = `${buttonSize}px`;
     this.button.style.height = `${buttonSize}px`;
 
-    const borderRadius = emailInput
-      .computedStyleMap()
-      ?.get('border-top-right-radius') as CSSUnitValue | undefined;
+    const emailStyles = emailInput.computedStyleMap();
 
-    if (borderRadius?.value) {
-      this.button.style.borderRadius = `${buttonSize / borderRadius.value}%`;
+    const stylePropertiesToCopy = [
+      'border-top-right-radius',
+      'border-top-left-radius',
+      'border-bottom-right-radius',
+      'border-bottom-left-radius',
+    ];
+
+    for (const property of stylePropertiesToCopy) {
+      const borderRadius = emailStyles.get(property);
+      if (borderRadius instanceof CSSUnitValue && borderRadius.value) {
+        this.button.style.setProperty(
+          property,
+          `${buttonSize / borderRadius.value}%`
+        );
+      }
     }
 
     this.button.style.display = this.isSkipifyResumable ? 'flex' : 'none';
