@@ -124,7 +124,7 @@ export class Messenger {
 
     containerEl?.appendChild(iframeEl);
 
-    displayIframe(this.base.isSkipifyLayerEnabled);
+    displayIframe();
   }
 
   requestDeviceId() {
@@ -234,9 +234,12 @@ export class Messenger {
   };
 
   listenerDisplayIframe() {
-    displayIframe(this.base.isSkipifyLayerEnabled);
+    displayIframe();
     if (this.base.isSkipifyLayerEnabled) {
-      if (this.base.button) this.base.button.style.display = 'flex';
+      if (this.base.button) {
+        this.base.showCheckIcon();
+        this.base.button.style.display = 'flex';
+      }
       window.removeEventListener('resize', this.positionListener);
       window.addEventListener('resize', this.positionListener);
       window.removeEventListener('scroll', this.positionListener);
@@ -276,7 +279,10 @@ export class Messenger {
       if (this.iframe) {
         this.iframe.style.height = '0';
       }
-      hideIframe(this.base.isSkipifyLayerEnabled);
+      hideIframe();
+      if (this.base.isSkipifyLayerEnabled) {
+        this.base.showExpandIcon();
+      }
       this.prevUserEmail = null;
       this.clearUserToLookup();
     }
@@ -297,7 +303,7 @@ export class Messenger {
   }
 
   resetIframe() {
-    hideIframe(this.base.isSkipifyLayerEnabled);
+    hideIframe();
     this.base.setHasInitializedIframe(false);
     this.base.setSkipifyResumable(false);
     if (this.base.button) this.base.button.style.display = 'none';

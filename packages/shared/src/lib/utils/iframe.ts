@@ -56,13 +56,7 @@ export function launchHiddenIframe(
   return iframeEl;
 }
 
-export function displayIframe(isSkipifyLayerEnabled = false) {
-  if (isSkipifyLayerEnabled) {
-    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
-    if (checkIcon) checkIcon.style.display = 'block';
-    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
-    if (expandIcon) expandIcon.style.display = 'none';
-  }
+export function displayIframe() {
   const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
 
   if (existingOverlay) {
@@ -75,14 +69,7 @@ export function displayIframe(isSkipifyLayerEnabled = false) {
   }
 }
 
-export function hideIframe(isSkipifyLayerEnabled = false) {
-  if (isSkipifyLayerEnabled) {
-    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
-    if (checkIcon) checkIcon.style.display = 'none';
-    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
-    if (expandIcon) expandIcon.style.display = 'block';
-  }
-
+export function hideIframe() {
   document.body.classList.add(SkipifyClassNames.hiding);
   // Added a setTimeout here to ensure that the hiding animation is visible
   setTimeout(() => {

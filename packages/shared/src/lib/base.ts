@@ -312,6 +312,19 @@ export class Base {
     this.isSkipifyResumable = value;
   }
 
+  showCheckIcon() {
+    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+    if (checkIcon) checkIcon.style.display = 'block';
+    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+    if (expandIcon) expandIcon.style.display = 'none';
+  }
+  showExpandIcon() {
+    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+    if (checkIcon) checkIcon.style.display = 'none';
+    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+    if (expandIcon) expandIcon.style.display = 'block';
+  }
+
   insertButton(emailInput: HTMLElement) {
     const wrapper = document.createElement('div');
     wrapper.id = SkipifyElementIds.emailWrapper;
@@ -322,7 +335,8 @@ export class Base {
       <svg id="_SKIPIFY_check_icon" style="display: block;" viewBox="0 0 24 24" data-testid="CheckIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>`;
       this.button.onclick = (e) => {
         e.preventDefault();
-        displayIframe(this.isSkipifyLayerEnabled);
+        displayIframe();
+        this.showCheckIcon();
         this.messenger.restoreIframeHeight();
         this.positionIframe(true);
       };
