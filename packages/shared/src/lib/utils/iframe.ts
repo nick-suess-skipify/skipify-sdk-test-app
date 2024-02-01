@@ -18,13 +18,11 @@ export function getBaseIframe() {
 
 export function launchHiddenIframe(
   iframeSrc: string,
-  hasInitializedIframe: boolean,
-  isSkipifyLayerEnabled = false
+  hasInitializedIframe: boolean
 ) {
-
   // SP-2455 : Retrieve forced device id if any, this will replace fingerprint js device id
   // todo: re-evaluate after fingerprint js issue resolved (mark)
-  const forceDeviceId = localStorage.getItem("skipify_force_device_id");
+  const forceDeviceId = localStorage.getItem('skipify_force_device_id');
 
   if (forceDeviceId) {
     const url = new URL(iframeSrc);

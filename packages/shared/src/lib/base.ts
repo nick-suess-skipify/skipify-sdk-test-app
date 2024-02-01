@@ -95,7 +95,7 @@ export class Base {
   getUseButtonCheckout() {
     // Get the current script element
     const currentScript = document.currentScript as HTMLScriptElement | null;
-    const forceDeviceId = localStorage.getItem("skipify_force_device_id");
+    const forceDeviceId = localStorage.getItem('skipify_force_device_id');
 
     if (currentScript && currentScript.src && forceDeviceId) {
       // Extract the URL of the current script
@@ -312,21 +312,58 @@ export class Base {
     this.isSkipifyResumable = value;
   }
 
+  showCheckIcon() {
+    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+    if (checkIcon) checkIcon.style.display = 'block';
+    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+    if (expandIcon) expandIcon.style.display = 'none';
+  }
+  showExpandIcon() {
+    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+    if (checkIcon) checkIcon.style.display = 'none';
+    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+    if (expandIcon) expandIcon.style.display = 'block';
+  }
+
   insertButton(emailInput: HTMLElement) {
     const wrapper = document.createElement('div');
     wrapper.id = SkipifyElementIds.emailWrapper;
     if (!this.button) {
       this.button = document.createElement('button');
       this.button.id = SkipifyElementIds.checkButton;
-      this.button.innerHTML = `<svg id="_SKIPIFY_check_icon" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>`;
+      this.button.innerHTML = `<svg id="_SKIPIFY_expand_more_icon" style="display: none;" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg>
+      <svg id="_SKIPIFY_check_icon" style="display: block;" viewBox="0 0 24 24" data-testid="CheckIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>`;
       this.button.onclick = (e) => {
         e.preventDefault();
         displayIframe();
+        this.showCheckIcon();
         this.messenger.restoreIframeHeight();
         this.positionIframe(true);
       };
     }
-    this.button.style.width = `${emailInput.getBoundingClientRect().height}px`;
+    const buttonSize = emailInput.getBoundingClientRect().height - 4;
+    this.button.style.width = `${buttonSize}px`;
+    this.button.style.height = `${buttonSize}px`;
+
+    const emailStyles = emailInput.computedStyleMap();
+
+    const stylePropertiesToCopy = [
+      'border-top-right-radius',
+      'border-top-left-radius',
+      'border-bottom-right-radius',
+      'border-bottom-left-radius',
+    ];
+
+    for (const property of stylePropertiesToCopy) {
+      const borderRadius = emailStyles.get(property);
+      if (borderRadius instanceof CSSUnitValue && borderRadius.value) {
+        this.button.style.setProperty(
+          property,
+          `${buttonSize / borderRadius.value}%`
+        );
+      }
+    }
+
     this.button.style.display = this.isSkipifyResumable ? 'flex' : 'none';
     emailInput.parentNode?.replaceChild(wrapper, emailInput);
     wrapper.appendChild(emailInput);

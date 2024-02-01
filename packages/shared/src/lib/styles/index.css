@@ -99,9 +99,13 @@
   display: none;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
 }
 
-#_SKIPIFY_check_icon {
+#_SKIPIFY_check_icon,
+#_SKIPIFY_expand_more_icon {
   fill: white;
 }
 

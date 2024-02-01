@@ -88,8 +88,7 @@ export class Messenger {
   launchBaseIframe(iframeSrc: string) {
     const baseIframe = launchHiddenIframe(
       iframeSrc,
-      this.base.hasInitializedIframe,
-      this.base.isSkipifyLayerEnabled
+      this.base.hasInitializedIframe
     );
     if (baseIframe) {
       this.iframe = baseIframe;
@@ -180,7 +179,7 @@ export class Messenger {
         // If isButtonCheckout is true, exclude cart data and add buttonCheckout
         payload = {
           amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
-          buttonCheckout: true
+          buttonCheckout: true,
         };
       } else {
         // If isButtonCheckout is false, include the cart data
@@ -205,15 +204,14 @@ export class Messenger {
     }
   }
 
-
   // for samsung demo, send create order directly to iframe
   async createOrder() {
     const cart = await this.base.getCartData();
     if (cart && this.iframe) {
       const payload = {
         cart: {
-          items: cart
-        }
+          items: cart,
+        },
       };
 
       log('Posting create-order message to iframe', {
@@ -238,7 +236,10 @@ export class Messenger {
   listenerDisplayIframe() {
     displayIframe();
     if (this.base.isSkipifyLayerEnabled) {
-      if (this.base.button) this.base.button.style.display = 'flex';
+      if (this.base.button) {
+        this.base.showCheckIcon();
+        this.base.button.style.display = 'flex';
+      }
       window.removeEventListener('resize', this.positionListener);
       window.addEventListener('resize', this.positionListener);
       window.removeEventListener('scroll', this.positionListener);
@@ -279,6 +280,9 @@ export class Messenger {
         this.iframe.style.height = '0';
       }
       hideIframe();
+      if (this.base.isSkipifyLayerEnabled) {
+        this.base.showExpandIcon();
+      }
       this.prevUserEmail = null;
       this.clearUserToLookup();
     }
