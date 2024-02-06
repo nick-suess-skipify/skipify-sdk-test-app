@@ -136,6 +136,12 @@ workflows:
           context: skipify-dev
           requires:
             - code-quality
+      - run-qa-e2e-playwright:
+          environment: dev
+          context: skipify-dev
+          test_name: shakira/shakiraCheckout.spec.js
+          requires:
+            - code-quality
       - deploy:
           name: deploy-dev
           bucket: checkout-sdk-dev
