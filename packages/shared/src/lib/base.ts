@@ -43,6 +43,12 @@ export class Base {
    */
   button?: HTMLButtonElement;
 
+  /**
+   * Skipify Layer
+   *
+   */
+  shouldDisplayOnTop = false;
+
   constructor(merchantId?: string) {
     /**
      * Add values like SDK version to the window object
@@ -174,25 +180,56 @@ export class Base {
       this.messenger.resetIframeStyles();
       return;
     }
-    if (shouldScroll) {
-      const scrollY = this.button.getBoundingClientRect().y - 16;
-      window.scrollBy(0, scrollY);
+    let buttonPosition = this.button.getBoundingClientRect();
+
+    if (
+      !buttonPosition ||
+      !document.body.classList.contains(SkipifyClassNames.body) // avoid calculation position if the iframe is not visible
+    ) {
+      return;
     }
 
-    const buttonPosition = this.button.getBoundingClientRect();
+    const totalHeight = document.documentElement.scrollHeight;
+    const totalWidth = window.innerWidth;
+
+    const buttonAbsolutePosition = buttonPosition.top + window.scrollY;
+    this.shouldDisplayOnTop = buttonAbsolutePosition > totalHeight / 2;
+
+    if (shouldScroll) {
+      const scrollY = this.shouldDisplayOnTop
+        ? buttonAbsolutePosition +
+          buttonPosition.height -
+          window.innerHeight +
+          16
+        : buttonAbsolutePosition - 16;
+
+      window.scrollTo({ top: scrollY, behavior: 'smooth' });
+      buttonPosition = this.button.getBoundingClientRect();
+    }
+
+    if (this.shouldDisplayOnTop) {
+      this.messenger.iframe.style.bottom =
+        window.innerHeight - buttonPosition.top + 16 + 'px';
+    } else {
+      this.messenger.iframe.style.bottom = '';
+    }
+
     const { width: iframeWidth } =
       this.messenger.iframe.getBoundingClientRect();
-    if (!buttonPosition) return;
 
-    const totalWidth = window.innerWidth;
     const translateX =
       totalWidth > 490
         ? Math.max(roundByDPR(buttonPosition.right - iframeWidth), 36)
         : totalWidth > iframeWidth
         ? roundByDPR((totalWidth - iframeWidth) / 2)
         : 0;
-    const translateY = roundByDPR(buttonPosition.bottom + 16);
-    const remainingSpace = roundByDPR(window.innerHeight - translateY);
+    const translateY = this.shouldDisplayOnTop
+      ? 0
+      : roundByDPR(buttonPosition.bottom + 16);
+    const remainingSpace = this.shouldDisplayOnTop
+      ? buttonPosition.top
+      : roundByDPR(window.innerHeight - buttonPosition.bottom);
+
     const maxHeight = Math.max(remainingSpace - 24, 0);
 
     this.messenger.iframe.style.left = '0';
@@ -201,7 +238,9 @@ export class Base {
 
     const arrowIframe = document.getElementById(SkipifyElementIds.iframeArrow);
     const arrowPositionX = roundByDPR(buttonPosition.x + 9);
-    const arrowPositionY = roundByDPR(translateY - 5);
+    const arrowPositionY = this.shouldDisplayOnTop
+      ? roundByDPR(buttonPosition.top - 36)
+      : roundByDPR(translateY - 5);
     if (arrowIframe) {
       arrowIframe.style.display = 'block';
       arrowIframe.style.transform = `translate(${arrowPositionX}px, ${arrowPositionY}px)`;
@@ -322,7 +361,12 @@ export class Base {
     const checkIcon = document.getElementById('_SKIPIFY_check_icon');
     if (checkIcon) checkIcon.style.display = 'none';
     const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
-    if (expandIcon) expandIcon.style.display = 'block';
+    if (expandIcon) {
+      expandIcon.style.display = 'block';
+      if (this.shouldDisplayOnTop) {
+        expandIcon.style.transform = 'rotate(180deg)';
+      }
+    }
   }
 
   insertButton(emailInput: HTMLElement) {
