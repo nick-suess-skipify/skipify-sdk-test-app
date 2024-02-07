@@ -170,6 +170,12 @@ workflows:
           requires:
             - code-quality
           <<: *stageTagFilter
+      - run-qa-e2e-playwright:
+          environment: stage
+          context: skipify-stage
+          test_name: shakira/shakiraCheckout.spec.js
+          requires:
+            - code-quality          
       - deploy:
           name: deploy-stage
           bucket: checkout-sdk-stage
