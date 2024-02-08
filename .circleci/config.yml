@@ -96,7 +96,7 @@ jobs:
             npm set $NPM_PUBLISH_URL:_authToken=$NPM_PUBLISH_TOKEN
             npm publish
             
-  run-qa-e2e-playwright-chromium:
+  chromium-run-qa-e2e-playwright:
     parameters:
       environment:
         description: Target test environment
@@ -126,7 +126,7 @@ jobs:
       - run:
           command: npx playwright test <<parameters.test_name>> --project=chromium     
 
-  run-qa-e2e-playwright-firefox:
+  firefox-run-qa-e2e-playwright:
     parameters:
       environment:
         description: Target test environment
@@ -166,13 +166,13 @@ workflows:
           context: skipify-dev
           requires:
             - code-quality
-      - run-qa-e2e-playwright-firefox:
+      - firefox-run-qa-e2e-playwright:
           environment: dev
           context: skipify-dev
           test_name: shakira/shakiraCheckout.spec.js
           requires:
             - code-quality            
-      - run-qa-e2e-playwright-chromium:
+      - chromium-run-qa-e2e-playwright:
           environment: dev
           context: skipify-dev
           test_name: shakira/shakiraCheckout.spec.js
@@ -206,13 +206,13 @@ workflows:
           requires:
             - code-quality
           <<: *stageTagFilter
-      - run-qa-e2e-playwright-firefox:
+      - firefox-run-qa-e2e-playwright:
           environment: stage
           context: skipify-stage
           test_name: shakira/shakiraCheckout.spec.js
           requires:
             - code-quality    
-      - run-qa-e2e-playwright-chromium:
+      - chromium-run-qa-e2e-playwright:
           environment: stage
           context: skipify-stage
           test_name: shakira/shakiraCheckout.spec.js
