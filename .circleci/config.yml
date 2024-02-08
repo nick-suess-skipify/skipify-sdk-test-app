@@ -126,7 +126,7 @@ jobs:
       - run:
           command: npx playwright test <<parameters.test_name>> --project=chromium     
 
-  firefox-run-qa-e2e-playwright:
+  run-qa-e2e-playwright:
     parameters:
       environment:
         description: Target test environment
@@ -154,7 +154,9 @@ jobs:
           npx playwright install
           npx playwright install-deps
       - run:
-          command: npx playwright test <<parameters.test_name>> --project=chromium                     
+          command: npx playwright test <<parameters.test_name>> --project=chromium
+      - run:
+          command: npx playwright test <<parameters.test_name>> --project=firefox                        
 
 workflows:
   dev:
@@ -166,13 +168,7 @@ workflows:
           context: skipify-dev
           requires:
             - code-quality
-      - firefox-run-qa-e2e-playwright:
-          environment: dev
-          context: skipify-dev
-          test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - code-quality            
-      - chromium-run-qa-e2e-playwright:
+      - run-qa-e2e-playwright:
           environment: dev
           context: skipify-dev
           test_name: shakira/shakiraCheckout.spec.js
@@ -206,13 +202,7 @@ workflows:
           requires:
             - code-quality
           <<: *stageTagFilter
-      - firefox-run-qa-e2e-playwright:
-          environment: stage
-          context: skipify-stage
-          test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - code-quality    
-      - chromium-run-qa-e2e-playwright:
+      - run-qa-e2e-playwright:
           environment: stage
           context: skipify-stage
           test_name: shakira/shakiraCheckout.spec.js
