@@ -389,7 +389,7 @@ export class Base {
     this.button.style.width = `${buttonSize}px`;
     this.button.style.height = `${buttonSize}px`;
 
-    const emailStyles = emailInput.computedStyleMap();
+    const emailStyles = window.getComputedStyle(emailInput);
 
     const stylePropertiesToCopy = [
       'border-top-right-radius',
@@ -399,11 +399,14 @@ export class Base {
     ];
 
     for (const property of stylePropertiesToCopy) {
-      const borderRadius = emailStyles.get(property);
-      if (borderRadius instanceof CSSUnitValue && borderRadius.value) {
+      const borderRadius = emailStyles.getPropertyValue(property);
+      if (borderRadius) {
+        const borderRadiusValue = parseFloat(
+          borderRadius.replace(/px|em|rem|%/, '')
+        );
         this.button.style.setProperty(
           property,
-          `${buttonSize / borderRadius.value}%`
+          `${buttonSize / borderRadiusValue}%`
         );
       }
     }
