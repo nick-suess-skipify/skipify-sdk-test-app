@@ -272,7 +272,13 @@ export class Base {
       return;
     }
 
-    const { testMode } = this.store.getState();
+    email = email.trim().toLowerCase();
+
+    const { testMode, userEmail } = this.store.getState();
+    if(email === userEmail) {
+      return;
+    }
+
     this.store.setState({
       userEmail: email,
       eligible: false,

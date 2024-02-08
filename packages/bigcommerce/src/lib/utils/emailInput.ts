@@ -4,7 +4,7 @@ interface OwnProps {
   node: HTMLElement;
   setUserEmail: (email: string) => void;
   passwordInputId: string;
-  onChange: () => void;
+  onChange: (e: Event) => void;
 }
 
 type Props = OwnProps;
@@ -13,7 +13,7 @@ export class EmailInput {
   node: HTMLElement;
   passwordInputId: string;
   setUserEmail: (email: string) => void;
-  onChange: () => void;
+  onChange: (e: Event) => void;
 
   constructor({ node, setUserEmail, passwordInputId, onChange }: Props) {
     this.node = node;
@@ -26,7 +26,7 @@ export class EmailInput {
   start() {
     this.node.classList.add(SkipifyClassNames.emailInput);
     this.node.addEventListener('blur', (e) => this.handleInput(e));
-    this.node.addEventListener('change', () => this.onChange());
+    this.node.addEventListener('input', (e: Event) => this.onChange(e));
   }
 
   handleInput(e: FocusEvent) {

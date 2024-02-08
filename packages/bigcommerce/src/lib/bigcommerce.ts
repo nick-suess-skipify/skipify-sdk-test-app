@@ -81,9 +81,17 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       node: emailInputElem,
       setUserEmail: (email) => this.setUserEmail(email),
       passwordInputId: this.passwordInputId,
-      onChange: () => {
-        if (this.isSkipifyLayerEnabled) this.launchBaseIframe();
-        if (this.button) this.button.style.display = 'none';
+      onChange: (e) => {
+        //if the email change, we need to hide the skipify layer button and relaunch the iframe
+        if (
+          this.isSkipifyLayerEnabled &&
+          e.target instanceof HTMLInputElement &&
+          e.target.value.trim().toLowerCase() !==
+            this.store.getState().userEmail
+        ) {
+          this.launchBaseIframe();
+          if (this.button) this.button.style.display = 'none';
+        }
       },
     });
   }
