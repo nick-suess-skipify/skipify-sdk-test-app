@@ -94,8 +94,8 @@ jobs:
           command: |
             npm set @skipifycheckout:registry=$NPM_PUBLISH_URL
             npm set $NPM_PUBLISH_URL:_authToken=$NPM_PUBLISH_TOKEN
-            npm publish
-            
+            npm publish  
+
   run-qa-e2e-playwright:
     parameters:
       environment:
@@ -124,7 +124,9 @@ jobs:
           npx playwright install
           npx playwright install-deps
       - run:
-          command: npx playwright test <<parameters.test_name>> --project=chromium            
+          command: npx playwright test <<parameters.test_name>> --project=chromium
+      - run:
+          command: npx playwright test <<parameters.test_name>> --project=firefox                        
 
 workflows:
   dev:
@@ -175,7 +177,7 @@ workflows:
           context: skipify-stage
           test_name: shakira/shakiraCheckout.spec.js
           requires:
-            - code-quality          
+            - code-quality                     
       - deploy:
           name: deploy-stage
           bucket: checkout-sdk-stage
