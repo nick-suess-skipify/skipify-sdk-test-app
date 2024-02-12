@@ -180,10 +180,6 @@ class ShopifySDK extends Base implements AbstractSDK {
         log("Email input on blur", email);
         this.setUserEmail(email);
       },
-      onChange: () => {
-        if (this.isSkipifyLayerEnabled) this.launchBaseIframe();
-        if (this.button) this.button.style.display = 'none';
-      },
     });
     //inserts email to input if OID is saved
     injectSavedEmail(emailInputElem)
@@ -331,9 +327,12 @@ class ShopifySDK extends Base implements AbstractSDK {
       return;
     }
 
-    email = email.toLowerCase();
+    email = email.trim().toLowerCase();
 
-    const { testMode } = this.store.getState();
+    const { testMode, userEmail } = this.store.getState();
+    if(email === userEmail) {
+      return;
+    }
     this.store.setState({
       userEmail: email,
       eligible: false,
@@ -371,6 +370,11 @@ class ShopifySDK extends Base implements AbstractSDK {
     if (this.lookupDisabled) {
       log("Lookup disabled, skip");
       return;
+    }
+
+    if (this.isSkipifyLayerEnabled) {
+      this.launchBaseIframe();
+      if (this.button) this.button.style.display = 'none';
     }
 
     const cartData = await this.getCartData();

@@ -17,7 +17,6 @@ interface OwnProps {
   node: HTMLInputElement;
   options?: EmailInputOptions;
   setUserEmail: (email: string) => void;
-  onChange: () => void;
 }
 
 type EmailInputEventHandler = (e: Event) => void;
@@ -27,7 +26,6 @@ type Props = OwnProps;
 export class EmailInput {
   node: HTMLInputElement;
   setUserEmail: (email: string) => void;
-  onChange: () => void;
   private options;
   //** This can be used to cancel/immediately flush debounce if necessary */
   private _debounceController?: DebouncedFunction<EmailInputEventHandler>;
@@ -35,13 +33,11 @@ export class EmailInput {
   constructor({
     node,
     setUserEmail,
-    onChange,
     // Assume that desired default behavior is debounce.
     options = { mode: 'onChange', debounceTime: 400 },
   }: Props) {
     this.node = node;
     this.setUserEmail = setUserEmail;
-    this.onChange = onChange;
     this.options = options;
     this.start();
   }
@@ -87,7 +83,6 @@ export class EmailInput {
       this.handleInput,
       this.options
     );
-    this.node.addEventListener('change', () => this.onChange());
   }
 
   handleInput(e: Event) {

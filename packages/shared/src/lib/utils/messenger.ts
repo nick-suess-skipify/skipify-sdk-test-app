@@ -235,6 +235,13 @@ export class Messenger {
 
   listenerDisplayIframe() {
     displayIframe();
+    const activeElement = document.activeElement;
+    if (
+      activeElement?.classList.contains(SkipifyClassNames.emailInput) &&
+      activeElement instanceof HTMLInputElement
+    ) {
+      activeElement.blur();
+    }
     if (this.base.isSkipifyLayerEnabled) {
       if (this.base.button) {
         this.base.showCheckIcon();
