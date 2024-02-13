@@ -107,6 +107,7 @@
 #_SKIPIFY_check_icon,
 #_SKIPIFY_expand_more_icon {
   fill: white;
+  height: 100%;
 }
 
 @media screen and (max-width: 550px) {
