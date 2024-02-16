@@ -3,7 +3,8 @@
 }
 
 ._SKIPIFY_body #_SKIPIFY_overlay {
-  display: block;
+  /* DO NOT USE display=none, FINGERPRINT.JS WILL NOT WORK */
+  visibility: visible;
 }
 
 #_SKIPIFY_overlay {
@@ -16,7 +17,8 @@
   background-color: rgba(0, 0, 0, 0.6);
   transition: opacity 300ms ease-in-out;
   pointer-events: auto;
-  display: none;
+  /* DO NOT USE display=none, FINGERPRINT.JS WILL NOT WORK */
+  visibility: hidden;
   opacity: 0;
 }
 

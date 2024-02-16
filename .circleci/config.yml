@@ -126,7 +126,7 @@ jobs:
       - run:
           command: npx playwright test <<parameters.test_name>> --project=chromium
       - run:
-          command: npx playwright test <<parameters.test_name>> --project=firefox                        
+          command: npx playwright test <<parameters.test_name>> --project=firefox
 
 workflows:
   dev:
@@ -177,7 +177,7 @@ workflows:
           context: skipify-stage
           test_name: shakira/shakiraCheckout.spec.js
           requires:
-            - code-quality                     
+            - code-quality
       - deploy:
           name: deploy-stage
           bucket: checkout-sdk-stage
