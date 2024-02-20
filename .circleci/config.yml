@@ -138,12 +138,6 @@ workflows:
           context: skipify-dev
           requires:
             - code-quality
-      - run-qa-e2e-playwright:
-          environment: dev
-          context: skipify-dev
-          test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - code-quality
       - deploy:
           name: deploy-dev
           bucket: checkout-sdk-dev
@@ -155,7 +149,13 @@ workflows:
               only:
                 - dev
                 - development
-
+      - run-qa-e2e-playwright:
+          environment: dev
+          context: skipify-dev
+          test_name: shakira/shakiraCheckout.spec.js
+          requires:
+            - code-quality
+            - deploy-dev
   stage:
     jobs:
       - build-approval:
@@ -173,18 +173,24 @@ workflows:
             - code-quality
           <<: *stageTagFilter
       - run-qa-e2e-playwright:
-          environment: stage
-          context: skipify-stage
+          environment: dev
+          context: skipify-dev
           test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - code-quality
       - deploy:
           name: deploy-stage
           bucket: checkout-sdk-stage
           context: skipify-stage
           requires:
+            - run-qa-e2e-playwright
             - build
           <<: *stageTagFilter
+      - run-qa-e2e-playwright:
+          name: qa-stage
+          environment: stage
+          context: skipify-stage
+          test_name: shakira/shakiraCheckout.spec.js
+          requires:
+            - deploy-stage
   prod:
     jobs:
       - build-approval:
