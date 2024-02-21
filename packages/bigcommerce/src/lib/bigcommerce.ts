@@ -169,6 +169,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
   override async handleOrderCompleted(_externalOrderId: string): Promise<void> {
     this.skipifyCheckoutCompleted = true;
     this.clearCart();
+    this.reset(); // Reset the store after the order is completed
   }
 
   override async getCartData(): Promise<BigCommerceLineItem[] | null> {

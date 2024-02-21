@@ -1,4 +1,4 @@
-import { Messenger, SkipifyApi, Amplitude, roundByDPR } from './utils';
+import { Messenger, SkipifyApi, Amplitude, roundByDPR, log } from './utils';
 import { store, defaultState } from './state';
 import {
   SkipifyCheckoutUrl,
@@ -315,6 +315,7 @@ export class Base {
 
     const { testMode, userEmail } = this.store.getState();
     if (email === userEmail) {
+      log('User email is the same as what stored in store, aborting setUserEmail');
       return;
     }
 
