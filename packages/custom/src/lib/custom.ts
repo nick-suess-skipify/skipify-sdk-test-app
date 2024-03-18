@@ -1,7 +1,8 @@
-import { SkipifyCheckoutUrl } from '@checkout-sdk/shared/lib/constants';
+import { SkipifyCheckoutUrl, SDKVersion } from '@checkout-sdk/shared/lib/constants';
 import { Config } from './config';
 import { Messenger } from './messenger';
 import { Button } from './button/button';
+import { EmailListener } from './emailListener/emailListener';
 
 import '@checkout-sdk/shared/lib/styles';
 
@@ -15,12 +16,17 @@ import '@checkout-sdk/shared/lib/styles';
 class CustomSDK {
   config: Config;
   messenger: Messenger;
+  buttons: Record<string, Button> = {};
+  emailListeners: Record<string, EmailListener> = {};
 
   constructor(config: any) {
     this.config = new Config(config);
     this.messenger = new Messenger(this);
     this.start();
   }
+
+  // Static var to store SDK version
+  static version = SDKVersion
 
   start() {
     this.launchBaseIframe();
@@ -32,8 +38,20 @@ class CustomSDK {
     );
   }
 
-  public button(options: { createOrder: () => any }) {
-    return new Button(this.config, this.messenger, options);
+  async lookupUser(email: string, listenerId: string) {
+    this.messenger.lookupUser(email, listenerId)
+  }
+
+  public button(merchantRef: string) {
+    const createdButton = new Button(this.config, merchantRef);
+    this.buttons[createdButton.id] = createdButton;
+    return createdButton;
+  }
+
+  public email(merchantRef: string) {
+    const createdEmailListener = new EmailListener(this.config, merchantRef, (email, listenerId) => this.lookupUser(email, listenerId))
+    this.emailListeners[createdEmailListener.id] = createdEmailListener;
+    return createdEmailListener;
   }
 }
 

@@ -9,12 +9,15 @@ export const SkipifyButtonContent: React.FC = (props) => {
   const params = new URL(window.location.href).searchParams;
 
   const handleClick = () => {
-    window.top?.postMessage(
-      {
-        name: '@skipify/checkout-button-triggered',
-      },
-      '*'
-    );
+    if (params.get('id')) {
+      window.top?.postMessage(
+        {
+          name: '@skipify/checkout-button-triggered',
+          id: params.get('id')
+        },
+        '*'
+      );
+    }
   };
 
   return (

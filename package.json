@@ -1,6 +1,6 @@
 {
   "name": "@skipifycheckout/checkout-sdk",
-  "version": "0.4.0",
+  "version": "0.10.0",
   "license": "MIT",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -23,6 +23,7 @@
     "@amplitude/analytics-browser": "^2.1.2",
     "debounce": "^2.0.0",
     "lodash.isequal": "^4.5.0",
+    "nanoid": "^5.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^6.0.5",

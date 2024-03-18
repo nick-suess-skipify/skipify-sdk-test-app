@@ -1,5 +1,5 @@
 export const environment = {
-  SDK_VERSION: "0.0.1",
+  SDK_VERSION: "0.10.0",
   NODE_ENV: "development",
   MERCHANT_SERVICE_URL: "https://dev-merchants.skipify.com",
   SDK_URL: "http://localhost:4200",

@@ -13,10 +13,10 @@ import CustomSDK from './custom';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
-  buttonCheckoutCallback: (() => any) | null = null;
 
   constructor(private sdk: CustomSDK) {
     window.addEventListener('message', (e) => this.handleIframeMessage(e));
+    this.requestDeviceId();
   }
 
   handleIframeMessage(event: MessageEvent) {
@@ -32,7 +32,7 @@ export class Messenger {
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.CHECKOUT_BUTTON_TRIGGERED:
-        return this.listenerCheckoutButtonTriggered(event);
+        return this.listenerCheckoutButtonTriggered(data);
       case MESSAGE_NAMES.DISPLAY_IFRAME:
         return this.listenerDisplayIframe();
       default:
@@ -40,16 +40,44 @@ export class Messenger {
     }
   }
 
-  listenerCheckoutButtonTriggered(event: MessageEvent) {
-    if (this.buttonCheckoutCallback) {
-      const checkoutData = this.buttonCheckoutCallback();
+  lookupUser(email: string, listenerId: string) {
+    const emailListener = this.sdk.emailListeners[listenerId];
+    if (this.iframe && emailListener) {
+      const payload = {
+        email,
+        cart: { merchantReference: emailListener.merchantRef },
+      };
 
+      this.iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
+          payload,
+        },
+        SkipifyCheckoutUrl
+      );
+    }
+  }
+
+  requestDeviceId() {
+    if (this.iframe) {
+      this.iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.REQUEST_DEVICE_ID,
+        },
+        SkipifyCheckoutUrl
+      );
+    }
+  }
+
+  listenerCheckoutButtonTriggered(data: { id: string }) {
+    if (data.id) {
       const iframe = getBaseIframe();
-      if (checkoutData.items && iframe) {
+      const clickedButton = this.sdk.buttons[data.id];
+      if (iframe && clickedButton) {
         iframe.contentWindow?.postMessage(
           {
             name: MESSAGE_NAMES.CREATE_ORDER,
-            payload: { cart: { items: checkoutData.items } },
+            payload: { cart: { merchantReference: clickedButton.merchantRef } },
           },
           SkipifyCheckoutUrl
         );

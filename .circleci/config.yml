@@ -148,7 +148,7 @@ workflows:
             branches:
               only:
                 - dev
-                - development
+
       - run-qa-e2e-playwright:
           environment: dev
           context: skipify-dev
