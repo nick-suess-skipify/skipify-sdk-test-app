@@ -220,3 +220,4 @@ workflows:
           test_name: prodTests/prodSmoke.spec.js
           requires:
             - deploy-prod
+          <<: *prodTagFilter
