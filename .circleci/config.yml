@@ -102,7 +102,7 @@ jobs:
         description: Target test environment
         default: dev
         type: enum
-        enum: ["dev", "stage"]
+        enum: ["dev", "stage", "prod"]
       test_name:
         description: Name of the QA test to be executed
         type: string
@@ -213,4 +213,11 @@ workflows:
           context: skipify-dev
           requires:
             - build
+          <<: *prodTagFilter
+      - run-qa-e2e-playwright:
+          environment: prod
+          context: skipify-prod
+          test_name: prodTests/prodSmoke.spec.js
+          requires:
+            - deploy-prod
           <<: *prodTagFilter
