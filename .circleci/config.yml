@@ -165,11 +165,19 @@ workflows:
           requires:
             - build-approval
           <<: *stageTagFilter
+      - run-qa-e2e-playwright:
+          environment: dev
+          context: skipify-dev
+          test_name: shakira/shakiraCheckout.spec.js
+          requires:
+            - build-approval
+          <<: *stageTagFilter
       - build:
           environment: stage
           context: skipify-stage
           requires:
             - code-quality
+            - run-qa-e2e-playwright
           <<: *stageTagFilter
       - deploy:
           name: deploy-stage
@@ -177,14 +185,9 @@ workflows:
           context: skipify-stage
           requires:
             - build
+            - run-qa-e2e-playwright
           <<: *stageTagFilter
-      - run-qa-e2e-playwright:
-          environment: stage
-          context: skipify-stage
-          test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - deploy-stage
-          <<: *stageTagFilter
+
   prod:
     jobs:
       - build-approval:
