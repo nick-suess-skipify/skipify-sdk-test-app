@@ -173,20 +173,10 @@ export class Messenger {
   async lookupByFingerprint(useButtonCheckout = false) {
     const cart = await this.base.getCartData();
     if (cart && this.iframe) {
-      let payload;
-
-      if (useButtonCheckout) {
-        // If isButtonCheckout is true, exclude cart data and add buttonCheckout
-        payload = {
-          amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
-          buttonCheckout: true,
-        };
-      } else {
-        // If isButtonCheckout is false, include the cart data
-        payload = {
+      const payload = {
+        amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
           cart: { items: cart },
-          amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
-        };
+          buttonCheckout: useButtonCheckout ? true : undefined,
       }
 
       log('Posting lookup by fingerprint data to iframe', {
