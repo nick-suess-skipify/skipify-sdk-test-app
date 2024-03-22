@@ -177,7 +177,6 @@ workflows:
           context: skipify-stage
           requires:
             - code-quality
-            - run-qa-e2e-playwright
           <<: *stageTagFilter
       - deploy:
           name: deploy-stage
