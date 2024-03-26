@@ -106,18 +106,9 @@ jobs:
       test_name:
         description: Name of the QA test to be executed
         type: string
-      preview_code:
-        description: Store preview code
-        type: string
-      email:
-        description: Email Address
-        type: string
-
     working_directory: ~/qa-e2e-playwright
     environment:
       SKIPIFYENV: << parameters.environment >>
-      PROD_BIGCOMMERCE_PREVIEW_CODE: <<parameters.preview_code>>
-      PROD_EMAIL: <<parameters.email>>
     executor:
       name: node/default
       tag: "16.7"
@@ -229,8 +220,6 @@ workflows:
           environment: prod
           context: skipify-prod
           test_name: prodTests/prodShakiraSmoke.spec.js
-          preview_code: sqevtazryy
-          email: prod-automation-04@skipifyqa.msdc.co
           requires:
             - deploy-prod
           <<: *prodTagFilter
