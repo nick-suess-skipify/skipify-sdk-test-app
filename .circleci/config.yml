@@ -118,7 +118,12 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run: |
           git clone git@github.com:SkipifyCheckout/qa-e2e-playwright.git ~/qa-e2e-playwright
-          git checkout << parameters.environment >>
+      - run: |
+          if [  parameters.environment = dev ]; then
+          git checkout dev
+          else
+          git checkout stage
+          fi
       - run: |
           npm i
           npx playwright install
