@@ -1,3 +1,5 @@
+import { SkipifyElementIds } from "../constants";
+
 export function getIsDarkColor(color: string) {
   const formattedColor = color.match(
     /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/
@@ -34,15 +36,62 @@ export function roundByDPR(value: number) {
 }
 
 export function removeCheckmarkButton() {
+  // This is for the resumable iframe check
   const checkmarkContainer = document.getElementById('checkmarkContainer');
   if (checkmarkContainer) {
-    checkmarkContainer.remove();
+    checkmarkContainer.style.display = 'none';
   }
 }
 
 export function showCheckmarkButton() {
+  // This is for the resumable iframe check
   const checkmarkContainer = document.getElementById('checkmarkContainer');
   if (checkmarkContainer) {
     checkmarkContainer.style.display = 'flex';
+  }
+}
+
+export function showSkipifyCheck() {
+  console.log("@@@@@@ SHOULD SHOW BTN")
+  const button = document.getElementById(SkipifyElementIds.checkButton)
+  if(button) {
+    button.style.display = 'flex'
+  }
+}
+
+// This function is duplicated and can be deleted once migrated to v2 layer
+export function showCheckIcon() {
+  const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+  if (checkIcon) checkIcon.style.display = 'block';
+  const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+  if (expandIcon) expandIcon.style.display = 'none';
+}
+
+// This function is duplicated and can be deleted once migrated to v2 layer
+export function showExpandIcon() {
+  const checkIcon = document.getElementById('_SKIPIFY_check_icon');
+  if (checkIcon) checkIcon.style.display = 'none';
+  const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+  if (expandIcon) {
+    expandIcon.style.display = 'block';
+  }
+}
+
+export function isExpandButtonAvailable() {
+  const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
+  return !!expandIcon
+}
+
+export function showLoader() {
+  const loaderContainer = document.getElementById("loaderContainer");
+  if(loaderContainer) {
+    loaderContainer.style.display = 'flex'
+  }
+}
+
+export function hideLoader() {
+  const loaderContainer = document.getElementById("loaderContainer");
+  if(loaderContainer) {
+    loaderContainer.style.display = 'none'
   }
 }

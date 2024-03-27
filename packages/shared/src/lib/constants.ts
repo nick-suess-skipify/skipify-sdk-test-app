@@ -30,6 +30,7 @@ export const SkipifyElementIds = {
   checkButton: '_SKIPIFY_check_button',
   emailWrapper: '_SKIPIFY_email_wrapper',
   v2Checkbox: '_SKIPIFY_v2_checkbox',
+  loadingParallelogram: '_SKIPIFY_Loader'
 };
 
 /**

@@ -1,3 +1,4 @@
+import { hideLoader, showCheckmarkButton, showExpandIcon, showSkipifyCheck } from '..';
 import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 
 export function getContainer(): HTMLElement {
@@ -57,6 +58,11 @@ export function launchHiddenIframe(
 }
 
 export function displayIframe() {
+  // Parallelogram Logic
+  // When we display the iframe we want to show the loader and change it to the check
+  hideLoader();
+  showSkipifyCheck();
+  showExpandIcon();
   const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
 
   if (existingOverlay) {

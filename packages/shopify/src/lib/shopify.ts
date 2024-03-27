@@ -11,6 +11,7 @@ import {
 import { ShopifyCart, ShopifyGlobalObject, ShopifyLine } from "./shopify.types";
 import { CheckoutCompleted, EmailInput, EnrollmentCheckbox } from "./utils";
 import { injectSavedEmail, insertResumableBtn } from "./utils/resumableOrderBtn";
+import { insertLoadingStateElement } from "./utils/loadingState";
 
 /**
  * Global window.Shopify object available on checkout page
@@ -180,11 +181,16 @@ class ShopifySDK extends Base implements AbstractSDK {
         log("Email input on blur", email);
         this.setUserEmail(email);
       },
+      resetIframe: () => this.messenger.closeIframe(true)
     });
-    //inserts email to input if OID is saved
+    // insertLoading container
+    insertLoadingStateElement(emailInputElem)
+
+    // inserts email to input if OID is saved
     injectSavedEmail(emailInputElem)
-    //inserts resumable button if applicable
+    // inserts resumable button if applicable
     insertResumableBtn(emailInputElem, this.messenger);
+
 
     log("Email input found, listener added");
   }
