@@ -106,7 +106,6 @@ export class EmailInput {
     const emailValue = e.target.value;
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
       // When setting a new email we should reset Everything
-      console.log("@@@@@@@ RESET HERE @@@@@@@@@")
       this.resetIframe();
       this.setUserEmail(emailValue);
       // This is because we want to show the loader from when we have a correct email until lookup data comes through

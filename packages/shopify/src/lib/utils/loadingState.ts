@@ -28,7 +28,6 @@ function createLoadingParallelogramHTML(borderWidth: number, height:number) {
   }
   
   //On click we need to resume data with saved email;
-  // add force param to test - todo remove after
   export function insertLoadingStateElement(emailInputElem: HTMLElement) {
       // Check if the checkmark has already been added to prevent duplicates
       if (!document.getElementById('loaderContainer') && (!document.getElementById(SkipifyElementIds.loadingParallelogram) || document.getElementById(SkipifyElementIds.loadingParallelogram)?.style.display === "none")) {

@@ -62,7 +62,6 @@ function isOidValid(orderData: OrderData | null) {
 
   
   //On click we need to resume data with saved email;
-  // add force param to test - todo remove after
   export function insertResumableBtn(emailInputElem: HTMLElement, messenger: Messenger) {
     const orderData = parseOrderData();
     if (isOidValid(orderData)) {
