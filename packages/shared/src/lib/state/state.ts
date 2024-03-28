@@ -8,7 +8,6 @@ export type State = {
   testMode: boolean;
   emailWhitelisted: boolean;
   flags?: Record<string, unknown>;
-  loading: boolean;
 };
 
 export const defaultState: State = {
@@ -18,7 +17,6 @@ export const defaultState: State = {
   testMode: true,
   emailWhitelisted: false,
   flags: undefined,
-  loading: false,
 };
 
 export const store = createStore(

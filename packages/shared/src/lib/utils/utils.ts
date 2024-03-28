@@ -52,7 +52,6 @@ export function showCheckmarkButton() {
 }
 
 export function showSkipifyCheck() {
-  console.log("@@@@@@ SHOULD SHOW BTN")
   const button = document.getElementById(SkipifyElementIds.checkButton)
   if(button) {
     button.style.display = 'flex'
@@ -68,12 +67,15 @@ export function showCheckIcon() {
 }
 
 // This function is duplicated and can be deleted once migrated to v2 layer
-export function showExpandIcon() {
+export function showExpandIcon(showOnTop = false) {
   const checkIcon = document.getElementById('_SKIPIFY_check_icon');
   if (checkIcon) checkIcon.style.display = 'none';
   const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
   if (expandIcon) {
     expandIcon.style.display = 'block';
+    if(showOnTop) {
+        expandIcon.style.transform = 'rotate(180deg)';
+    }
   }
 }
 

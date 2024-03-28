@@ -181,7 +181,10 @@ class ShopifySDK extends Base implements AbstractSDK {
         log("Email input on blur", email);
         this.setUserEmail(email);
       },
-      resetIframe: () => this.messenger.closeIframe(true)
+      resetIframe: () => {
+        this.setSkipifyResumable(false);
+        this.messenger.closeIframe(true)
+      }
     });
     // insertLoading container
     insertLoadingStateElement(emailInputElem)

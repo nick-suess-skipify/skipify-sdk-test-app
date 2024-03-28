@@ -15,7 +15,7 @@ import {
 } from './iframe';
 import { UserEnrollmentInformationType } from '../shared.types';
 import isEqual from 'lodash.isequal';
-import { hideLoader, log, removeCheckmarkButton, showCheckmarkButton } from '../../lib';
+import { hideLoader, log, removeCheckmarkButton, showExpandIcon, showCheckIcon, showCheckmarkButton } from '../../lib';
 
 interface Props {
   base: Base;
@@ -234,7 +234,7 @@ export class Messenger {
     }
     if (this.base.isSkipifyLayerEnabled) {
       if (this.base.button) {
-        this.base.showCheckIcon();
+        showCheckIcon();
         this.base.button.style.display = 'flex';
       }
       window.removeEventListener('resize', this.positionListener);
@@ -282,7 +282,7 @@ export class Messenger {
       }
       hideIframe();
       if (this.base.isSkipifyLayerEnabled) {
-        this.base.showExpandIcon();
+        showExpandIcon();
       }
       this.prevUserEmail = null;
       this.clearUserToLookup();
