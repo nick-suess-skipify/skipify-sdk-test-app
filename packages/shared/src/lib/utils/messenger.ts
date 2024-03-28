@@ -282,7 +282,7 @@ export class Messenger {
       }
       hideIframe();
       if (this.base.isSkipifyLayerEnabled) {
-        showExpandIcon();
+        showExpandIcon(this.base.shouldDisplayOnTop);
       }
       this.prevUserEmail = null;
       this.clearUserToLookup();
