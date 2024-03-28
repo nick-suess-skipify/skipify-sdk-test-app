@@ -58,7 +58,6 @@ export function showSkipifyCheck() {
   }
 }
 
-// This function is duplicated and can be deleted once migrated to v2 layer
 export function showCheckIcon() {
   const checkIcon = document.getElementById('_SKIPIFY_check_icon');
   if (checkIcon) checkIcon.style.display = 'block';
@@ -66,7 +65,6 @@ export function showCheckIcon() {
   if (expandIcon) expandIcon.style.display = 'none';
 }
 
-// This function is duplicated and can be deleted once migrated to v2 layer
 export function showExpandIcon(showOnTop = false) {
   const checkIcon = document.getElementById('_SKIPIFY_check_icon');
   if (checkIcon) checkIcon.style.display = 'none';
