@@ -1,17 +1,29 @@
 import { SkipifyElementIds } from "@checkout-sdk/shared";
+import { SdkUrl } from "@checkout-sdk/shared";
+import "../../../../shared/src/public/assets/sk-loader.gif";
 
-const loadingParalelogramSVG = `
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15.5 0.671066V10.8518L7.857 13.1331L3.857 14.327L0.5 15.329V5.14894L15.5 0.671066Z" fill="#01EAD3" stroke="#01EAD3"/>
-</svg>
-`
+const loadingImageHTML = `<img src="${SdkUrl}/shopify/sk-loader.gif">`;
 
-function createLoadingParallelogramHTML(borderWidth: number, height:number) {
+function createLoadingParallelogramHTML(emailInputElem: HTMLElement) {
+    const styles = window.getComputedStyle(emailInputElem);
+    const height = emailInputElem.getBoundingClientRect().height - 4; // Consistent with button styling
+    const borderRadiusProps = ['border-top-right-radius', 'border-top-left-radius', 'border-bottom-right-radius', 'border-bottom-left-radius'];
+    
+    // Calculating border-radius values based on the button's approach
+    const borderRadiusStyle = borderRadiusProps.map(prop => {
+        const borderRadius = styles.getPropertyValue(prop);
+        if (borderRadius) {
+            const borderRadiusValue = parseFloat(borderRadius.replace(/px|em|rem|%/, ''));
+            return `${height / borderRadiusValue}%`; // Consistent with button styling adaptation
+        }
+        return '0'; // Default to 0 if no borderRadius is found
+    }).join(' ');
+
     return `
           <span id="loaderContainer" style="
             position: absolute;
             top: 50%;
-            right: -${borderWidth}px; /* Overlapping the border */
+            right: 1px; /* Matches Input Button Style */
             transform: translateY(-50%);
             display: none;
             align-items: center;
@@ -20,41 +32,28 @@ function createLoadingParallelogramHTML(borderWidth: number, height:number) {
             height: ${height}px;
             background-color: black;
             color: white;
+            border-radius: ${borderRadiusStyle}; /* Dynamically set based on emailInput */
             text-align: center;
             font-size: ${height * 0.6}px; /* Adjust checkmark size */
             cursor: pointer;
-          ">${loadingParalelogramSVG}</span>
+          ">${loadingImageHTML}</span>
         `;
-  }
-  
-  //On click we need to resume data with saved email;
-  export function insertLoadingStateElement(emailInputElem: HTMLElement) {
-      // Check if the checkmark has already been added to prevent duplicates
-      if (!document.getElementById('loaderContainer') && (!document.getElementById(SkipifyElementIds.loadingParallelogram) || document.getElementById(SkipifyElementIds.loadingParallelogram)?.style.display === "none")) {
-        // Get the computed styles of the element
-        const styles = window.getComputedStyle(emailInputElem);
-        // Calculate the height without the border
-        const borderWidth = parseInt(styles.borderBottomWidth, 10);
-        const height = emailInputElem.offsetHeight - 2 * borderWidth; // Subtract top and bottom borders
+}
+
+export function insertLoadingStateElement(emailInputElem: HTMLElement) {
+    if (!document.getElementById('loaderContainer') && (!document.getElementById(SkipifyElementIds.loadingParallelogram) || document.getElementById(SkipifyElementIds.loadingParallelogram)?.style.display === "none")) {
+        const loadingHTML = createLoadingParallelogramHTML(emailInputElem);
         
-        const loadingHTML = createLoadingParallelogramHTML(borderWidth, height);
-        // Inject the HTML using insertAdjacentHTML
         if (emailInputElem) {
-          // Ensure the parent element is positioned relatively
-          const parentElem = emailInputElem.parentElement;
-          if (parentElem) {
-            parentElem.style.position = 'relative';
-            parentElem.style.overflow = 'hidden'; // To allow the checkmark to overlap the input borders
-            emailInputElem.style.paddingRight = `${height + borderWidth}px`; // Make space for the checkmark
-            emailInputElem.insertAdjacentHTML('afterend', loadingHTML);
-            const parallelogramContainer = document.getElementById('loaderContainer');
-            if (parallelogramContainer) {
-                // Action if needed
-                // checkmarkElem.onclick = () => messenger.lookupUser(orderData?.EMAIL as string, orderData?.CART_DATA, true) 
+            const parentElem = emailInputElem.parentElement;
+            if (parentElem) {
+                parentElem.style.position = 'relative';
+                parentElem.style.overflow = 'hidden';
+                emailInputElem.style.paddingRight = `${emailInputElem.getBoundingClientRect().height}px`; // Adjust space for the loading indicator
+                emailInputElem.insertAdjacentHTML('afterend', loadingHTML);
             }
-          }
         } else {
-          console.log("Email input not found.");
+            console.log("Email input element not found.");
         }
-      }
-  }
+    }
+}

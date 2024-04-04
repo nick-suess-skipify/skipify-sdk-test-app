@@ -74,7 +74,12 @@ export class EmailInput {
       default:
       case 'onChange':
         controllerFunction = debounce(boundHandler, dt);
-        node.addEventListener('input', controllerFunction);
+        node.addEventListener('input', (e) => {
+          // Show loader immediately on any input event
+          showLoader();
+          // Execute the debounced handler for processing email
+          controllerFunction?.(e);
+        });
         break;
     }
 
@@ -97,9 +102,8 @@ export class EmailInput {
       );
     }
     let shouldDissappear = true;
-    showLoader();
+    // showLoader();
     if (this.loadingTimeout) {
-      console.log("CLEARING TIME OUT")
       clearTimeout(this.loadingTimeout);
     }
 
@@ -117,6 +121,6 @@ export class EmailInput {
       if(shouldDissappear) {
         hideLoader()
       }
-    }, 2500) as unknown as number;
+    }, 3000) as unknown as number;
   } 
 }
