@@ -1,6 +1,5 @@
 import { SkipifyElementIds } from "@checkout-sdk/shared";
 import { SdkUrl } from "@checkout-sdk/shared";
-import "../../../../shared/src/public/assets/sk-loader.gif";
 
 const loadingImageHTML = `<img src="${SdkUrl}/shopify/sk-loader.gif">`;
 
