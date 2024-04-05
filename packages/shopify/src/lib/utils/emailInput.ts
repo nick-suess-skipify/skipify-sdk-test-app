@@ -1,4 +1,4 @@
-import { SkipifyClassNames, hideLoader, isExpandButtonAvailable, showLoader } from '@checkout-sdk/shared';
+import { SkipifyClassNames, hideLoader, showLoader } from '@checkout-sdk/shared';
 import debounce, { DebouncedFunction } from 'debounce';
 
 type EmailInputOptions = {
@@ -102,7 +102,6 @@ export class EmailInput {
       );
     }
     let shouldDissappear = true;
-    // showLoader();
     if (this.loadingTimeout) {
       clearTimeout(this.loadingTimeout);
     }
@@ -117,10 +116,10 @@ export class EmailInput {
     }
 
     // This will need to be tested - how long until we clear the parallelogram
+    if(shouldDissappear) {
     this.loadingTimeout = setTimeout(() => {
-      if(shouldDissappear) {
         hideLoader()
-      }
     }, 3000) as unknown as number;
-  } 
+    } 
+  }
 }
