@@ -1,4 +1,4 @@
-import { SkipifyClassNames } from '@checkout-sdk/shared';
+import { SkipifyClassNames, hideLoader, showLoader } from '@checkout-sdk/shared';
 import debounce, { DebouncedFunction } from 'debounce';
 
 type EmailInputOptions = {
@@ -17,6 +17,7 @@ interface OwnProps {
   node: HTMLInputElement;
   options?: EmailInputOptions;
   setUserEmail: (email: string) => void;
+  resetIframe: () => void;
 }
 
 type EmailInputEventHandler = (e: Event) => void;
@@ -26,13 +27,16 @@ type Props = OwnProps;
 export class EmailInput {
   node: HTMLInputElement;
   setUserEmail: (email: string) => void;
+  resetIframe: () => void;
   private options;
   //** This can be used to cancel/immediately flush debounce if necessary */
   private _debounceController?: DebouncedFunction<EmailInputEventHandler>;
+  private loadingTimeout?: number;
 
   constructor({
     node,
     setUserEmail,
+    resetIframe,
     // Assume that desired default behavior is debounce.
     options = { mode: 'onChange', debounceTime: 400 },
   }: Props) {
@@ -40,6 +44,7 @@ export class EmailInput {
     this.setUserEmail = setUserEmail;
     this.options = options;
     this.start();
+    this.resetIframe = resetIframe;
   }
 
   /**
@@ -69,7 +74,12 @@ export class EmailInput {
       default:
       case 'onChange':
         controllerFunction = debounce(boundHandler, dt);
-        node.addEventListener('input', controllerFunction);
+        node.addEventListener('input', (e) => {
+          // Show loader immediately on any input event
+          showLoader();
+          // Execute the debounced handler for processing email
+          controllerFunction?.(e);
+        });
         break;
     }
 
@@ -91,10 +101,25 @@ export class EmailInput {
         'Invalid target. Email input field must be an HTMLInputElement.'
       );
     }
+    let shouldDissappear = true;
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+    }
 
     const emailValue = e.target.value;
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+      // When setting a new email we should reset Everything
+      this.resetIframe();
       this.setUserEmail(emailValue);
+      // This is because we want to show the loader from when we have a correct email until lookup data comes through
+      shouldDissappear = false;
     }
+
+    // This will need to be tested - how long until we clear the parallelogram
+    if(shouldDissappear) {
+    this.loadingTimeout = setTimeout(() => {
+        hideLoader()
+    }, 3000) as unknown as number;
+    } 
   }
 }

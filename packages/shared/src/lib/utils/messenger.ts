@@ -15,7 +15,7 @@ import {
 } from './iframe';
 import { UserEnrollmentInformationType } from '../shared.types';
 import isEqual from 'lodash.isequal';
-import { log, removeCheckmarkButton, showCheckmarkButton } from '../../lib';
+import { hideLoader, log, removeCheckmarkButton, showExpandIcon, showCheckIcon, showCheckmarkButton } from '../../lib';
 
 interface Props {
   base: Base;
@@ -234,7 +234,7 @@ export class Messenger {
     }
     if (this.base.isSkipifyLayerEnabled) {
       if (this.base.button) {
-        this.base.showCheckIcon();
+        showCheckIcon();
         this.base.button.style.display = 'flex';
       }
       window.removeEventListener('resize', this.positionListener);
@@ -252,10 +252,14 @@ export class Messenger {
     this.base.store.setState({
       eligible: true,
     });
+    // Parallelogram logic
+    hideLoader();
     this.clearUserToLookup();
   }
 
   listenerLookupError() {
+    // Parallelogram logic
+    hideLoader();
     this.closeIframe(true);
   }
 
@@ -278,7 +282,7 @@ export class Messenger {
       }
       hideIframe();
       if (this.base.isSkipifyLayerEnabled) {
-        this.base.showExpandIcon();
+        showExpandIcon(this.base.shouldDisplayOnTop);
       }
       this.prevUserEmail = null;
       this.clearUserToLookup();

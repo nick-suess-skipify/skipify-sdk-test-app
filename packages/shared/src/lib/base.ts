@@ -1,4 +1,4 @@
-import { Messenger, SkipifyApi, Amplitude, roundByDPR, log } from './utils';
+import { Messenger, SkipifyApi, Amplitude, roundByDPR, log, showCheckIcon } from './utils';
 import { store, defaultState } from './state';
 import {
   SkipifyCheckoutUrl,
@@ -358,24 +358,6 @@ export class Base {
     this.isSkipifyResumable = value;
   }
 
-  showCheckIcon() {
-    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
-    if (checkIcon) checkIcon.style.display = 'block';
-    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
-    if (expandIcon) expandIcon.style.display = 'none';
-  }
-  showExpandIcon() {
-    const checkIcon = document.getElementById('_SKIPIFY_check_icon');
-    if (checkIcon) checkIcon.style.display = 'none';
-    const expandIcon = document.getElementById('_SKIPIFY_expand_more_icon');
-    if (expandIcon) {
-      expandIcon.style.display = 'block';
-      if (this.shouldDisplayOnTop) {
-        expandIcon.style.transform = 'rotate(180deg)';
-      }
-    }
-  }
-
   insertButton(emailInput: HTMLElement) {
     const wrapper = document.createElement('div');
     wrapper.id = SkipifyElementIds.emailWrapper;
@@ -388,9 +370,13 @@ export class Base {
       this.button.onclick = (e) => {
         e.preventDefault();
         displayIframe();
-        this.showCheckIcon();
+        if(this.store.getState().flags?.skipifyLayer) {
+          // Only show the check icon on V2 - as on V1 the iframe is covering the button no need to change back n forth.
+          showCheckIcon();
+          // Only position iframe (the V2 positioning) if on V2 - if not leave the same
+          this.positionIframe(true);
+        } 
         this.messenger.restoreIframeHeight();
-        this.positionIframe(true);
       };
     }
     const buttonSize = emailInput.getBoundingClientRect().height - 4;
