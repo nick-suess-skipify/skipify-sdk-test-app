@@ -1,7 +1,7 @@
 import { SkipifyElementIds } from "@checkout-sdk/shared";
 import { SdkUrl } from "@checkout-sdk/shared";
 
-const loadingImageHTML = `<img src="${SdkUrl}/shopify/sk-loader.gif">`;
+const loadingImageHTML = `<img src="${SdkUrl}/shared/assets/sk-loader.gif">`;
 
 function createLoadingParallelogramHTML(emailInputElem: HTMLElement) {
     const styles = window.getComputedStyle(emailInputElem);
