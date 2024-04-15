@@ -18,6 +18,7 @@ export class Base {
    */
   merchantId: string | null = null;
   merchant: MerchantType | null = null;
+  platform?: string | null = null;
 
   /**
    * Internal
@@ -306,7 +307,7 @@ export class Base {
     });
   }
 
-  async setUserEmail(email: string) {
+  async setUserEmail(email: string, force = false) {
     if (!email) {
       return;
     }
@@ -314,7 +315,7 @@ export class Base {
     email = email.trim().toLowerCase();
 
     const { testMode, userEmail } = this.store.getState();
-    if (email === userEmail) {
+    if (email === userEmail && !force) {
       log('User email is the same as what stored in store, aborting setUserEmail');
       return;
     }

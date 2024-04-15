@@ -6,7 +6,8 @@ export class BigCommerceStoreFrontApi {
   }
 
   async getUserCart(): Promise<BigCommerceCart | null> {
-    const response = await fetch(this.getStoreFrontUrl("carts"), {
+    const params = new URLSearchParams({ include: "lineItems.physicalItems.options,lineItems.digitalItems.options" });
+    const response = await fetch(this.getStoreFrontUrl(`carts?${params.toString()}`), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

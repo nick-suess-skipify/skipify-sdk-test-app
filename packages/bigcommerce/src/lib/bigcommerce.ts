@@ -55,6 +55,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       this.paymentButtonId = paymentButtonId;
     }
 
+    this.platform = "bigcommerce";
     this.storeFrontApi = new BigCommerceStoreFrontApi();
     this.fetchUserEmailFromCart();
   }
@@ -79,20 +80,8 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
 
     this.emailInput = new EmailInput({
       node: emailInputElem,
-      setUserEmail: (email) => this.setUserEmail(email),
-      passwordInputId: this.passwordInputId,
-      onChange: (e) => {
-        //if the email change, we need to hide the skipify layer button and relaunch the iframe
-        if (
-          this.isSkipifyLayerEnabled &&
-          e.target instanceof HTMLInputElement &&
-          e.target.value.trim().toLowerCase() !==
-            this.store.getState().userEmail
-        ) {
-          this.launchBaseIframe();
-          if (this.button) this.button.style.display = 'none';
-        }
-      },
+      setUserEmail: (email) => this.setUserEmail(email, true),
+      passwordInputId: this.passwordInputId
     });
   }
 
@@ -172,6 +161,18 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     this.reset(); // Reset the store after the order is completed
   }
 
+  transformLineItem(item: any) {
+    const newItem = { ...item }
+    if (item.options) {
+      newItem.options = item.options.map((option: { nameId: string; valueId: number; }) =>
+        ({ nameId: String(option.nameId), valueId: String(option.valueId) }))
+    } else {
+      newItem.options = []
+    }
+
+    return newItem;
+  }
+
   override async getCartData(): Promise<BigCommerceLineItem[] | null> {
     const userCart = await this.storeFrontApi.getUserCart();
 
@@ -180,7 +181,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     const { physicalItems, digitalItems } = userCart.lineItems;
-    return [...physicalItems, ...digitalItems];
+    return [...physicalItems.map(this.transformLineItem), ...digitalItems.map(this.transformLineItem)];
   }
 
   override async getCartTotal() {
@@ -206,7 +207,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       return;
     }
 
-    this.setUserEmail(userCart.email);
+    this.setUserEmail(userCart.email, true);
   }
 
   override async getUserEnrollmentInformation() {
