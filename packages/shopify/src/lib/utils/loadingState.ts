@@ -22,7 +22,7 @@ function createLoadingParallelogramHTML(emailInputElem: HTMLElement) {
           <span id="loaderContainer" style="
             position: absolute;
             top: 50%;
-            right: 1px; /* Matches Input Button Style */
+            right: 2px; /* Matches Input Button Style */
             transform: translateY(-50%);
             display: none;
             align-items: center;
