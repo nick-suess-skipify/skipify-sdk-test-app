@@ -15,7 +15,7 @@ import {
 } from './iframe';
 import { UserEnrollmentInformationType } from '../shared.types';
 import isEqual from 'lodash.isequal';
-import { log, removeCheckmarkButton, showCheckmarkButton } from '../../lib';
+import { hideLoader, log, removeCheckmarkButton, showExpandIcon, showCheckIcon, showCheckmarkButton } from '../../lib';
 
 interface Props {
   base: Base;
@@ -175,8 +175,8 @@ export class Messenger {
     if (cart && this.iframe) {
       const payload = {
         amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
-          cart: { items: cart },
-          buttonCheckout: useButtonCheckout ? true : undefined,
+        cart: { items: cart },
+        buttonCheckout: useButtonCheckout ? true : undefined,
       }
 
       log('Posting lookup by fingerprint data to iframe', {
@@ -234,7 +234,7 @@ export class Messenger {
     }
     if (this.base.isSkipifyLayerEnabled) {
       if (this.base.button) {
-        this.base.showCheckIcon();
+        showCheckIcon();
         this.base.button.style.display = 'flex';
       }
       window.removeEventListener('resize', this.positionListener);
@@ -252,10 +252,14 @@ export class Messenger {
     this.base.store.setState({
       eligible: true,
     });
+    // Parallelogram logic
+    hideLoader();
     this.clearUserToLookup();
   }
 
   listenerLookupError() {
+    // Parallelogram logic
+    hideLoader();
     this.closeIframe(true);
   }
 
@@ -278,7 +282,7 @@ export class Messenger {
       }
       hideIframe();
       if (this.base.isSkipifyLayerEnabled) {
-        this.base.showExpandIcon();
+        showExpandIcon(this.base.shouldDisplayOnTop);
       }
       this.prevUserEmail = null;
       this.clearUserToLookup();
@@ -442,7 +446,11 @@ export class Messenger {
   setFlags(event: MessageEvent) {
     const { flags } = event.data.payload;
     if (flags) {
+      if (this.base.platform === 'bigcommerce') {
+        flags.skipifyLayer = false;
+      }
       this.base.store.setState({ flags });
+
       if (flags.skipifyLayer) {
         this.iframe?.classList.add(SkipifyClassNames.skipifyV2);
       } else {
