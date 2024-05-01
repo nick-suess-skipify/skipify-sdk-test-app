@@ -114,10 +114,7 @@ jobs:
       tag: "16.7"
     steps:
       - run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-      - run: |
-          git clone git@github.com:SkipifyCheckout/qa-e2e-playwright.git ~/qa-e2e-playwright
+          git clone https://$GITHUB_TOKEN@github.com/SkipifyCheckout/qa-e2e-playwright.git ~/qa-e2e-playwright
       - run: |
           if [  parameters.environment = dev ]; then
           git checkout dev
