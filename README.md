@@ -47,3 +47,7 @@ var script = document.createElement("script");
 script.src = `http://localhost:4200/bigcommerce/bigcommerce.js?merchantId=ca4d3697-4579-4dda-9c89-ee63ae5a7b41&date=${new Date().getTime()}`;
 document.head.appendChild(script);
 ```
+
+## Deployments, Releases, & Rollbacks
+
+- Please see confluence page on [Deployments, Releases, & Rollbacks](https://skipify.atlassian.net/wiki/spaces/PE/pages/1727496537/Deployments+Releases+Rollbacks)
