@@ -1,5 +1,5 @@
 import { SkipifyCheckoutUrl, SDKVersion } from '@checkout-sdk/shared/lib/constants';
-import { Config } from './config';
+import { Config, AdditionalOptions } from './config';
 import { Messenger } from './messenger';
 import { Button } from './button/button';
 import { EmailListener } from './emailListener/emailListener';
@@ -42,14 +42,14 @@ class CustomSDK {
     this.messenger.lookupUser(email, listenerId)
   }
 
-  public button(merchantRef: string) {
-    const createdButton = new Button(this.config, merchantRef);
+  public button(merchantRef: string, buttonOptions?: AdditionalOptions) {
+    const createdButton = new Button(this.config, merchantRef, buttonOptions);
     this.buttons[createdButton.id] = createdButton;
     return createdButton;
   }
 
-  public email(merchantRef: string) {
-    const createdEmailListener = new EmailListener(this.config, merchantRef, (email, listenerId) => this.lookupUser(email, listenerId))
+  public email(merchantRef: string, emailOptions?: AdditionalOptions) {
+    const createdEmailListener = new EmailListener(this.config, merchantRef, (email, listenerId) => this.lookupUser(email, listenerId), emailOptions)
     this.emailListeners[createdEmailListener.id] = createdEmailListener;
     return createdEmailListener;
   }

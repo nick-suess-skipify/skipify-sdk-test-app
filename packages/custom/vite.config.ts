@@ -19,11 +19,15 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       formats: ['iife'],
-      name: 'custom',
+      name: 'checkoutsdk',
+      fileName: (format, entryName) => {
+        return 'checkoutsdk.js'
+      },
     },
     rollupOptions: {
       treeshake: false,
       external: [],
+      output: { dir: 'dist', name: 'checkoutsdk' },
     },
   },
 });

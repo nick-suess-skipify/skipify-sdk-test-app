@@ -1,7 +1,7 @@
 import { SkipifyClassNames } from '@checkout-sdk/shared';
 import { nanoid } from 'nanoid'
 import debounce from 'debounce';
-import { Config } from '../config';
+import { Config, AdditionalOptions } from '../config';
 
 type LookupUserType = (email: string, listenerId: string) => void;
 
@@ -9,7 +9,7 @@ export class EmailListener {
   id: string;
   node: HTMLInputElement | null = null;
   lookupUser: LookupUserType;
-  constructor(private config: Config, public merchantRef: string, lookupUser: LookupUserType) {
+  constructor(private config: Config, public merchantRef: string, lookupUser: LookupUserType, public options?: AdditionalOptions) {
     this.id = nanoid();
     this.lookupUser = lookupUser;
   }

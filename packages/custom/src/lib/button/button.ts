@@ -1,10 +1,10 @@
-import { SkipifyCheckoutUrl, SdkUrl } from '@checkout-sdk/shared/lib/constants';
+import { SdkUrl } from '@checkout-sdk/shared/lib/constants';
 import { nanoid } from 'nanoid'
-import { Config } from '../config';
+import { Config, AdditionalOptions } from '../config';
 
 export class Button {
     id: string;
-    constructor(private config: Config, public merchantRef: string) {
+    constructor(private config: Config, public merchantRef: string, public options?: AdditionalOptions) {
         this.id = nanoid();
     }
 

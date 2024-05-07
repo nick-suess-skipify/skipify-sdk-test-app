@@ -13,6 +13,8 @@ import CustomSDK from './custom';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
+  activeCheckoutId: string | null = null;
+  activeCheckoutSuccess = false;
 
   constructor(private sdk: CustomSDK) {
     window.addEventListener('message', (e) => this.handleIframeMessage(e));
@@ -35,6 +37,8 @@ export class Messenger {
         return this.listenerCheckoutButtonTriggered(data);
       case MESSAGE_NAMES.DISPLAY_IFRAME:
         return this.listenerDisplayIframe();
+      case MESSAGE_NAMES.ORDER_COMPLETED:
+        return this.listenerOrderCompleted(event);
       default:
         return;
     }
@@ -43,6 +47,7 @@ export class Messenger {
   lookupUser(email: string, listenerId: string) {
     const emailListener = this.sdk.emailListeners[listenerId];
     if (this.iframe && emailListener) {
+      this.activeCheckoutId = listenerId;
       const payload = {
         email,
         cart: { merchantReference: emailListener.merchantRef },
@@ -74,6 +79,7 @@ export class Messenger {
       const iframe = getBaseIframe();
       const clickedButton = this.sdk.buttons[data.id];
       if (iframe && clickedButton) {
+        this.activeCheckoutId = data.id;
         iframe.contentWindow?.postMessage(
           {
             name: MESSAGE_NAMES.CREATE_ORDER,
@@ -86,8 +92,29 @@ export class Messenger {
   }
 
   listenerCloseIframe() {
+    if (this.activeCheckoutId) {
+      // Trigger onClose UI callback
+      const activeCheckout = this.getCurrentCheckout(this.activeCheckoutId)
+      if (activeCheckout && activeCheckout.options?.onClose) {
+        activeCheckout.options?.onClose(activeCheckout.merchantRef, this.activeCheckoutSuccess)
+      }
+    }
+    this.activeCheckoutId = null;
+    this.activeCheckoutSuccess = false;
     hideIframe();
     this.sdk.launchBaseIframe();
+  }
+
+  listenerOrderCompleted(event: MessageEvent) {
+    const { payload } = event.data;
+     if (this.activeCheckoutId) {
+      this.activeCheckoutSuccess = true;
+      // Trigger onApprove UI callback
+      const activeCheckout = this.getCurrentCheckout(this.activeCheckoutId)
+      if (activeCheckout && activeCheckout.options?.onApprove) {
+        activeCheckout.options?.onApprove(activeCheckout.merchantRef, payload)
+      }
+    }
   }
 
   listenerDisplayIframe() {
@@ -109,5 +136,14 @@ export class Messenger {
     if (baseIframe) {
       this.iframe = baseIframe;
     }
+  }
+
+  getCurrentCheckout(checkoutId: string) {
+    if (this.sdk.buttons[checkoutId]) {
+      return this.sdk.buttons[checkoutId]
+    } else if (this.sdk.emailListeners[checkoutId]) {
+      return this.sdk.emailListeners[checkoutId]
+    }
+    return null;
   }
 }

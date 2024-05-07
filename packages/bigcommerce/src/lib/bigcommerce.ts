@@ -181,7 +181,11 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     const { physicalItems, digitalItems } = userCart.lineItems;
-    return [...physicalItems.map(this.transformLineItem), ...digitalItems.map(this.transformLineItem)];
+
+    if (digitalItems.length > 0) {
+      return null; // We aren't supporting Digital Items as of now - let the customer finish the order in the merchant website
+    }
+    return [...physicalItems.map(this.transformLineItem)];
   }
 
   override async getCartTotal() {

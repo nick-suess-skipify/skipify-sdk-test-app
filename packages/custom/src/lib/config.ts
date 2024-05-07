@@ -13,3 +13,8 @@ export class Config {
     });
   }
 }
+
+export type AdditionalOptions = {
+  onClose?: (merchantRef: string, success: boolean) => void;
+  onApprove?: (merchantRef: string, data?: any) => void;
+}
