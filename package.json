@@ -58,7 +58,7 @@
     "jest-environment-node": "^29.4.1",
     "jest-fetch-mock": "^3.0.3",
     "nx": "16.5.2",
-    "nx-cloud": "latest",
+    "nx-cloud": "^16.0.4",
     "prettier": "^2.6.2",
     "ts-jest": "^29.1.2",
     "ts-node": "10.9.2",
