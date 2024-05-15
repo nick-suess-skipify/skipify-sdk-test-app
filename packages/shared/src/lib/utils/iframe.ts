@@ -1,4 +1,4 @@
-import { hideLoader, showCheckmarkButton, showExpandIcon, showSkipifyCheck } from '..';
+import { hideLoader, showExpandIcon, showSkipifyCheck } from '..';
 import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 
 export function getContainer(): HTMLElement {

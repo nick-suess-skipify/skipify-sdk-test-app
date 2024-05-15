@@ -15,7 +15,14 @@ import {
 } from './iframe';
 import { UserEnrollmentInformationType } from '../shared.types';
 import isEqual from 'lodash.isequal';
-import { hideLoader, log, removeCheckmarkButton, showExpandIcon, showCheckIcon, showCheckmarkButton } from '../../lib';
+import {
+  hideLoader,
+  log,
+  removeCheckmarkButton,
+  showExpandIcon,
+  showCheckIcon,
+  showCheckmarkButton,
+} from '../../lib';
 
 interface Props {
   base: Base;
@@ -177,7 +184,7 @@ export class Messenger {
         amplitudeSessionId: this.base.amplitude.getSessionId(), // override iframe's amplitude session id
         cart: { items: cart },
         buttonCheckout: useButtonCheckout ? true : undefined,
-      }
+      };
 
       log('Posting lookup by fingerprint data to iframe', {
         name: MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT,
@@ -242,6 +249,10 @@ export class Messenger {
       window.removeEventListener('scroll', this.positionListener);
       window.addEventListener('scroll', this.positionListener);
       this.base.positionIframe(true);
+    } else {
+      this.resetIframeStyles();
+      window.removeEventListener('resize', this.positionListener);
+      window.removeEventListener('scroll', this.positionListener);
     }
     this.base.setHasInitializedIframe(false);
     this.base.setSkipifyResumable(true);
