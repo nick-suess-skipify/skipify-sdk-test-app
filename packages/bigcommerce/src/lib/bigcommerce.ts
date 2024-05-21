@@ -5,7 +5,8 @@ import {
   SkipifyElementIds,
   UserEnrollmentInformationType,
   cleanPhoneNumber,
-} from '@checkout-sdk/shared';
+  insertLoadingStateElement
+} from "@checkout-sdk/shared";
 import {
   EmailInput,
   CheckoutCompleted,
@@ -68,7 +69,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
   }
 
   processEmailInput() {
-    const emailInputElem = document.getElementById(this.emailInputId);
+    const emailInputElem = document.getElementById(this.emailInputId) as HTMLInputElement;
     if (!emailInputElem) {
       this.messenger.resetIframeStyles();
       return;
@@ -81,8 +82,14 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     this.emailInput = new EmailInput({
       node: emailInputElem,
       setUserEmail: (email) => this.setUserEmail(email, true),
+      resetIframe: () => {
+        this.setSkipifyResumable(false);
+        this.messenger.closeIframe(true)
+      },
       passwordInputId: this.passwordInputId
     });
+
+    insertLoadingStateElement(emailInputElem)
   }
 
   processLoggedInCustomer() {

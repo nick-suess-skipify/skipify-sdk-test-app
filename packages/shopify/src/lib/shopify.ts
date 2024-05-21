@@ -6,12 +6,12 @@ import {
   SkipifyElementIds,
   UserEnrollmentInformationType,
   log,
+  insertLoadingStateElement,
 } from "@checkout-sdk/shared";
 
 import { ShopifyCart, ShopifyGlobalObject, ShopifyLine } from "./shopify.types";
 import { CheckoutCompleted, EmailInput, EnrollmentCheckbox } from "./utils";
 import { injectSavedEmail, insertResumableBtn } from "./utils/resumableOrderBtn";
-import { insertLoadingStateElement } from "./utils/loadingState";
 
 /**
  * Global window.Shopify object available on checkout page
