@@ -22,7 +22,7 @@ export class EnrollmentCheckbox {
     wrapperEl.style.marginTop = "10px";
 
     const enrollmentCheckboxFrame = document.createElement("iframe");
-    enrollmentCheckboxFrame.src = `${SdkUrl}/shared/components/iframe_skipifyEnrollmentCheckbox.html?date=${new Date().getTime()}`;
+    enrollmentCheckboxFrame.src = `${SdkUrl}/shared/components/iframe_enrollmentCheckbox.html?date=${new Date().getTime()}`;
     enrollmentCheckboxFrame.id = `${SkipifyElementIds.enrollmentCheckbox}_frame`;
 
     wrapperEl.appendChild(enrollmentCheckboxFrame);
