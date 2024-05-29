@@ -457,9 +457,6 @@ export class Messenger {
   setFlags(event: MessageEvent) {
     const { flags } = event.data.payload;
     if (flags) {
-      if (this.base.platform === 'bigcommerce') {
-        flags.skipifyLayer = false;
-      }
       this.base.store.setState({ flags });
 
       if (flags.skipifyLayer) {

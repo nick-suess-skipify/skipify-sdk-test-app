@@ -71,7 +71,7 @@ jobs:
           version: 404.0.0
       - run:
           name: Push to bucket
-          command: gsutil -m cp -r dist/* gs://<< parameters.bucket >>/sdk
+          command: gsutil -m cp -r dist/* gs://<< parameters.bucket >>
 
   run-qa-e2e-playwright:
     parameters:
@@ -119,6 +119,16 @@ workflows:
             - code-quality
       - deploy:
           name: deploy-dev
+          bucket: checkout-sdk-dev/sdk
+          context: skipify-dev
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - dev
+      - deploy:
+          name: deploy-dev-legacy-bucket
           bucket: checkout-sdk-dev
           context: skipify-dev
           requires:
@@ -127,7 +137,6 @@ workflows:
             branches:
               only:
                 - dev
-
       - run-qa-e2e-playwright:
           environment: dev
           context: skipify-dev
@@ -159,7 +168,15 @@ workflows:
           <<: *stageTagFilter
       - deploy:
           name: deploy-stage
-          bucket: skipifystagecdn
+          bucket: skipifystagecdn/sdk
+          context: skipify-stage
+          requires:
+            - build
+            - run-qa-e2e-playwright
+          <<: *stageTagFilter
+      - deploy:
+          name: deploy-stage-legacy-bucket
+          bucket: checkout-sdk-stage
           context: skipify-stage
           requires:
             - build
@@ -184,7 +201,14 @@ workflows:
           <<: *prodTagFilter
       - deploy:
           name: deploy-prod
-          bucket: skipifycdn
+          bucket: skipifycdn/sdk
+          context: skipify-prod
+          requires:
+            - build
+          <<: *prodTagFilter
+      - deploy:
+          name: deploy-prod-legacy-bucket
+          bucket: checkout-sdk
           context: skipify-prod
           requires:
             - build
