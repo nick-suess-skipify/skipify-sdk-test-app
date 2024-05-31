@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 
@@ -7,6 +7,7 @@ import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 export const SkipifyButtonContent: React.FC = (props) => {
   // This will be used later for passing variables from checkout script to this component
   const params = new URL(window.location.href).searchParams;
+  const [cobrandedLogo, setCobrandedLogo] = useState("")
 
   const handleClick = () => {
     if (params.get('id')) {
@@ -20,10 +21,30 @@ export const SkipifyButtonContent: React.FC = (props) => {
     }
   };
 
+  const handleIframeMessage = (event: MessageEvent) => {
+    const { data } = event;
+    if (!data) {
+      return;
+    }
+    if (data.name === "@skipify/merchant-public-info-fetched" && data.merchant?.cobranding?.logoSrc) {
+      setCobrandedLogo(data.merchant?.cobranding?.logoSrc)
+    }
+  }
+
+  useEffect(() => {
+    if (params.get('cobrandedLogo')) {
+      setCobrandedLogo(params.get('cobrandedLogo') as string)
+    }
+    window.addEventListener('message', handleIframeMessage);
+    return () => {
+      window.removeEventListener('message', handleIframeMessage)
+    }
+  }, [])
+
   return (
     <Container onClick={() => handleClick()}>
       <StyledMutedLogo />
-      Buy Now
+      Buy Now{cobrandedLogo ? <><Divider /><CobrandedLogo src={cobrandedLogo} /></> : ""}
     </Container>
   );
 };
@@ -51,3 +72,16 @@ const Container = styled.div`
 const StyledMutedLogo = styled(MutedLogo)`
   margin-right: 10px;
 `;
+
+const Divider = styled.div`
+  background: #fff;
+  width: 1px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  margin-right: 12px;
+`
+
+const CobrandedLogo = styled.img`
+  max-height: 24px;
+`

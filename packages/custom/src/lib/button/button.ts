@@ -1,10 +1,11 @@
 import { SdkUrl } from '@checkout-sdk/shared/lib/constants';
 import { nanoid } from 'nanoid'
-import { Config, AdditionalOptions } from '../config';
+import { Config, AdditionalOptions, MerchantOptions } from '../config';
 
 export class Button {
     id: string;
-    constructor(private config: Config, public merchantRef: string, public options?: AdditionalOptions) {
+    frame: HTMLIFrameElement | null = null;
+    constructor(private config: Config, public merchantRef: string, public options?: AdditionalOptions, public merchantOptions?: MerchantOptions) {
         this.id = nanoid();
     }
 
@@ -15,9 +16,18 @@ export class Button {
         checkoutButtonFrame.style.cursor = 'pointer';
         checkoutButtonFrame.style.height = '54px';
         checkoutButtonFrame.style.width = '100%';
-        const checkoutButtonUrl = `${SdkUrl}/shared/components/iframe_checkoutButton.html?id=${this.id}&date=${new Date().getTime()}`;
+
+        const paramsObj: any = { id: this.id, date: new Date().getTime().toString() }
+
+        if (this.merchantOptions?.cobrandedLogo) {
+            paramsObj.cobrandedLogo = this.merchantOptions?.cobrandedLogo
+        }
+        const params = new URLSearchParams(paramsObj);
+
+        const checkoutButtonUrl = `${SdkUrl}/shared/components/iframe_checkoutButton.html?${params.toString()}`;
         checkoutButtonFrame.src = checkoutButtonUrl;
 
+        this.frame = checkoutButtonFrame;
         wrapperEl.appendChild(checkoutButtonFrame);
 
         elem.append(wrapperEl);

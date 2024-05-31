@@ -63,6 +63,7 @@ export const MESSAGE_NAMES = {
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,
+  MERCHANT_PUBLIC_INFO_FETCHED: `${MESSAGE_NAME_PREFIX}/merchant-public-info-fetched`,
 } as const;
 
 declare global {
