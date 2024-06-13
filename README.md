@@ -48,6 +48,58 @@ script.src = `http://localhost:4200/bigcommerce/bigcommerce.js?merchantId=ca4d36
 document.head.appendChild(script);
 ```
 
+Available apps:
+```
+nx run bigcommerce:build:dev
+nx run shopify:build:dev
+nx run custom:build:dev
+nx run shared:build:dev
+```
+
+Running all apps:
+```
+npm run all:build:dev
+```
+
+## Custom SDK x Platform SDKs
+
+#### Platform-Related SDK (e.g., Shopify):
+
+- This SDK listens to DOM changes and automatically initializes itself in the appropriate elements.
+
+#### Custom SDK
+
+- This SDK requires merchants to manually initialize it and control the experience
+
+## Custom SDK
+
+After building and hosting the custom SDK, you can test the flow on the test page available at
+http://localhost:4200/shared/components/iframe_testPage.html
+
+Usage example:
+```
+// Initialize client
+const skipifyClient = new window.skipify({
+    merchantId,
+})
+
+// Optional options
+const options = { onClose, onApprove }
+
+// Render Skipify button
+skipifyClient.button("my-ref-test", options).render(buttonRef.current)
+
+// Enable input listener
+skipifyClient.email("my-email-ref-test").enable(inputRef.current)
+
+```
+
+
+## Apps and libs dependencies graph
+```
+nx graph
+```
+
 ## Deployments, Releases, & Rollbacks
 
 - Please see confluence page on [Deployments, Releases, & Rollbacks](https://skipify.atlassian.net/wiki/spaces/PE/pages/1727496537/Deployments+Releases+Rollbacks)
