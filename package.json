@@ -23,6 +23,7 @@
     "@amplitude/analytics-browser": "^2.7.1",
     "axios": "^1.6.8",
     "debounce": "^2.0.0",
+    "launchdarkly-js-client-sdk": "^3.3.0",
     "lodash.isequal": "^4.5.0",
     "nanoid": "^5.0.6",
     "nx-cloud": "^19.0.0",

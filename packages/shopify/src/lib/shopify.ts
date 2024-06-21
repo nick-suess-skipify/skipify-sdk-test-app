@@ -169,9 +169,9 @@ class ShopifySDK extends Base implements AbstractSDK {
 
       const newSessionId = Date.now();
 
-      this.amplitude.setSessionId(newSessionId); // reset amplitude session id
+      this.skipifyEvents.setSessionId(newSessionId); // reset amplitude session id
 
-      log("New amplitude session id", this.amplitude.getSessionId());
+      log("New amplitude session id", this.skipifyEvents.getSessionId());
     }
 
     // add email input listener
@@ -327,7 +327,7 @@ class ShopifySDK extends Base implements AbstractSDK {
     log("Order Completed by Skipify...", { externalOrderId: _externalOrderId });
     this.skipifyCheckoutCompleted = true;
     this.clearCart();
-    this.amplitude.reset();
+    this.skipifyEvents.reset();
   }
 
   override async setUserEmail(email: string) {

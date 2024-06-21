@@ -9,6 +9,14 @@ export const SdkUrl = environment.SDK_URL;
 export const SkipifyCheckoutUrl = environment.SKIPIFY_CHECKOUT_URL;
 
 export const AmplitudeApiKey = environment.AMPLITUDE_API_KEY;
+export const LaunchDarklyConfig = {
+  clientSideId: environment.LAUNCHDARKLY_CLIENT_SIDE_ID,
+  context: {
+    kind: "service",
+    key: "checkout-sdk",
+    name: "checkout-sdk",
+  }
+}
 
 export const SkipifyClassNames = {
   emailInput: '_SKIPIFY_email_input',

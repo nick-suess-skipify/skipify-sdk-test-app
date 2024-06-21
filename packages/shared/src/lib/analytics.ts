@@ -4,7 +4,14 @@ export enum FlowType {
   enrollment = "shakira_guest_enrollment",
 }
 
-export type BaseEventProperties = {
+export type EventType = "fe_enrollment_unchecked"
+
+export type Event<T extends EventType> = {
+  event_type: T;
+  event_properties?: EventPropertiesMap[T];
+};
+
+type BaseEventProperties = {
   flow_type: FlowType;
   merchant_id: string | null;
   merchant_name?: string;
@@ -15,14 +22,7 @@ export type BaseEventProperties = {
   email: string;
 };
 
-class EnrollmentUncheckedEvent {
-  event_type = "fe_enrollment_unchecked";
-
-  constructor(public event_properties?: BaseEventProperties) {
-    this.event_properties = event_properties;
-  }
-}
-
-export const Analytics = {
-  enrollmentUncheckedEvent: EnrollmentUncheckedEvent,
+// Map event types to their corresponding properties
+export type EventPropertiesMap = {
+  fe_enrollment_unchecked: BaseEventProperties
 };

@@ -62,7 +62,7 @@ export class Amplitude {
    * Get device id
    */
   getDeviceId() {
-    this.client?.getDeviceId();
+    return this.client?.getDeviceId();
   }
 
   /**

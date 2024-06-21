@@ -1,4 +1,4 @@
-import { Messenger, SkipifyApi, Amplitude, roundByDPR, log, showCheckIcon } from './utils';
+import { Messenger, SkipifyApi, SkipifyEvents, roundByDPR, log, showCheckIcon } from './utils';
 import { store, defaultState } from './state';
 import {
   SkipifyCheckoutUrl,
@@ -7,7 +7,7 @@ import {
   SkipifyClassNames,
 } from './constants';
 import { UserEnrollmentInformationType, MerchantType } from './shared.types';
-import { Analytics, FlowType } from './analytics';
+import { FlowType } from './analytics';
 
 import { displayIframe } from './utils/iframe';
 import './styles/index.css';
@@ -35,7 +35,7 @@ export class Base {
    */
   api: SkipifyApi;
   messenger: Messenger;
-  amplitude: Amplitude;
+  skipifyEvents: SkipifyEvents;
   store;
 
   /**
@@ -85,9 +85,9 @@ export class Base {
      */
     this.messenger = new Messenger({ base: this });
     /**
-     * Amplitude implements analytic track requests
+     * SkipifyEvents implements analytic track requests
      */
-    this.amplitude = new Amplitude();
+    this.skipifyEvents = new SkipifyEvents();
 
     /**
      * Mutation observer used to enable Skipify features on checkout
@@ -276,7 +276,7 @@ export class Base {
    */
   async trackEnrollmentUnchecked() {
     const { userEmail } = this.store.getState();
-    await this.amplitude.identify(userEmail);
+    await this.skipifyEvents.identify(userEmail);
     const { total, subtotal } = await this.getCartTotal();
 
     const properties = {
@@ -290,7 +290,7 @@ export class Base {
       subtotal,
     };
 
-    this.amplitude.track(new Analytics.enrollmentUncheckedEvent(properties));
+    this.skipifyEvents.track('fe_enrollment_unchecked', properties);
   }
 
   /**
