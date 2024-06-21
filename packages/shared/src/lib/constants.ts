@@ -61,6 +61,7 @@ export const MESSAGE_NAMES = {
   CLEAR_ORDER: `${MESSAGE_NAME_PREFIX}/clear-order`,
   ASK_FOR_ORDER_ID: `${MESSAGE_NAME_PREFIX}/request-order-id`,
   SEND_LD_FLAGS: `${MESSAGE_NAME_PREFIX}/send-ld-flags`,
+  LOOKUP_BY_FINGERPRINT_RESULT: `${MESSAGE_NAME_PREFIX}/lookup-by-fingerprint-result`,
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,

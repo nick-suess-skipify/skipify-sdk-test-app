@@ -34,6 +34,7 @@ export class Messenger {
   base: Base;
   userToLookup: { email: string; cartData: unknown } | null = null;
   prevUserEmail: string | null = null;
+  userRecognizedByDeviceId: boolean | null = null;
 
   constructor({ base }: Props) {
     this.base = base;
@@ -85,11 +86,16 @@ export class Messenger {
         return this.clearOid();
       case MESSAGE_NAMES.SEND_LD_FLAGS:
         return this.setFlags(event);
+      case MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT_RESULT:
+        return this.handleDeviceIdLookupResult(event);
       default:
         return;
     }
   }
 
+  handleDeviceIdLookupResult(event: MessageEvent){
+    this.userRecognizedByDeviceId = event.data.payload.customerDeviceRecognized;
+  }
   // The launchIframe function will create the iframe and overlay elements,
   // and then append them to the body. They will be hidden by default.
   launchBaseIframe(iframeSrc: string) {
@@ -179,7 +185,8 @@ export class Messenger {
    */
   async lookupByFingerprint(useButtonCheckout = false) {
     const cart = await this.base.getCartData();
-    if (cart && this.iframe) {
+    // if user has been recognized, we don't keed to send the request again
+    if (cart && this.iframe && !this.userRecognizedByDeviceId) {
       const payload = {
         amplitudeSessionId: this.base.skipifyEvents.getSessionId(), // override iframe's amplitude session id
         cart: { items: cart },
