@@ -10,6 +10,7 @@ import {
   displayIframe,
 } from '@checkout-sdk/shared/lib/utils/iframe';
 import CustomSDK from './custom';
+import {approvalEventMapper} from './data/eventMapper';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
@@ -107,12 +108,13 @@ export class Messenger {
 
   listenerOrderCompleted(event: MessageEvent) {
     const { payload } = event.data;
-     if (this.activeCheckoutId) {
+    const mappedPayload = approvalEventMapper(payload);
+    if (this.activeCheckoutId) {
       this.activeCheckoutSuccess = true;
       // Trigger onApprove UI callback
       const activeCheckout = this.getCurrentCheckout(this.activeCheckoutId)
       if (activeCheckout && activeCheckout.options?.onApprove) {
-        activeCheckout.options?.onApprove(activeCheckout.merchantRef, payload)
+        activeCheckout.options?.onApprove(activeCheckout.merchantRef, mappedPayload)
       }
     }
   }
