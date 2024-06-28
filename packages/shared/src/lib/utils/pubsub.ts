@@ -1,3 +1,4 @@
+import { Messenger } from "..";
 import { Event, EventPropertiesMap, EventType } from "../analytics";
 
 export class Pubsub {
@@ -18,11 +19,8 @@ export class Pubsub {
     console.warn('not implemented yet')
   }
 
-  track<T extends EventType>(type: Event<T>, event_properties?: EventPropertiesMap[T]) {
-    type
-    event_properties
-    console.warn('not implemented yet')
-    return { promise: Promise.resolve() };
+  track<T extends EventType>(messenger: Messenger, type: T, event_properties?: EventPropertiesMap[T]) {
+    messenger.trackEvent(type, event_properties)
   }
 
   getSessionId() {

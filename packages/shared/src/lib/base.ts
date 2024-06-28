@@ -290,7 +290,7 @@ export class Base {
       subtotal,
     };
 
-    this.skipifyEvents.track('fe_enrollment_unchecked', properties);
+    this.skipifyEvents.track(this.messenger, 'fe_enrollment_unchecked', properties);
   }
 
   /**

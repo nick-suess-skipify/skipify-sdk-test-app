@@ -3,6 +3,7 @@ import { Amplitude } from "./amplitude";
 import * as LDClient from 'launchdarkly-js-client-sdk';
 import { Pubsub } from "./pubsub";
 import { LaunchDarkly } from "./launchDarkly";
+import { Messenger } from "..";
 
 let ldClient: LDClient.LDClient
 
@@ -78,7 +79,7 @@ export class SkipifyEvents {
     }
   }
 
-  track<T extends EventType>(type: T, event_properties?: EventPropertiesMap[T]) {
+  track<T extends EventType>(messenger: Messenger, type: T, event_properties?: EventPropertiesMap[T]) {
     const event: Event<T> = {
       event_type: type,
       event_properties,
@@ -87,7 +88,7 @@ export class SkipifyEvents {
       this.amplitudeService.track(event)
     }
     if (this.pubSubService) {
-      this.pubSubService.track(event)
+      this.pubSubService.track(messenger, type, event_properties)
     }
   }
 

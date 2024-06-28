@@ -22,6 +22,8 @@ import {
   showExpandIcon,
   showCheckIcon,
   showCheckmarkButton,
+  EventType,
+  EventPropertiesMap,
 } from '../../lib';
 
 interface Props {
@@ -145,6 +147,21 @@ export class Messenger {
       this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_DEVICE_ID,
+        },
+        SkipifyCheckoutUrl
+      );
+    }
+  }
+
+  trackEvent<T extends EventType>(type: T, event_properties?: EventPropertiesMap[T]){
+    if (this.iframe) {
+      this.iframe.contentWindow?.postMessage(
+        {
+          name: MESSAGE_NAMES.TRACK_EVENT,
+          payload: {
+            type,
+            event_properties,
+          }
         },
         SkipifyCheckoutUrl
       );
