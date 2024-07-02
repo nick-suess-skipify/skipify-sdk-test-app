@@ -5,5 +5,7 @@ export const environment = {
   SDK_URL: 'https://stagecdn.skipify.com/sdk',
   IFRAME_ORIGIN: 'http://localhost:3002',
   SKIPIFY_CHECKOUT_URL: 'https://stagecheckout.skipify.com',
+  SIMPLE_CHECKOUT_URL: 'https://simple.stage.skipify.com',
   AMPLITUDE_API_KEY: 'f0b4c7b2c84a4d3d59ab1038059ba3fb',
+  LAUNCHDARKLY_CLIENT_SIDE_ID: '6489e204a817781b1dd22976',
 };

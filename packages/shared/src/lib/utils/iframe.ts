@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { hideLoader, showExpandIcon, showSkipifyCheck } from '..';
 import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 
@@ -75,12 +76,13 @@ export function displayIframe() {
   }
 }
 
-export function hideIframe() {
+export async function hideIframe() {
   document.body.classList.add(SkipifyClassNames.hiding);
   // Added a setTimeout here to ensure that the hiding animation is visible
   setTimeout(() => {
     document.body.classList.remove(SkipifyClassNames.body);
     document.body.classList.remove(SkipifyClassNames.hiding);
+    Promise.resolve();
   }, 400);
 }
 

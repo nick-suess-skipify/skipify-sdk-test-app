@@ -1,6 +1,7 @@
 import {
   MESSAGE_NAMES,
   SkipifyCheckoutUrl,
+  SimpleCheckoutUrl
 } from '@checkout-sdk/shared/lib/constants';
 import {
   launchHiddenIframe,
@@ -81,18 +82,33 @@ export class Messenger {
       const clickedButton = this.sdk.buttons[data.id];
       if (iframe && clickedButton) {
         this.activeCheckoutId = data.id;
-        iframe.contentWindow?.postMessage(
-          {
-            name: MESSAGE_NAMES.CREATE_ORDER,
-            payload: { cart: { merchantReference: clickedButton.merchantRef } },
-          },
-          SkipifyCheckoutUrl
-        );
+        const orderData: any = { cart: { merchantReference: clickedButton.merchantRef } }
+
+        // Skipify simple flow
+        if (this.sdk.skipifyLightActive && clickedButton.options?.total) {
+          orderData.cart.total = clickedButton.options?.total
+          iframe.contentWindow?.postMessage(
+            {
+              name: MESSAGE_NAMES.CREATE_ORDER,
+              payload: orderData,
+            },
+            SimpleCheckoutUrl
+          );
+        } else {
+          // Regular checkout flow
+          iframe.contentWindow?.postMessage(
+            {
+              name: MESSAGE_NAMES.CREATE_ORDER,
+              payload: orderData,
+            },
+            SkipifyCheckoutUrl
+          );
+        }
       }
     }
   }
 
-  listenerCloseIframe() {
+  async listenerCloseIframe() {
     if (this.activeCheckoutId) {
       // Trigger onClose UI callback
       const activeCheckout = this.getCurrentCheckout(this.activeCheckoutId)
@@ -102,8 +118,12 @@ export class Messenger {
     }
     this.activeCheckoutId = null;
     this.activeCheckoutSuccess = false;
-    hideIframe();
-    this.sdk.launchBaseIframe();
+
+    await hideIframe();
+    // Give some time for the close animation to be shown
+    setTimeout(() => {
+      this.sdk.resetIframe();
+    }, 500)
   }
 
   listenerOrderCompleted(event: MessageEvent) {
@@ -134,6 +154,13 @@ export class Messenger {
   }
 
   launchBaseIframe(iframeSrc: string) {
+    const baseIframe = launchHiddenIframe(iframeSrc, false);
+    if (baseIframe) {
+      this.iframe = baseIframe;
+    }
+  }
+
+  launchLightBaseIframe(iframeSrc: string) {
     const baseIframe = launchHiddenIframe(iframeSrc, false);
     if (baseIframe) {
       this.iframe = baseIframe;

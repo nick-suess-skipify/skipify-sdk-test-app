@@ -1,12 +1,16 @@
 import { environment } from '../environments/environment';
 
 export const SDKVersion = environment.SDK_VERSION;
+export enum FeatureFlags {
+  skipifyLight = 'UseSkipifyLight'
+}
 
 export const IFRAME_ORIGIN = environment.IFRAME_ORIGIN;
 
 export const MerchantServiceUrl = environment.MERCHANT_SERVICE_URL;
 export const SdkUrl = environment.SDK_URL;
 export const SkipifyCheckoutUrl = environment.SKIPIFY_CHECKOUT_URL;
+export const SimpleCheckoutUrl = environment.SIMPLE_CHECKOUT_URL;
 
 export const AmplitudeApiKey = environment.AMPLITUDE_API_KEY;
 export const LaunchDarklyConfig = {

@@ -22,13 +22,11 @@ export class LaunchDarkly {
   private async initialize(): Promise<void> {
     try {
       await this.ldClient.waitForInitialization(10);
-      console.log("LaunchDarkly client initialized successfully.");
       this.initialized = true;
     } catch (error) {
       console.error("Error initializing LaunchDarkly client:", error);
       throw error;
     }
-    console.log(this.ldClient.allFlags())
   }
 
   public async getVariation(flagName: string, defaultValue?: any): Promise<any> {

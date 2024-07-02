@@ -33,6 +33,7 @@ export interface AbstractSDK {
 
 export type MerchantType = {
   checkoutTestMode: boolean;
+  streamlinedFlowEligible: boolean;
   urls: string[];
   merchantId: string;
   branding: { displayName: string };

@@ -18,6 +18,15 @@
                 "checkout-button:build"
             ],
             "configurations": {
+                "local": {
+                    "mode": "development",
+                    "fileReplacements": [
+                        {
+                            "replace": "packages/shared/src/environments/environment.ts",
+                            "with": "packages/shared/src/environments/environment.local.ts"
+                        }
+                    ]
+                },
                 "dev": {
                     "mode": "development",
                     "fileReplacements": [

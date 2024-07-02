@@ -1,16 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
+import {
+    Container,
+    VStack,
+    Stack,
+    Box,
+    StackDivider,
+    Heading,
+    FormControl,
+    FormLabel,
+    Input,
+    FormHelperText,
+    Button
+} from '@chakra-ui/react'
+// import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 
 // Be careful with cyclic dependencies here
 
 const MERCHANT_ID = '59958510-0316-4d68-9b03-ff189d0fb3e3';
+const MERCHANT_REF = 'my-ref-test';
 
 export const TestPageContent: React.FC = (props) => {
 
-    const [merchantId, setMerchantId] = useState(MERCHANT_ID)
+    const queryParams = new URLSearchParams(window.location.search);
+
+    const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID)
+    const [merchantRef, setMerchantRef] = useState(queryParams.get('merchantRef') || MERCHANT_REF)
     const [skipifyClient, setSkipifyClient] = useState<any>(null)
-    const buttonRef = useRef(null)
+    const buttonRef = useRef<HTMLDivElement | null>(null)
     const inputRef = useRef(null)
 
     useEffect(() => {
@@ -34,99 +51,92 @@ export const TestPageContent: React.FC = (props) => {
         if (buttonRef?.current && skipifyClient) {
             const options = {
                 onClose: (myRef: string, success: boolean) => {
-                    console.log('On close')
+                    console.log('On close UI callback triggered')
                 },
                 onApprove: (myRef: string, data: any) => {
-                    console.log('On approve')
+                    console.log('On approve UI callback triggered')
+                    console.log(data)
                 }
             }
 
             // Render Skipify button
-            skipifyClient.button("my-ref-test", options).render(buttonRef.current)
+            skipifyClient.button(merchantRef, { ...options, total: 5173 }).render(buttonRef.current)
 
             // Enable input listener
-            skipifyClient.email("my-email-ref-test").enable(inputRef.current)
+            skipifyClient.email(merchantRef).enable(inputRef.current)
         }
 
     }, [buttonRef, skipifyClient])
 
+    const handleSave = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('merchantId', merchantId);
+        url.searchParams.set('merchantRef', merchantRef);
+        window.location.href = url.toString();
+    }
+
+    const handleReset = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('merchantId', '');
+        url.searchParams.set('merchantRef', '');
+        window.location.href = url.toString();
+    }
+
 
     return (
-        <Page>
-            <Container>
-                <StyledMutedLogo />
-                <Section>
-                    <Label>Merchant Id</Label>
-                    <Input type="text" value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
-                    <Label>Button</Label>
-                    <ButtonContainer ref={buttonRef}></ButtonContainer>
-                    <Label>Email listener</Label>
-                    <Input type="text" ref={inputRef} />
-                </Section>
-            </Container>
-        </Page>
+        <Container>
+            <Heading mt="24px" mb="16px" as='h2'>SDK Playground</Heading>
+            <VStack align="left" spacing='24px' divider={<StackDivider borderColor='gray.200' />}>
+                <Box w="360px">
+                    <FormControl isRequired>
+                        <FormLabel>Merchant Id</FormLabel>
+                        <Input type='text' value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
+                        <FormHelperText>Your playground merchant Id.</FormHelperText>
+                    </FormControl>
+                    {/* <FormControl isRequired>
+                        <FormLabel>Merchant ref</FormLabel>
+                        <Input type='text' value={merchantRef} onChange={(e) => setMerchantRef(e.target.value)} />
+                        <FormHelperText>Your merchant ref.</FormHelperText>
+                    </FormControl> */}
+                    <Stack spacing={4} direction='row' align='center'>
+                        <Button
+                            mt={4}
+                            colorScheme='teal'
+                            type='button'
+                            onClick={() => handleSave()}
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            mt={4}
+                            colorScheme='teal'
+                            type='button'
+                            onClick={() => handleReset()}
+                        >
+                            Reset
+                        </Button>
+                    </Stack>
+                </Box>
+                <Box>
+                    <FormControl>
+                        <FormLabel>Skipify Button</FormLabel>
+                        <ButtonContainer ref={buttonRef}></ButtonContainer>
+                        {/* <FormHelperText>Your Skipify checkout button.</FormHelperText> */}
+                    </FormControl>
+                </Box>
+                <Box>
+                    <FormControl>
+                        <FormLabel>Skipify email listener</FormLabel>
+                        <Input type="text" ref={inputRef} />
+                        {/* <FormHelperText>Your Skipify email listener.</FormHelperText> */}
+                    </FormControl>
+                </Box>
+            </VStack>
+
+        </Container>
     );
 };
 
-const Page = styled.div`
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`;
-
-const Container = styled.div`
-    max-width: 900px;
-    width: 100%;
-    margin-left: auto;
-    box-sizing: border-box;
-    margin-right: auto;
-    display: block;
-    padding-left: 16px;
-    padding-right: 16px;
-`
 
 const ButtonContainer = styled.div`
-
-`
-
-const Section = styled.div`
-    width: 360px;
-`;
-
-const StyledMutedLogo = styled(MutedLogo)`
-    padding: 22px 24px;
-`;
-
-const Label = styled.label`
-    color: rgb(117, 117, 117);
-    font-family: Poppins;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 2em;
-    padding: 0px;
-    position: relative;
-    display: block;
-`
-
-const Input = styled.input`
-    width: 100%;
-    padding: 6px 12px;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    appearance: none;
-    border-radius: 4px;
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    :focus{
-        color: #212529;
-        background-color: #fff;
-        border-color: #86b7fe;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
-    }          
 `

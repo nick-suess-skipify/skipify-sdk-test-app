@@ -1,4 +1,4 @@
-import { SkipifyCheckoutUrl, SDKVersion, MESSAGE_NAMES } from '@checkout-sdk/shared/lib/constants';
+import { SkipifyCheckoutUrl, SDKVersion, MESSAGE_NAMES, SimpleCheckoutUrl, FeatureFlags } from '@checkout-sdk/shared/lib/constants';
 import { SkipifyApi, MerchantType } from '@checkout-sdk/shared';
 import { Config, AdditionalOptions, MerchantOptions } from './config';
 import { Messenger } from './messenger';
@@ -6,6 +6,7 @@ import { Button } from './button/button';
 import { EmailListener } from './emailListener/emailListener';
 
 import '@checkout-sdk/shared/lib/styles';
+import { LaunchDarkly } from '@checkout-sdk/shared';
 
 /*
  * This is the SDK for merchants
@@ -15,15 +16,31 @@ import '@checkout-sdk/shared/lib/styles';
  */
 
 class CustomSDK {
+  // Config
   config: Config;
+  merchant: MerchantType | null = null;
+  //  Helper classes
   messenger: Messenger;
   api: SkipifyApi;
-  merchant: MerchantType | null = null;
+  launchdarkly: LaunchDarkly | null = null;
+  // Components
   buttons: Record<string, Button> = {};
   emailListeners: Record<string, EmailListener> = {};
+  //  Internal
+  skipifyLightFlag = false;
+  skipifyLightActive = false;
+  checkoutUrl: string;
+  simpleCheckoutUrl: string;
 
   constructor(config: any) {
+    // Validate initialization configs
     this.config = new Config(config);
+
+    // Checkout Urls
+    this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`
+    this.simpleCheckoutUrl = `${SimpleCheckoutUrl}/embed/${this.config.merchantId}`
+
+    // Initial setup
     this.messenger = new Messenger(this);
     this.api = new SkipifyApi({ merchantId: this.config.merchantId });
     this.start();
@@ -37,10 +54,21 @@ class CustomSDK {
     this.getMerchant();
   }
 
+  async resetIframe() {
+    if (this.skipifyLightActive) {
+      this.messenger.launchLightBaseIframe(this.simpleCheckoutUrl)
+    } else {
+      this.messenger.launchBaseIframe(this.checkoutUrl);
+    }
+  }
+
   async launchBaseIframe() {
-    this.messenger.launchBaseIframe(
-      `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`
-    );
+    this.messenger.launchBaseIframe(this.checkoutUrl);
+  }
+
+  async enableSkipifyLight() {
+    this.skipifyLightActive = true;
+    this.messenger.launchLightBaseIframe(this.simpleCheckoutUrl)
   }
 
   async getMerchant() {
@@ -52,6 +80,9 @@ class CustomSDK {
     }
     this.merchant = merchantPublicData;
 
+    // We only get the flags after merchant data is available
+    this.getFlags();
+
     // Notify already mounted components
     Object.values(this.buttons).forEach(button => {
       if (button.frame && button.frame.contentWindow) {
@@ -61,6 +92,16 @@ class CustomSDK {
         }, "*")
       }
     })
+  }
+
+  async getFlags() {
+    // Can this be a merchant based flag?
+    this.launchdarkly = await LaunchDarkly.getInstance();
+    this.skipifyLightFlag = await this.launchdarkly.getVariation(FeatureFlags.skipifyLight, false)
+
+    if (this.skipifyLightFlag && this.merchant?.streamlinedFlowEligible) {
+      this.enableSkipifyLight()
+    }
   }
 
   async lookupUser(email: string, listenerId: string) {

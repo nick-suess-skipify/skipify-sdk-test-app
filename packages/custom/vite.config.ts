@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@checkout-sdk/shared/lib/constants': resolve(__dirname, '../shared/src/lib/constants.ts'),
+      '@checkout-sdk/shared/lib/ldclient': resolve(__dirname, '../shared/src/lib/ldclient.ts'),
       '@checkout-sdk/shared/lib/styles': resolve(__dirname, '../shared/src/lib/styles/index.css'),
       '@checkout-sdk/shared/lib/utils/iframe': resolve(__dirname, '../shared/src/lib/utils/iframe.ts'),
       '@checkout-sdk/shared': resolve(__dirname, '../shared/src/index.ts'),

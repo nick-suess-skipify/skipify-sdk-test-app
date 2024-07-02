@@ -13,7 +13,7 @@ export class SkipifyEvents {
 
   private async enableServices() {
     try {
-      const ld = await LaunchDarkly.getInstance();  // Esto garantiza una sola instancia
+      const ld = await LaunchDarkly.getInstance(); // This is a singleton
       const useAmplitude = await ld.getVariation('UseAmplitudeEvents')
       const usePubSub = await ld.getVariation('UseSkipifyEvents')
       if (useAmplitude) {
