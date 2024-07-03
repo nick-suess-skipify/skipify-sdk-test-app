@@ -111,7 +111,7 @@ describe('approvalEventMapper', () => {
                "defaultFee": 800
            },
            "taxDetails": {
-            Value: 289,
+            value: 289,
             uom: "USD"
        }
        };
@@ -190,7 +190,7 @@ describe('approvalEventMapper', () => {
         defaultFee: 9.99
       },
       taxDetails: {
-        Value: 5.0,
+        value: 5.0,
         uom: 'USD'
       }
     };

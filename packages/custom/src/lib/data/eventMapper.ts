@@ -44,7 +44,7 @@ export function approvalEventMapper(input:any) {
             defaultFee: input.shippingMethod?.price 
         },
         taxDetails: {
-            Value: input.taxes,
+            value: input.taxes,
             uom: "USD" // Assuming uom stands for Unit of Measure and it's USD for currency
         }
     };
