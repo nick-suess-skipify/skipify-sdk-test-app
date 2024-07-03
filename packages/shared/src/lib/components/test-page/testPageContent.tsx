@@ -11,7 +11,12 @@ import {
     FormLabel,
     Input,
     FormHelperText,
-    Button
+    Button,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper
 } from '@chakra-ui/react'
 // import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 
@@ -19,13 +24,18 @@ import {
 
 const MERCHANT_ID = '59958510-0316-4d68-9b03-ff189d0fb3e3';
 const MERCHANT_REF = 'my-ref-test';
+const ORDER_TOTAL = '51.73';
+const parse = (val) => val.replace(/^\$/, '')
+const format = (val) => `$` + val
 
 export const TestPageContent: React.FC = (props) => {
 
     const queryParams = new URLSearchParams(window.location.search);
 
+
     const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID)
     const [merchantRef, setMerchantRef] = useState(queryParams.get('merchantRef') || MERCHANT_REF)
+    const [orderTotal, setOrderTotal] = useState(queryParams.get('orderTotal') || ORDER_TOTAL)
     const [skipifyClient, setSkipifyClient] = useState<any>(null)
     const buttonRef = useRef<HTMLDivElement | null>(null)
     const inputRef = useRef(null)
@@ -60,7 +70,7 @@ export const TestPageContent: React.FC = (props) => {
             }
 
             // Render Skipify button
-            skipifyClient.button(merchantRef, { ...options, total: 5173 }).render(buttonRef.current)
+            skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.','')) }).render(buttonRef.current)
 
             // Enable input listener
             skipifyClient.email(merchantRef).enable(inputRef.current)
@@ -72,26 +82,51 @@ export const TestPageContent: React.FC = (props) => {
         const url = new URL(window.location.href);
         url.searchParams.set('merchantId', merchantId);
         url.searchParams.set('merchantRef', merchantRef);
+        url.searchParams.set('orderTotal', orderTotal);
         window.location.href = url.toString();
     }
 
     const handleReset = () => {
         const url = new URL(window.location.href);
-        url.searchParams.set('merchantId', '');
-        url.searchParams.set('merchantRef', '');
+        url.searchParams.delete('merchantId');
+        url.searchParams.delete('merchantRef');
+        url.searchParams.delete('orderTotal');
         window.location.href = url.toString();
     }
 
+    const handleOrderTotalChange = (valueString) => {
+        if (!valueString) {
+            setOrderTotal('1')
+        } else {
+            setOrderTotal(parse(valueString))
+        }
+    }
 
     return (
         <Container>
             <Heading mt="24px" mb="16px" as='h2'>SDK Playground</Heading>
             <VStack align="left" spacing='24px' divider={<StackDivider borderColor='gray.200' />}>
                 <Box w="360px">
-                    <FormControl isRequired>
+                    <FormControl mb="16px" isRequired>
                         <FormLabel>Merchant Id</FormLabel>
                         <Input type='text' value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
-                        <FormHelperText>Your playground merchant Id.</FormHelperText>
+                        {/* <FormHelperText>Your playground merchant Id.</FormHelperText> */}
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>Simple Order total</FormLabel>
+                        <NumberInput
+                            step={10}
+                            precision={2}
+                            min={0.01}
+                            onChange={(valueString) => handleOrderTotalChange(valueString)}
+                            value={format(orderTotal)}
+                        >
+                            <NumberInputField />
+                            <NumberInputStepper>
+                                <NumberIncrementStepper />
+                                <NumberDecrementStepper />
+                            </NumberInputStepper>
+                        </NumberInput>
                     </FormControl>
                     {/* <FormControl isRequired>
                         <FormLabel>Merchant ref</FormLabel>
