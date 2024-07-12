@@ -1,8 +1,9 @@
 import {
   MESSAGE_NAMES,
   SkipifyCheckoutUrl,
-  SimpleCheckoutUrl
-} from '@checkout-sdk/shared/lib/constants';
+  SimpleCheckoutUrl,
+  SkipifyClassNames
+} from "@checkout-sdk/shared/lib/constants";
 import {
   launchHiddenIframe,
   hideIframe,
@@ -164,6 +165,8 @@ export class Messenger {
     const baseIframe = launchHiddenIframe(iframeSrc, false);
     if (baseIframe) {
       this.iframe = baseIframe;
+      //IDCH-184: Force layer style floating iframe for light/simple
+      this.iframe?.classList.add(SkipifyClassNames.skipifyV2);
     }
   }
 

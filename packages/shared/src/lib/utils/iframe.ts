@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import { hideLoader, showExpandIcon, showSkipifyCheck } from '..';
 import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 
@@ -40,7 +39,7 @@ export function launchHiddenIframe(
     if (!hasInitializedIframe) {
       existingIframe.src = iframeSrc;
     }
-    return;
+    return existingIframe;
   }
 
   const containerEl =
