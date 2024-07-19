@@ -13,6 +13,7 @@ import {
 } from '@checkout-sdk/shared/lib/utils/iframe';
 import CustomSDK from './custom';
 import {approvalEventMapper} from './data/eventMapper';
+import { Button } from './button/button';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
@@ -49,13 +50,22 @@ export class Messenger {
 
   lookupUser(email: string, listenerId: string) {
     const emailListener = this.sdk.emailListeners[listenerId];
-    if (this.iframe && emailListener) {
+    const buttonListener = this.sdk.buttons[listenerId];
+    if (this.iframe && (emailListener || buttonListener)) {
       this.activeCheckoutId = listenerId;
-      const payload = {
-        email,
-        cart: { merchantReference: emailListener.merchantRef },
-      };
-
+      let payload;
+      if (emailListener) {
+        payload = {
+          email,
+          cart: { merchantReference: emailListener.merchantRef },
+        };
+      } else if (buttonListener) {
+        payload = {
+          email,
+          phone: this.sdk.buttons[listenerId].options?.phone,
+          cart: { merchantReference: buttonListener.merchantRef },
+        };
+      }
       this.iframe.contentWindow?.postMessage(
         {
           name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
@@ -83,7 +93,11 @@ export class Messenger {
       const clickedButton = this.sdk.buttons[data.id];
       if (iframe && clickedButton) {
         this.activeCheckoutId = data.id;
-        const orderData: any = { cart: { merchantReference: clickedButton.merchantRef } }
+        const orderData: any = { 
+          cart: { merchantReference: clickedButton.merchantRef },
+          email: clickedButton.options?.email, 
+          phone: clickedButton.options?.phone
+        }
 
         // Skipify simple flow
         if (this.sdk.skipifyLightActive && clickedButton.options?.total) {

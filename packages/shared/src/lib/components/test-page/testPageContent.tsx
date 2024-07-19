@@ -16,7 +16,8 @@ import {
     NumberInputField,
     NumberInputStepper,
     NumberIncrementStepper,
-    NumberDecrementStepper
+    NumberDecrementStepper,
+    Switch
 } from '@chakra-ui/react'
 // import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 
@@ -24,6 +25,8 @@ import {
 
 const MERCHANT_ID = '59958510-0316-4d68-9b03-ff189d0fb3e3';
 const MERCHANT_REF = 'my-ref-test';
+const EMAIL = 'email@skipify.com';
+const PHONE = '1234567890';
 const ORDER_TOTAL = '51.73';
 const parse = (val) => val.replace(/^\$/, '')
 const format = (val) => `$` + val
@@ -36,9 +39,13 @@ export const TestPageContent: React.FC = (props) => {
     const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID)
     const [merchantRef, setMerchantRef] = useState(queryParams.get('merchantRef') || MERCHANT_REF)
     const [orderTotal, setOrderTotal] = useState(queryParams.get('orderTotal') || ORDER_TOTAL)
+    const [isEmailListenerEnabled, setIsEmailListenerEnabled] = useState(true);
+    const [phone, setPhone] = useState(queryParams.get('phone') || PHONE)
+    const [email, setEmail] = useState(queryParams.get('email') || EMAIL)
     const [skipifyClient, setSkipifyClient] = useState<any>(null)
     const buttonRef = useRef<HTMLDivElement | null>(null)
-    const inputRef = useRef(null)
+    const inputRef1 = useRef(null)
+    const inputRef2 = useRef(null)
 
     useEffect(() => {
         // Check for Skipify client in the window
@@ -66,17 +73,20 @@ export const TestPageContent: React.FC = (props) => {
                 onApprove: (myRef: string, data: any) => {
                     console.log('On approve UI callback triggered')
                     console.log(data)
-                }
+                },
+                email: email,
+                phone: phone,
             }
 
             // Render Skipify button
             skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.','')) }).render(buttonRef.current)
-
             // Enable input listener
-            skipifyClient.email(merchantRef).enable(inputRef.current)
+            if (isEmailListenerEnabled) {
+                skipifyClient.email(merchantRef).enable(inputRef1.current);
+            }
         }
 
-    }, [buttonRef, skipifyClient])
+    }, [buttonRef, skipifyClient, isEmailListenerEnabled])
 
     const handleSave = () => {
         const url = new URL(window.location.href);
@@ -160,10 +170,22 @@ export const TestPageContent: React.FC = (props) => {
                     </FormControl>
                 </Box>
                 <Box>
+                    <FormControl display="flex" alignItems="center">
+                        <FormLabel htmlFor="email-listener-switch" mb="0">
+                            Enable Skipify email listener
+                        </FormLabel>
+                        <Switch id="email-listener-switch" isChecked={isEmailListenerEnabled} onChange={(e) => setIsEmailListenerEnabled(e.target.checked)} />
+                    </FormControl>
                     <FormControl>
                         <FormLabel>Skipify email listener</FormLabel>
-                        <Input type="text" ref={inputRef} />
-                        {/* <FormHelperText>Your Skipify email listener.</FormHelperText> */}
+                        <Input type="text" ref={inputRef1} value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </FormControl>
+                </Box>
+                <Box>
+                    <FormControl>
+                        <FormLabel>Skipify phone listener</FormLabel>
+                        <Input type="text" ref={inputRef2} value={phone} onChange={(e) => setPhone(e.target.value)}/>
+                        {/* <FormHelperText>Your Skipify phone listener.</FormHelperText> */}
                     </FormControl>
                 </Box>
             </VStack>
