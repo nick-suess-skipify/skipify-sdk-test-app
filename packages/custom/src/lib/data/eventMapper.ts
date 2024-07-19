@@ -1,7 +1,7 @@
-function removeProperties(obj:any, properties: string[]) {
+function removeProperties<T extends object>(obj: T | undefined, properties: (keyof T)[]): Partial<T> | undefined {
     if (obj) {
         properties.forEach(prop => {
-            if (Object.prototype.hasOwnProperty.call(obj,prop)) {
+            if (Object.prototype.hasOwnProperty.call(obj, prop)) {
                 delete obj[prop];
             }
         });
@@ -9,10 +9,14 @@ function removeProperties(obj:any, properties: string[]) {
     return obj;
 }
 
-export function approvalEventMapper(input:any) {
+function mapAddress(address: any) {
+    return address ? { ...address, countryCode: address.country, localityCode: address.state, zipCode: address.zip } : undefined;
+}
+
+export function approvalEventMapper(input: any) {
     const paymentMethodPropertiesToRemove = ['address', 'addressId', 'externalId', 'isDefault', 'needsCvv', 'nickName'];
-    const billingAddressPropertiesToRemove = ['externalId', 'isDefaultShipping'];
-    const shippingAddressPropertiesToRemove = ['externalId', 'phoneNumber', 'isDefaultShipping'];
+    const billingAddressPropertiesToRemove = ['externalId', 'isDefaultShipping', 'country', 'state', 'zip'];
+    const shippingAddressPropertiesToRemove = ['externalId', 'phoneNumber', 'isDefaultShipping', 'country', 'state', 'zip'];
 
     const paymentMethod = removeProperties(
         input.customerInfo?.paymentMethod ? { ...input.customerInfo.paymentMethod } : undefined,
@@ -20,12 +24,12 @@ export function approvalEventMapper(input:any) {
     );
 
     const billingAddress = removeProperties(
-        input.billingInfo ? { ...input.billingInfo } : undefined,
+        mapAddress(input.billingInfo),
         billingAddressPropertiesToRemove
     );
 
     const shippingAddress = removeProperties(
-        input.shippingInfo ? { ...input.shippingInfo } : undefined,
+        mapAddress(input.shippingInfo),
         shippingAddressPropertiesToRemove
     );
 
@@ -41,7 +45,7 @@ export function approvalEventMapper(input:any) {
         shippingOptions: {
             id: input.shippingMethod?.externalId,
             optionName: input.shippingMethod?.name,
-            defaultFee: input.shippingMethod?.price 
+            defaultFee: input.shippingMethod?.price
         },
         taxDetails: {
             value: input.taxes,
