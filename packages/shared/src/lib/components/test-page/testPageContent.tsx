@@ -39,7 +39,7 @@ export const TestPageContent: React.FC = (props) => {
     const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID)
     const [merchantRef, setMerchantRef] = useState(queryParams.get('merchantRef') || MERCHANT_REF)
     const [orderTotal, setOrderTotal] = useState(queryParams.get('orderTotal') || ORDER_TOTAL)
-    const [isEmailListenerEnabled, setIsEmailListenerEnabled] = useState(true);
+    const [isEmailListenerEnabled, setIsEmailListenerEnabled] = useState(false);
     const [phone, setPhone] = useState(queryParams.get('phone') || PHONE)
     const [email, setEmail] = useState(queryParams.get('email') || EMAIL)
     const [skipifyClient, setSkipifyClient] = useState<any>(null)
@@ -80,13 +80,30 @@ export const TestPageContent: React.FC = (props) => {
 
             // Render Skipify button
             skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.','')) }).render(buttonRef.current)
+        }
+    }, [buttonRef, skipifyClient])
+
+    useEffect(() => {
             // Enable input listener
+        if (buttonRef?.current && skipifyClient) {
+            console.log('setting email and phone', skipifyClient)
             if (isEmailListenerEnabled) {
                 skipifyClient.email(merchantRef).enable(inputRef1.current);
+                //for each button, set the email and phone
             }
         }
+    }, [isEmailListenerEnabled,skipifyClient])
 
-    }, [buttonRef, skipifyClient, isEmailListenerEnabled])
+    useEffect(() => {
+        if (buttonRef?.current && skipifyClient) {
+            for(const [key,] of Object.entries(skipifyClient.buttons)) {
+                if(skipifyClient.buttons[key].options){
+                    skipifyClient.buttons[key].options.email = email;
+                    skipifyClient.buttons[key].options.phone = phone;
+                }
+            }
+        }
+    }, [email, phone])
 
     const handleSave = () => {
         const url = new URL(window.location.href);
