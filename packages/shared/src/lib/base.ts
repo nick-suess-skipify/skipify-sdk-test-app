@@ -238,7 +238,8 @@ export class Base {
     this.messenger.iframe.style.maxHeight = `${maxHeight}px`;
 
     const arrowIframe = document.getElementById(SkipifyElementIds.iframeArrow);
-    const arrowPositionX = roundByDPR(buttonPosition.x + 9);
+    // we want to right align the arrow with the button, left-shift 33px from button right will position the arrow in the correct position after rotation.
+    const arrowPositionX = roundByDPR(buttonPosition.right - 33);
     const arrowPositionY = this.shouldDisplayOnTop
       ? roundByDPR(buttonPosition.top - 36)
       : roundByDPR(translateY - 5);
