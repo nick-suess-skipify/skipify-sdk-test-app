@@ -1,4 +1,4 @@
-import { BigCommerceCart } from "../bigcommerce.types";
+import { BigCommerceCart, BigCommerceCheckout } from "../bigcommerce.types";
 
 export class BigCommerceStoreFrontApi {
   private getStoreFrontUrl(path: string) {
@@ -20,6 +20,22 @@ export class BigCommerceStoreFrontApi {
 
     const carts = (await response.json()) as BigCommerceCart[];
     return carts.length > 0 ? carts[0] : null;
+  }
+
+  async getUserCheckout(cartId: string): Promise<BigCommerceCheckout | null> {
+    const response = await fetch(this.getStoreFrontUrl(`checkouts/${cartId}`), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to get checkout");
+    }
+
+    const checkout = (await response.json()) as BigCommerceCheckout;
+    return checkout
   }
 
   async deleteCart(cartId: string) {

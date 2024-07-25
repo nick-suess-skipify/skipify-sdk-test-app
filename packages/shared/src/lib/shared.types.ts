@@ -40,3 +40,12 @@ export type MerchantType = {
   cobranding?: { logoSrc?: string };
   topLevelMerchantId?: string;
 };
+
+export type LookupUserType = {
+  email: string;
+  phone?: string;
+  cart: {
+    items: unknown;
+  };
+  amplitudeSessionId?: number;
+}

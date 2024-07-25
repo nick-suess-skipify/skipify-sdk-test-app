@@ -308,7 +308,7 @@ export class Base {
     });
   }
 
-  async setUserEmail(email: string, force = false) {
+  async setUserLookupData(email: string, phone?: string, force = false) {
     if (!email) {
       return;
     }
@@ -317,7 +317,7 @@ export class Base {
 
     const { testMode, userEmail } = this.store.getState();
     if (email === userEmail && !force) {
-      log('User email is the same as what stored in store, aborting setUserEmail');
+      log('User email is the same as what stored in store, aborting setUserLookupData');
       return;
     }
 
@@ -339,9 +339,9 @@ export class Base {
     }
 
     if (this.hasInitializedIframe) {
-      this.messenger.lookupUser(email, cartData);
+      this.messenger.lookupUser(email, phone, cartData);
     } else {
-      this.messenger.addUserToLookup(email, cartData);
+      this.messenger.addUserToLookup(email, phone, cartData);
     }
   }
 

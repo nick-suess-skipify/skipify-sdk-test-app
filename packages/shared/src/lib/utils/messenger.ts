@@ -13,7 +13,7 @@ import {
   hideIframe,
   changeIframeHeight,
 } from './iframe';
-import { UserEnrollmentInformationType } from '../shared.types';
+import { UserEnrollmentInformationType, LookupUserType } from '../shared.types';
 import isEqual from 'lodash.isequal';
 import {
   hideLoader,
@@ -34,7 +34,7 @@ export class Messenger {
   iframe: HTMLIFrameElement | null = null;
   iframeHeight = 0;
   base: Base;
-  userToLookup: { email: string; cartData: unknown } | null = null;
+  userToLookup: { email: string; phone?: string; cartData: unknown } | null = null;
   prevUserEmail: string | null = null;
   userRecognizedByDeviceId: boolean | null = null;
 
@@ -95,7 +95,7 @@ export class Messenger {
     }
   }
 
-  handleDeviceIdLookupResult(event: MessageEvent){
+  handleDeviceIdLookupResult(event: MessageEvent) {
     this.userRecognizedByDeviceId = event.data.payload.customerDeviceRecognized;
   }
   // The launchIframe function will create the iframe and overlay elements,
@@ -153,7 +153,7 @@ export class Messenger {
     }
   }
 
-  trackEvent<T extends EventType>(type: T, event_properties?: EventPropertiesMap[T]){
+  trackEvent<T extends EventType>(type: T, event_properties?: EventPropertiesMap[T]) {
     if (this.iframe) {
       this.iframe.contentWindow?.postMessage(
         {
@@ -168,18 +168,22 @@ export class Messenger {
     }
   }
 
-  lookupUser(email: string, cart?: any, forceLookup = false) {
+  lookupUser(email: string, phone?: string, cart?: unknown, forceLookup = false) {
     if (email === this.prevUserEmail && !forceLookup) {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
     if (this.iframe) {
       this.prevUserEmail = email;
-      const payload = {
+      const payload: LookupUserType = {
         email,
         cart: { items: cart },
         amplitudeSessionId: this.base.skipifyEvents.getSessionId(), // override iframe's amplitude session id
       };
+
+      if (phone) {
+        payload.phone = phone
+      }
 
       log('Posting lookup data to iframe', {
         name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
@@ -359,8 +363,8 @@ export class Messenger {
     this.base.setHasInitializedIframe(true);
     this.requestDeviceId(); // immediately request device id from iframe after iframe is initialized
     if (this.userToLookup) {
-      const { email, cartData } = this.userToLookup;
-      this.lookupUser(email, cartData);
+      const { email, phone, cartData } = this.userToLookup;
+      this.lookupUser(email, phone, cartData);
     } else {
       // Since we do not have a user to lookup by email, try to lookup by device
       // We will pull a cart from the base
@@ -458,8 +462,8 @@ export class Messenger {
     this.iframeHeight = payload.height;
   }
 
-  addUserToLookup(email: string, cartData: any) {
-    this.userToLookup = { email, cartData };
+  addUserToLookup(email: string, phone?: string, cartData?: any) {
+    this.userToLookup = { email, phone, cartData };
   }
 
   clearUserToLookup() {

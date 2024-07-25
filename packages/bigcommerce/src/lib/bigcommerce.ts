@@ -33,8 +33,10 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
   passwordInputId = 'password';
   paymentButtonId = 'checkout-payment-continue';
   loggedInCustomerSelector = '[data-test=sign-out-link]';
+  loadingShippingSelector = 'li.checkout-step--shipping .address-form-skeleton'
   completedOrderSelector = '.orderConfirmation-section span strong';
   checkoutUrlMatch = 'checkout';
+  checkoutPageContainerId = 'checkout-page-container'
   orderConfirmationUrlMatch = 'order-confirmation';
 
   /**
@@ -81,7 +83,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
 
     this.emailInput = new EmailInput({
       node: emailInputElem,
-      setUserEmail: (email) => this.setUserEmail(email, true),
+      setUserEmail: (email) => this.setUserLookupData(email, undefined, true),
       resetIframe: () => {
         this.setSkipifyResumable(false);
         this.messenger.closeIframe(true)
@@ -105,9 +107,12 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       return;
     }
 
+    const loadingShippingElem = document.querySelector(this.loadingShippingSelector)
+    if (loadingShippingElem) return; // We want to wait until the shipping section is fully loaded so we can get the user phone number
+
     this.loggedInCustomer = new LoggedInCustomer({
       node: loggedInCustomerElem,
-      fetchUserEmailFromCart: () => this.fetchUserEmailFromCart(),
+      fetchUserEmailFromCart: () => this.fetchUserEmailFromCart(false),
     });
   }
 
@@ -208,8 +213,8 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
 
   // If we have already have an user email in the cart, we can rely on that instead of asking the
   // user to input it again.
-  async fetchUserEmailFromCart() {
-    if (!window.location.href.includes(this.checkoutUrlMatch)) {
+  async fetchUserEmailFromCart(onlyGuest = true) {
+    if (!window.location.href.includes(this.checkoutUrlMatch) || !document.getElementById(this.checkoutPageContainerId)) {
       return;
     }
 
@@ -218,7 +223,30 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       return;
     }
 
-    this.setUserEmail(userCart.email, true);
+    // customerId == 0 when it's a guest checkout
+    if (onlyGuest && userCart.customerId !== 0) { // This means user is logged in
+      return;
+    }
+
+    let phone = '';
+    // Retrieve the user's phone number from the pre-selected shipping address
+    try {
+      if (userCart.id && userCart.customerId !== 0) { // Only do that for logged in users: customerId != 0
+        const userCheckout = await this.storeFrontApi.getUserCheckout(userCart.id)
+
+        if (userCheckout?.consignments && userCheckout?.consignments?.length > 0) {
+          const consignment = userCheckout.consignments[0];
+
+          if (consignment.address?.phone) {
+            phone = consignment.address.phone;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching user checkout:', e);
+    }
+
+    this.setUserLookupData(userCart.email, phone, true);
   }
 
   override async getUserEnrollmentInformation() {

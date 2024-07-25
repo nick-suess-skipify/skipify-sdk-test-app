@@ -179,7 +179,7 @@ class ShopifySDK extends Base implements AbstractSDK {
       node: emailInputElem,
       setUserEmail: (email) => {
         log("Email input on blur", email);
-        this.setUserEmail(email);
+        this.setUserLookupData(email);
       },
       resetIframe: () => {
         this.setSkipifyResumable(false);
@@ -330,7 +330,7 @@ class ShopifySDK extends Base implements AbstractSDK {
     this.skipifyEvents.reset();
   }
 
-  override async setUserEmail(email: string) {
+  override async setUserLookupData(email: string) {
     log("Store email and lookup...", { email });
     if (!email) {
       return;
@@ -390,9 +390,9 @@ class ShopifySDK extends Base implements AbstractSDK {
 
     if (cartData) {
       if (this.hasInitializedIframe) {
-        this.messenger.lookupUser(email, cartData);
+        this.messenger.lookupUser(email, undefined, cartData);
       } else {
-        this.messenger.addUserToLookup(email, cartData);
+        this.messenger.addUserToLookup(email, undefined, cartData);
       }
     } else {
       log("Cart data not found, skip");

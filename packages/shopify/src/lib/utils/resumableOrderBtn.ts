@@ -85,7 +85,7 @@ function isOidValid(orderData: OrderData | null) {
             emailInputElem.insertAdjacentHTML('afterend', checkmarkHTML);
             const checkmarkElem = document.getElementById('checkmarkContainer');
             if (checkmarkElem) {
-              checkmarkElem.onclick = () => messenger.lookupUser(orderData?.EMAIL as string, orderData?.CART_DATA, true) 
+              checkmarkElem.onclick = () => messenger.lookupUser(orderData?.EMAIL as string, undefined, orderData?.CART_DATA, true) 
             }
           }
         } else {
