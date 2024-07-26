@@ -18,10 +18,11 @@ export type AdditionalOptions = {
   onClose?: (merchantRef: string, success: boolean) => void;
   onApprove?: (merchantRef: string, data?: any) => void;
   total?: number;
+  textColor?: string;
   email?: string;
   phone?: string;
 }
 
 export type MerchantOptions = {
-  cobrandedLogo?: string
+  cobrandedLogo?: string,
 }

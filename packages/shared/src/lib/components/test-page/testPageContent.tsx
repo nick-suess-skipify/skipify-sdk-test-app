@@ -74,10 +74,10 @@ export const TestPageContent: React.FC = (props) => {
                     console.log('On approve UI callback triggered')
                     console.log(data)
                 },
+                textColor: '#00ff00',
                 email: email,
                 phone: phone,
             }
-
             // Render Skipify button
             skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.','')) }).render(buttonRef.current)
         }
@@ -86,7 +86,6 @@ export const TestPageContent: React.FC = (props) => {
     useEffect(() => {
             // Enable input listener
         if (buttonRef?.current && skipifyClient) {
-            console.log('setting email and phone', skipifyClient)
             if (isEmailListenerEnabled) {
                 skipifyClient.email(merchantRef).enable(inputRef1.current);
                 //for each button, set the email and phone

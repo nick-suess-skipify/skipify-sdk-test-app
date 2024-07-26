@@ -7,6 +7,7 @@ import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 export const SkipifyButtonContent: React.FC = (props) => {
   // This will be used later for passing variables from checkout script to this component
   const params = new URL(window.location.href).searchParams;
+  const [textColor,setTextColor] = useState(params.get('textColor') || '#fff');
   const [cobrandedLogo, setCobrandedLogo] = useState("")
 
   const handleClick = () => {
@@ -35,6 +36,9 @@ export const SkipifyButtonContent: React.FC = (props) => {
     if (params.get('cobrandedLogo')) {
       setCobrandedLogo(params.get('cobrandedLogo') as string)
     }
+    if (params.get('textColor')) {
+      setTextColor(params.get('textColor') as string)
+    }
     window.addEventListener('message', handleIframeMessage);
     return () => {
       window.removeEventListener('message', handleIframeMessage)
@@ -42,7 +46,7 @@ export const SkipifyButtonContent: React.FC = (props) => {
   }, [])
 
   return (
-    <Container onClick={() => handleClick()}>
+    <Container onClick={() => handleClick()} style={{color : textColor}}>
       <StyledMutedLogo />
       Buy Now{cobrandedLogo ? <><Divider /><CobrandedLogo src={cobrandedLogo} /></> : ""}
     </Container>
@@ -59,7 +63,6 @@ const Container = styled.div`
   justify-content: center;
   border-radius: 4px;
   background: #000;
-  color: #fff;
   font-size: 19px;
   font-style: normal;
   font-weight: 600;

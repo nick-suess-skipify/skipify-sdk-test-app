@@ -79,7 +79,6 @@ class CustomSDK {
       throw new Error(`Unable to retrieve merchant ${e}`);
     }
     this.merchant = merchantPublicData;
-
     // We only get the flags after merchant data is available
     this.getFlags();
 

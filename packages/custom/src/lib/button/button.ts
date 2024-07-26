@@ -22,6 +22,10 @@ export class Button {
         if (this.merchantOptions?.cobrandedLogo) {
             paramsObj.cobrandedLogo = this.merchantOptions?.cobrandedLogo
         }
+
+        if (this.options?.textColor) {
+            paramsObj.textColor = this.options.textColor
+        }
         const params = new URLSearchParams(paramsObj);
 
         const checkoutButtonUrl = `${SdkUrl}/shared/components/iframe_checkoutButton.html?${params.toString()}`;
