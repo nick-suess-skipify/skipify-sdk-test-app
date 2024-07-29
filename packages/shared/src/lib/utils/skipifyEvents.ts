@@ -1,27 +1,13 @@
 import { Event, EventPropertiesMap, EventType } from "../analytics"
-import { Amplitude } from "./amplitude";
-import * as LDClient from 'launchdarkly-js-client-sdk';
 import { Pubsub } from "./pubsub";
-import { LaunchDarkly } from "./launchDarkly";
 import { Messenger } from "..";
 
-let ldClient: LDClient.LDClient
-
 export class SkipifyEvents {
-  private amplitudeService?: Amplitude;
   private pubSubService?: Pubsub;
 
   private async enableServices() {
     try {
-      const ld = await LaunchDarkly.getInstance(); // This is a singleton
-      const useAmplitude = await ld.getVariation('UseAmplitudeEvents')
-      const usePubSub = await ld.getVariation('UseSkipifyEvents')
-      if (useAmplitude) {
-        this.amplitudeService = new Amplitude()
-      }
-      if (usePubSub) {
-        this.pubSubService = new Pubsub()
-      }
+      this.pubSubService = new Pubsub()
     } catch (err) {
       // timeout or initialization failed
       console.error(err)
@@ -33,50 +19,28 @@ export class SkipifyEvents {
   }
 
   getSessionId(): number | undefined {
-    if (this.amplitudeService) {
-      return this.amplitudeService.getSessionId()
-    }
-    if (this.pubSubService) {
-      return this.pubSubService.sessionId
-    }
-    return
+    return this.pubSubService?.sessionId
   }
 
   setSessionId(id: number) {
-    if (this.amplitudeService) {
-      return this.amplitudeService.setSessionId(id)
-    }
     if (this.pubSubService) {
       return this.pubSubService.sessionId = id
-    }
-  }
-
-  getDeviceId(): string | undefined {
-    if (this.amplitudeService) {
-      return this.amplitudeService.getDeviceId()
-    }
-    if (this.pubSubService) {
-      return this.pubSubService.getDeviceId()
     }
     return
   }
 
+  getDeviceId(): string | undefined {
+    return this.pubSubService?.getDeviceId()
+  }
+
   setDeviceId(id: string) {
-    if (this.amplitudeService) {
-      return this.amplitudeService.setDeviceId(id)
-    }
     if (this.pubSubService) {
       return this.pubSubService.setDeviceId(id)
     }
   }
 
   async identify(userId: string) {
-    if (this.amplitudeService) {
-      this.amplitudeService.identify(userId)
-    }
-    if (this.pubSubService) {
-      this.pubSubService.identify(userId)
-    }
+    this.pubSubService?.identify(userId)
   }
 
   track<T extends EventType>(messenger: Messenger, type: T, event_properties?: EventPropertiesMap[T]) {
@@ -84,24 +48,10 @@ export class SkipifyEvents {
       event_type: type,
       event_properties,
     }
-    if (this.amplitudeService) {
-      this.amplitudeService.track(event)
-    }
-    if (this.pubSubService) {
-      this.pubSubService.track(messenger, type, event_properties)
-    }
+    this.pubSubService?.track(messenger, type, event_properties)
   }
 
   reset() {
-    if (this.amplitudeService) {
-      this.amplitudeService.reset()
-    }
-    if (this.pubSubService) {
-      this.pubSubService.reset()
-    }
-  }
-
-  async onExit() {
-    ldClient.close()
+    this.pubSubService?.reset()
   }
 }

@@ -165,13 +165,13 @@ class ShopifySDK extends Base implements AbstractSDK {
         emailWhitelisted: false,
       }); // partially reset state before we're creates a new email listener
 
-      log("Create a new amplitude session");
+      log("Create a new skipify session");
 
       const newSessionId = Date.now();
 
-      this.skipifyEvents.setSessionId(newSessionId); // reset amplitude session id
+      this.skipifyEvents.setSessionId(newSessionId); // reset skipify session id
 
-      log("New amplitude session id", this.skipifyEvents.getSessionId());
+      log("New skipify session id", this.skipifyEvents.getSessionId());
     }
 
     // add email input listener

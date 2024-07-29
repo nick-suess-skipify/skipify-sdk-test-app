@@ -47,5 +47,5 @@ export type LookupUserType = {
   cart: {
     items: unknown;
   };
-  amplitudeSessionId?: number;
+  skipifySessionId?: number;
 }

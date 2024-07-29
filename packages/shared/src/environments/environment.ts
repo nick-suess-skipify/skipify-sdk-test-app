@@ -6,7 +6,6 @@ export const environment = {
   IFRAME_ORIGIN: 'http://localhost:3002',
   SKIPIFY_CHECKOUT_URL: 'https://devcheckout.skipify.com',
   SIMPLE_CHECKOUT_URL: 'https://simple.dev.skipify.com',
-  AMPLITUDE_API_KEY: '0a59bd9dc086ef77a71d80e1a62fce87',
   // LAUNCHDARKLY_CLIENT_SIDE_ID: '6489e1e8cf7e3a141b261fa5',
   LAUNCHDARKLY_CLIENT_SIDE_ID: '65f32c8a47dbad0faa4df1bb', // sandbox
 };

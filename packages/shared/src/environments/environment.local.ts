@@ -8,6 +8,5 @@ export const environment = {
   // SKIPIFY_CHECKOUT_URL: "http://localhost:3000",  // replace with your local shakira url to test local build of shakira
   // SIMPLE_CHECKOUT_URL: 'https://simple.dev.skipify.com',
   SIMPLE_CHECKOUT_URL: 'http://localhost:5173',  // replace with your local simple url to test local build of simple
-  AMPLITUDE_API_KEY: "728302c3840a6acb9b908a7c47675e94",
   LAUNCHDARKLY_CLIENT_SIDE_ID: '6489e1e8cf7e3a141b261fa5',
 };

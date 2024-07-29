@@ -178,7 +178,7 @@ export class Messenger {
       const payload: LookupUserType = {
         email,
         cart: { items: cart },
-        amplitudeSessionId: this.base.skipifyEvents.getSessionId(), // override iframe's amplitude session id
+        skipifySessionId: this.base.skipifyEvents.getSessionId(), // override iframe's skipify session id
       };
 
       if (phone) {
@@ -209,7 +209,7 @@ export class Messenger {
     // if user has been recognized, we don't keed to send the request again
     if (cart && this.iframe && !this.userRecognizedByDeviceId) {
       const payload = {
-        amplitudeSessionId: this.base.skipifyEvents.getSessionId(), // override iframe's amplitude session id
+        skipifySessionId: this.base.skipifyEvents.getSessionId(), // override iframe's skipify session id
         cart: { items: cart },
         buttonCheckout: useButtonCheckout ? true : undefined,
       };
@@ -391,7 +391,7 @@ export class Messenger {
 
     const payload = {
       ...enrollmentData,
-      amplitudeSessionId: this.base.skipifyEvents.getSessionId(), // override iframe's amplitude session id, so it can stay at the same session even user refreshes the page
+      skipifySessionId: this.base.skipifyEvents.getSessionId(), // override iframe's skipify session id, so it can stay at the same session even user refreshes the page
     };
 
     log('Posting enrollment data to iframe...', {
