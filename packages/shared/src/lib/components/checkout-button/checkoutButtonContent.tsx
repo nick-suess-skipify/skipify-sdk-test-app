@@ -8,6 +8,10 @@ export const SkipifyButtonContent: React.FC = (props) => {
   // This will be used later for passing variables from checkout script to this component
   const params = new URL(window.location.href).searchParams;
   const [textColor,setTextColor] = useState(params.get('textColor') || '#fff');
+  const [bgColor,setBgColor] = useState(params.get('bgColor') || '#000000');
+
+  // if user forgot to set hover color, it should fallback to custom bgColor first, as #444444 could be not compatible with custom bgColor
+  const [bgHoverColor,setBgHoverColor] = useState(params.get('bgHoverColor') || params.get('bgColor') || '#444444');
   const [cobrandedLogo, setCobrandedLogo] = useState("")
 
   const handleClick = () => {
@@ -39,6 +43,12 @@ export const SkipifyButtonContent: React.FC = (props) => {
     if (params.get('textColor')) {
       setTextColor(params.get('textColor') as string)
     }
+    if (params.get('bgColor')) {
+      setBgColor(params.get('bgColor') as string)
+    }
+    if (params.get('bgHoverColor')) {
+      setBgHoverColor(params.get('bgHoverColor') as string)
+    }
     window.addEventListener('message', handleIframeMessage);
     return () => {
       window.removeEventListener('message', handleIframeMessage)
@@ -46,30 +56,30 @@ export const SkipifyButtonContent: React.FC = (props) => {
   }, [])
 
   return (
-    <Container onClick={() => handleClick()} style={{color : textColor}}>
+    <Container onClick={() => handleClick()} bgColor={bgColor} hoverColor={bgHoverColor}  style={{color : textColor }}>
       <StyledMutedLogo />
       Buy Now{cobrandedLogo ? <><Divider /><CobrandedLogo src={cobrandedLogo} /></> : ""}
     </Container>
   );
 };
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  font-family: Poppins;
-  border-radius: 5px;
-  height: 54px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  background: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  cursor: pointer;
-  &:hover {
-    background-color: #444444;
-  }
+const Container = styled.div<{ bgColor: string; hoverColor: string }>`
+    display: flex;
+    flex-direction: row;
+    font-family: Poppins;
+    height: 54px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: ${props => props.bgColor};
+    font-size: 19px;
+    font-style: normal;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background-color: ${props => props.hoverColor};
+    }
 `;
 
 const StyledMutedLogo = styled(MutedLogo)`

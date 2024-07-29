@@ -19,6 +19,8 @@ export type AdditionalOptions = {
   onApprove?: (merchantRef: string, data?: any) => void;
   total?: number;
   textColor?: string;
+  bgColor?: string;
+  bgHoverColor?: string;
   email?: string;
   phone?: string;
 }

@@ -2,6 +2,10 @@ import { SdkUrl } from '@checkout-sdk/shared/lib/constants';
 import { nanoid } from 'nanoid'
 import { Config, AdditionalOptions, MerchantOptions } from '../config';
 
+function isValidHexColor(colorHex: string): boolean {
+    return /^#([0-9A-Fa-f]{3}){1,2}$/.test(colorHex); // accept #fff or #ffffff
+}
+
 export class Button {
     id: string;
     frame: HTMLIFrameElement | null = null;
@@ -23,9 +27,18 @@ export class Button {
             paramsObj.cobrandedLogo = this.merchantOptions?.cobrandedLogo
         }
 
-        if (this.options?.textColor) {
+        if (this.options?.textColor && isValidHexColor(this.options.textColor)) {
             paramsObj.textColor = this.options.textColor
         }
+
+        if (this.options?.bgColor && isValidHexColor(this.options.bgColor)) {
+            paramsObj.bgColor = this.options.bgColor;
+        }
+
+        if (this.options?.bgHoverColor && isValidHexColor(this.options.bgHoverColor)) {
+            paramsObj.bgHoverColor = this.options.bgHoverColor;
+        }
+
         const params = new URLSearchParams(paramsObj);
 
         const checkoutButtonUrl = `${SdkUrl}/shared/components/iframe_checkoutButton.html?${params.toString()}`;

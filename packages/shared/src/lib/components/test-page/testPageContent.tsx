@@ -46,6 +46,9 @@ export const TestPageContent: React.FC = (props) => {
     const buttonRef = useRef<HTMLDivElement | null>(null)
     const inputRef1 = useRef(null)
     const inputRef2 = useRef(null)
+    const buttonTextColor = '#00ff00';
+    const buttonBgColor = '#1f1f1f';
+    const buttonBgHoverColor = '#676767';
 
     useEffect(() => {
         // Check for Skipify client in the window
@@ -74,7 +77,9 @@ export const TestPageContent: React.FC = (props) => {
                     console.log('On approve UI callback triggered')
                     console.log(data)
                 },
-                textColor: '#00ff00',
+                textColor: buttonTextColor,
+                bgColor: buttonBgColor,
+                bgHoverColor: buttonBgHoverColor,
                 email: email,
                 phone: phone,
             }
@@ -184,6 +189,9 @@ export const TestPageContent: React.FC = (props) => {
                         <ButtonContainer ref={buttonRef}></ButtonContainer>
                         {/* <FormHelperText>Your Skipify checkout button.</FormHelperText> */}
                     </FormControl>
+                    <Box sx={{mt:2, fontSize: 9}}>
+                        Custom Button Style Applied: textColor: {buttonTextColor}, bgColor: {buttonBgColor}, bgHoverColor: {buttonBgHoverColor}
+                    </Box>
                 </Box>
                 <Box>
                     <FormControl display="flex" alignItems="center">
