@@ -420,6 +420,11 @@ class ShopifySDK extends Base implements AbstractSDK {
     log("Getting cart total from Shopify...", { total, subtotal });
     return { total, subtotal };
   }
+
+  override canShowIframe(): boolean {
+    const { step } = window.Shopify?.Checkout || {};
+    return step === "contact_information"
+  }
 }
 
 export default new ShopifySDK();

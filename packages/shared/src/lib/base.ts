@@ -372,12 +372,12 @@ export class Base {
       this.button.onclick = (e) => {
         e.preventDefault();
         displayIframe();
-        if(this.store.getState().flags?.skipifyLayer) {
+        if (this.store.getState().flags?.skipifyLayer) {
           // Only show the check icon on V2 - as on V1 the iframe is covering the button no need to change back n forth.
           showCheckIcon();
           // Only position iframe (the V2 positioning) if on V2 - if not leave the same
           this.positionIframe(true);
-        } 
+        }
         this.messenger.restoreIframeHeight();
       };
     }
@@ -450,5 +450,10 @@ export class Base {
       '-- getUserEnrollmentInformation should be overwritten by platform class'
     );
     return null;
+  }
+
+  canShowIframe(): boolean {
+    console.warn('-- canShowIframe should be overwritten by platform class');
+    return true;
   }
 }

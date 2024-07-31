@@ -361,6 +361,8 @@ export class Messenger {
       return;
     }
     this.base.setHasInitializedIframe(true);
+    
+    if(!this.base.canShowIframe()) return 
     this.requestDeviceId(); // immediately request device id from iframe after iframe is initialized
     if (this.userToLookup) {
       const { email, phone, cartData } = this.userToLookup;
