@@ -36,7 +36,6 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
   loadingShippingSelector = 'li.checkout-step--shipping .address-form-skeleton'
   completedOrderSelector = '.orderConfirmation-section span strong';
   checkoutUrlMatch = 'checkout';
-  checkoutPageContainerId = 'checkout-page-container'
   orderConfirmationUrlMatch = 'order-confirmation';
 
   /**
@@ -214,7 +213,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
   // If we have already have an user email in the cart, we can rely on that instead of asking the
   // user to input it again.
   async fetchUserEmailFromCart(onlyGuest = true) {
-    if (!window.location.href.includes(this.checkoutUrlMatch) || !document.getElementById(this.checkoutPageContainerId)) {
+    if (!window.location.href.includes(this.checkoutUrlMatch)) {
       return;
     }
 
