@@ -199,9 +199,9 @@ export class Base {
     if (shouldScroll) {
       const scrollY = this.shouldDisplayOnTop
         ? buttonAbsolutePosition +
-          buttonPosition.height -
-          window.innerHeight +
-          16
+        buttonPosition.height -
+        window.innerHeight +
+        16
         : buttonAbsolutePosition - 16;
 
       window.scrollTo({ top: scrollY, behavior: 'smooth' });
@@ -222,8 +222,8 @@ export class Base {
       totalWidth > 490
         ? Math.max(roundByDPR(buttonPosition.right - iframeWidth), 36)
         : totalWidth > iframeWidth
-        ? roundByDPR((totalWidth - iframeWidth) / 2)
-        : 0;
+          ? roundByDPR((totalWidth - iframeWidth) / 2)
+          : 0;
     const translateY = this.shouldDisplayOnTop
       ? 0
       : roundByDPR(buttonPosition.bottom + 16);
@@ -251,7 +251,12 @@ export class Base {
 
   start() {
     this.processDOM();
-    this.launchBaseIframe();
+
+    // Embedded iframe should only be mounted after wrapper element is on screen - this is handled by this.observer
+    if (!this.isSkipifyEmbedEnabled) {
+      this.launchBaseIframe();
+    }
+
     this.observer.observe(document.body, {
       attributes: true,
       childList: true,
@@ -417,6 +422,10 @@ export class Base {
     return Boolean(this.store.getState().flags?.skipifyLayer);
   }
 
+  get isSkipifyEmbedEnabled() {
+    return Boolean(navigator.userAgent.includes('skipifyEmbed'));
+  }
+
   /**
    * Overwritten methods
    */
@@ -450,6 +459,23 @@ export class Base {
       '-- getUserEnrollmentInformation should be overwritten by platform class'
     );
     return null;
+  }
+
+  getEmbedContainer(): HTMLElement | undefined {
+    console.warn(
+      '-- getEmbedContainer should be overwritten by platform class'
+    );
+    return undefined;
+  }
+
+  // can be overwritten by platform class
+  onIframeDisplay(): null {
+    return null
+  }
+
+  // can be overwritten by platform class
+  onIframeClose(checkoutCompleted: boolean): null {
+    return null
   }
 
   canShowIframe(): boolean {

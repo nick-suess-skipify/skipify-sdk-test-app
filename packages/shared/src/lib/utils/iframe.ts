@@ -1,7 +1,7 @@
 import { hideLoader, showExpandIcon, showSkipifyCheck } from '..';
 import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 
-export function getContainer(): HTMLElement {
+export function getContainer(wrapperElement?: HTMLElement): HTMLElement {
   const overlayEl = document.createElement('div');
   overlayEl.id = SkipifyElementIds.overlay;
 
@@ -9,7 +9,13 @@ export function getContainer(): HTMLElement {
   arrowEl.id = SkipifyElementIds.iframeArrow;
 
   overlayEl.appendChild(arrowEl);
-  document.body.appendChild(overlayEl);
+  if (wrapperElement) {
+    overlayEl.classList.add(SkipifyClassNames.embedOverlay)
+    wrapperElement.appendChild(overlayEl)
+  } else {
+    document.body.appendChild(overlayEl);
+  }
+
   return overlayEl;
 }
 
@@ -19,7 +25,8 @@ export function getBaseIframe() {
 
 export function launchHiddenIframe(
   iframeSrc: string,
-  hasInitializedIframe: boolean
+  hasInitializedIframe: boolean,
+  embedContainer?: HTMLElement
 ) {
   // SP-2455 : Retrieve forced device id if any, this will replace fingerprint js device id
   // todo: re-evaluate after fingerprint js issue resolved (mark)
@@ -43,7 +50,7 @@ export function launchHiddenIframe(
   }
 
   const containerEl =
-    document.getElementById(SkipifyElementIds.overlay) ?? getContainer();
+    document.getElementById(SkipifyElementIds.overlay) ?? getContainer(embedContainer);
 
   const iframeEl = document.createElement('iframe');
   iframeEl.allow = 'publickey-credentials-get *';
@@ -51,6 +58,11 @@ export function launchHiddenIframe(
 
   iframeEl.id = SkipifyElementIds.iframe;
   iframeEl.src = iframeSrc;
+
+  if (embedContainer) {
+    iframeEl.classList.add(SkipifyClassNames.skipifyEmbed)
+    embedContainer.classList.add(SkipifyClassNames.embedOverlayWrapper)
+  }
 
   containerEl?.appendChild(iframeEl);
 
@@ -67,6 +79,10 @@ export function displayIframe() {
 
   if (existingOverlay) {
     document.body.classList.add(SkipifyClassNames.body);
+
+    if (existingOverlay.classList.contains(SkipifyClassNames.embedOverlay)) {
+      document.body.classList.add(SkipifyClassNames.embedBody);
+    }
 
     // Added a setTimeout here to ensure that the opacity transition is applied
     setTimeout(() => {

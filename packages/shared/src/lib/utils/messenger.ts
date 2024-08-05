@@ -101,9 +101,15 @@ export class Messenger {
   // The launchIframe function will create the iframe and overlay elements,
   // and then append them to the body. They will be hidden by default.
   launchBaseIframe(iframeSrc: string) {
+    let wrapperElem;
+    if (this.base.isSkipifyEmbedEnabled) {
+      wrapperElem = this.base.getEmbedContainer()
+    }
+
     const baseIframe = launchHiddenIframe(
       iframeSrc,
-      this.base.hasInitializedIframe
+      this.base.hasInitializedIframe,
+      wrapperElem
     );
     if (baseIframe) {
       this.iframe = baseIframe;
@@ -260,6 +266,8 @@ export class Messenger {
 
   listenerDisplayIframe() {
     displayIframe();
+    this.base.onIframeDisplay();
+
     const activeElement = document.activeElement;
     if (
       activeElement?.classList.contains(SkipifyClassNames.emailInput) &&
@@ -268,6 +276,7 @@ export class Messenger {
       activeElement.blur();
     }
     if (this.base.isSkipifyLayerEnabled) {
+      // Skipify Layer
       if (this.base.button) {
         showCheckIcon();
         this.base.button.style.display = 'flex';
@@ -278,6 +287,7 @@ export class Messenger {
       window.addEventListener('scroll', this.positionListener);
       this.base.positionIframe(true);
     } else {
+      // Skipify v1
       this.resetIframeStyles();
       window.removeEventListener('resize', this.positionListener);
       window.removeEventListener('scroll', this.positionListener);
@@ -312,6 +322,8 @@ export class Messenger {
       this.base.skipifyCheckoutCompleted = false;
       window.location.assign(`/`);
     }
+
+    this.base.onIframeClose(this.base.skipifyCheckoutCompleted);
 
     if (reload) {
       this.resetIframe();

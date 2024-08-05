@@ -37,6 +37,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
   completedOrderSelector = '.orderConfirmation-section span strong';
   checkoutUrlMatch = 'checkout';
   orderConfirmationUrlMatch = 'order-confirmation';
+  checkoutFormSteps = ['checkout-step--payment', 'checkout-step--shipping', 'checkout-step--billing']
 
   /**
    * Child classes that implements specific business logic.
@@ -67,6 +68,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     this.processCheckoutCompleted();
     this.processEnrollmentCheckbox();
     this.processLoggedInCustomer();
+    this.processEmbedCheckout();
   }
 
   processEmailInput() {
@@ -153,6 +155,16 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
         });
       }
     }
+  }
+
+  processEmbedCheckout() {
+    if (!this.isSkipifyEmbedEnabled) return;
+
+    const checkoutWrapperElem = this.getEmbedContainer();
+    if (!checkoutWrapperElem || checkoutWrapperElem?.classList.contains(SkipifyClassNames.embedOverlayWrapper)) {
+      return;
+    }
+    this.launchBaseIframe();
   }
 
   override async clearCart(): Promise<void> {
@@ -246,6 +258,34 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     this.setUserLookupData(userCart.email, phone, true);
+  }
+
+  override getEmbedContainer() {
+    return document.querySelector('.layout-main') as HTMLDivElement
+  }
+
+  override onIframeDisplay(): null {
+    if (this.isSkipifyEmbedEnabled) {
+      this.checkoutFormSteps.forEach(className => {
+        const elements = document.querySelectorAll('.' + className);
+        elements.forEach(element => {
+          (element as HTMLDivElement).style.display = 'none';
+        });
+      });
+    }
+    return null
+  }
+
+  override onIframeClose(checkoutCompleted: boolean): null {
+    if (this.isSkipifyEmbedEnabled && !checkoutCompleted) {
+      this.checkoutFormSteps.forEach(className => {
+        const elements = document.querySelectorAll('.' + className);
+        elements.forEach(element => {
+          (element as HTMLDivElement).style.display = 'block';
+        });
+      });
+    }
+    return null
   }
 
   override async getUserEnrollmentInformation() {

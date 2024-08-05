@@ -13,7 +13,6 @@ import {
 } from '@checkout-sdk/shared/lib/utils/iframe';
 import CustomSDK from './custom';
 import {approvalEventMapper} from './data/eventMapper';
-import { Button } from './button/button';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;

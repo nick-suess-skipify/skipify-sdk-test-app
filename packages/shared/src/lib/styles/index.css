@@ -1,4 +1,4 @@
-._SKIPIFY_body {
+._SKIPIFY_body:not(._SKIPIFY_embed_body) {
   overflow: hidden;
 }
 
@@ -20,6 +20,11 @@
   /* DO NOT USE display=none, FINGERPRINT.JS WILL NOT WORK */
   visibility: hidden;
   opacity: 0;
+}
+
+#_SKIPIFY_overlay._SKIPIFY_embed_overlay {
+  position: relative;
+  background-color: transparent;
 }
 
 #_SKIPIFY_iframe {
@@ -47,6 +52,15 @@
   height: 0px;
   max-height: 90vh;
   transition: height 300ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+#_SKIPIFY_iframe._SKIPIFY_embed {
+  transform: none;
+  left: 0;
+  top: 0;
+  position: relative;
+  width: 600px;
+  box-shadow: none;
 }
 
 #_SKIPIFY_iframe_arrow {

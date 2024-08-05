@@ -25,6 +25,7 @@ import {
 
 const MERCHANT_ID = '59958510-0316-4d68-9b03-ff189d0fb3e3';
 const MERCHANT_REF = 'my-ref-test';
+const ERROR_MERCHANT_REF = 'my-error-ref-test';
 const EMAIL = 'email@skipify.com';
 const PHONE = '1234567890';
 const ORDER_TOTAL = '51.73';
@@ -35,7 +36,6 @@ export const TestPageContent: React.FC = (props) => {
 
     const queryParams = new URLSearchParams(window.location.search);
 
-
     const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID)
     const [merchantRef, setMerchantRef] = useState(queryParams.get('merchantRef') || MERCHANT_REF)
     const [orderTotal, setOrderTotal] = useState(queryParams.get('orderTotal') || ORDER_TOTAL)
@@ -44,6 +44,7 @@ export const TestPageContent: React.FC = (props) => {
     const [email, setEmail] = useState(queryParams.get('email') || EMAIL)
     const [skipifyClient, setSkipifyClient] = useState<any>(null)
     const buttonRef = useRef<HTMLDivElement | null>(null)
+    const errorButtonRef = useRef<HTMLDivElement | null>(null)
     const inputRef1 = useRef(null)
     const inputRef2 = useRef(null)
     const buttonTextColor = '#00ff00';
@@ -83,25 +84,29 @@ export const TestPageContent: React.FC = (props) => {
                 email: email,
                 phone: phone,
             }
-            // Render Skipify button
-            skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.','')) }).render(buttonRef.current)
+
+            // Render Skipify buttons
+            skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.', '')) }).render(buttonRef.current)
+
+            skipifyClient.button(ERROR_MERCHANT_REF, { ...options, total: Number(orderTotal.replace('.', '')) }).render(errorButtonRef.current)
+            
         }
     }, [buttonRef, skipifyClient])
 
     useEffect(() => {
-            // Enable input listener
+        // Enable input listener
         if (buttonRef?.current && skipifyClient) {
             if (isEmailListenerEnabled) {
                 skipifyClient.email(merchantRef).enable(inputRef1.current);
                 //for each button, set the email and phone
             }
         }
-    }, [isEmailListenerEnabled,skipifyClient])
+    }, [isEmailListenerEnabled, skipifyClient])
 
     useEffect(() => {
         if (buttonRef?.current && skipifyClient) {
-            for(const [key,] of Object.entries(skipifyClient.buttons)) {
-                if(skipifyClient.buttons[key].options){
+            for (const [key,] of Object.entries(skipifyClient.buttons)) {
+                if (skipifyClient.buttons[key].options) {
                     skipifyClient.buttons[key].options.email = email;
                     skipifyClient.buttons[key].options.phone = phone;
                 }
@@ -185,13 +190,20 @@ export const TestPageContent: React.FC = (props) => {
                 </Box>
                 <Box>
                     <FormControl>
-                        <FormLabel>Skipify Button</FormLabel>
+                        <FormLabel>Skipify Button - success flow</FormLabel>
                         <ButtonContainer ref={buttonRef}></ButtonContainer>
                         {/* <FormHelperText>Your Skipify checkout button.</FormHelperText> */}
                     </FormControl>
                     <Box sx={{mt:2, fontSize: 9}}>
                         Custom Button Style Applied: textColor: {buttonTextColor}, bgColor: {buttonBgColor}, bgHoverColor: {buttonBgHoverColor}
                     </Box>
+                </Box>
+                <Box>
+                    <FormControl>
+                        <FormLabel>Skipify Button - error flow</FormLabel>
+                        <ButtonContainer ref={errorButtonRef}></ButtonContainer>
+                        <FormHelperText>This flow will trigger a payment error from payments service if using mock-psp.</FormHelperText>
+                    </FormControl>
                 </Box>
                 <Box>
                     <FormControl display="flex" alignItems="center">
@@ -208,7 +220,7 @@ export const TestPageContent: React.FC = (props) => {
                 <Box>
                     <FormControl>
                         <FormLabel>Skipify phone listener</FormLabel>
-                        <Input type="text" ref={inputRef2} value={phone} onChange={(e) => setPhone(e.target.value)}/>
+                        <Input type="text" ref={inputRef2} value={phone} onChange={(e) => setPhone(e.target.value)} />
                         {/* <FormHelperText>Your Skipify phone listener.</FormHelperText> */}
                     </FormControl>
                 </Box>

@@ -27,9 +27,13 @@ export const SkipifyClassNames = {
   paymentButton: '_SKIPIFY_payment_button',
   enrollmentIframe: '_SKIPIFY_enrollment_iframe',
   body: '_SKIPIFY_body',
+  embedBody:  '_SKIPIFY_embed_body',
   skipifyV2: '_SKIPIFY_V2',
+  skipifyEmbed: '_SKIPIFY_embed',
   hiding: '_SKIPIFY_hiding',
   samsungDemo: '_SAMSUNG_DEMO',
+  embedOverlay: '_SKIPIFY_embed_overlay',
+  embedOverlayWrapper: '_SKIPIFY_embed_overlay_wrapper'
 };
 
 export const SkipifyElementIds = {
