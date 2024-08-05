@@ -86,7 +86,6 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
       node: emailInputElem,
       setUserEmail: (email) => this.setUserLookupData(email, undefined, true),
       resetIframe: () => {
-        this.setSkipifyResumable(false);
         this.messenger.closeIframe(true)
       },
       passwordInputId: this.passwordInputId

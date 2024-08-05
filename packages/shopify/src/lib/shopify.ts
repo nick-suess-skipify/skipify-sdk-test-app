@@ -182,7 +182,6 @@ class ShopifySDK extends Base implements AbstractSDK {
         this.setUserLookupData(email);
       },
       resetIframe: () => {
-        this.setSkipifyResumable(false);
         this.messenger.closeIframe(true)
       }
     });

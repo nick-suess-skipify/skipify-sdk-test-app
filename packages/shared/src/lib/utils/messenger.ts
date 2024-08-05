@@ -37,6 +37,7 @@ export class Messenger {
   userToLookup: { email: string; phone?: string; cartData: unknown } | null = null;
   prevUserEmail: string | null = null;
   userRecognizedByDeviceId: boolean | null = null;
+  hasIframeReloaded = false;
 
   constructor({ base }: Props) {
     this.base = base;
@@ -213,7 +214,7 @@ export class Messenger {
   async lookupByFingerprint(useButtonCheckout = false) {
     const cart = await this.base.getCartData();
     // if user has been recognized, we don't keed to send the request again
-    if (cart && this.iframe && !this.userRecognizedByDeviceId) {
+    if (cart && this.iframe && !this.userRecognizedByDeviceId && !this.hasIframeReloaded) {
       const payload = {
         skipifySessionId: this.base.skipifyEvents.getSessionId(), // override iframe's skipify session id
         cart: { items: cart },
@@ -326,6 +327,7 @@ export class Messenger {
     this.base.onIframeClose(this.base.skipifyCheckoutCompleted);
 
     if (reload) {
+      this.hasIframeReloaded = true;
       this.resetIframe();
     } else {
       if (this.iframe) {
