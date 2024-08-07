@@ -106,7 +106,20 @@ jobs:
           command: npx playwright test <<parameters.test_name>> --project=chromium
       - run:
           command: npx playwright test <<parameters.test_name>> --project=firefox
-
+  run-script:
+    parameters:
+      script:
+        description: Name of the script file to run. it should be located in .circleci/scripts
+        type: string
+      docker:
+        - image: cimg/base:current
+      resource_class: small
+      steps:
+        - checkout
+        - setup_git_write_access
+        - run:
+            name: Run <<parameters.script>>
+            command: bash .circleci/scripts/<<parameters.script>>
 workflows:
   dev:
     jobs:
@@ -143,6 +156,17 @@ workflows:
           test_name: shakira/shakiraCheckout.spec.js
           requires:
             - deploy-dev
+      - stage-release-approval:
+          context: skipify-dev
+          type: approval
+          requires: 
+            - run-qa-e2e-playwright
+      - run-script:
+          name: stage-release
+          context: skipify-dev
+          script: stage-release.sh
+          requires:
+            - stage-release-approval
   stage:
     jobs:
       - build-approval:
