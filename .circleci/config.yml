@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  gcr: circleci/gcp-gcr@0.15.0
   node: circleci/node@5.0.3
   gcp-cli: circleci/gcp-cli@3.0.1
 
@@ -111,15 +110,14 @@ jobs:
       script:
         description: Name of the script file to run. it should be located in .circleci/scripts
         type: string
-      docker:
-        - image: cimg/base:current
-      resource_class: small
-      steps:
-        - checkout
-        - setup_git_write_access
-        - run:
-            name: Run <<parameters.script>>
-            command: bash .circleci/scripts/<<parameters.script>>
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Run <<parameters.script>>
+          command: bash .circleci/scripts/<<parameters.script>>
 workflows:
   dev:
     jobs:
