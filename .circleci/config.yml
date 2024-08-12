@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.3
-  gcp-cli: circleci/gcp-cli@3.0.1
+  node: circleci/node@5.2.0
+  gcp-cli: circleci/gcp-cli@3.2.1
 
 prodTagFilter: &prodTagFilter
   filters:
@@ -17,6 +17,17 @@ stageTagFilter: &stageTagFilter
       ignore: /.*/
     tags:
       only: /^v[0-9]+\.[0-9]+\.[0-9]+(\.rc[0-9]+)?-stage$/
+
+commands:
+  setup_git_write_access:
+    steps:
+      - run:
+          name: Configure Git
+          command: |
+            git config --global user.email "cicd@skipify.com"
+            git config --global user.name "skipify-cicd"
+            git config --global push.autoSetupRemote true
+            git remote set-url origin https://$GITHUB_TOKEN@github.com/SkipifyCheckout/checkout-sdk.git
 
 jobs:
   code-quality:
@@ -118,6 +129,17 @@ jobs:
       - run:
           name: Run <<parameters.script>>
           command: bash .circleci/scripts/<<parameters.script>>
+  manage-branches:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - checkout
+      - setup_git_write_access
+      - run:
+          name: Delete Release Branch
+          command: bash .circleci/scripts/manage_branches.sh
+
 workflows:
   dev:
     jobs:
@@ -165,6 +187,20 @@ workflows:
           script: stage-release.sh
           requires:
             - stage-release-approval
+      - hotfix-release-approval:
+          context: skipify-dev
+          type: approval
+          requires: 
+            - build
+          filters: 
+            branches:
+              only: /^release\/.*/
+      - run-script:
+          name: hotfix-stage-release
+          context: skipify-dev
+          script: stage-release.sh --hotfix
+          requires:
+            - hotfix-release-approval
   stage:
     jobs:
       - build-approval:
@@ -204,7 +240,32 @@ workflows:
             - build
             - run-qa-e2e-playwright
           <<: *stageTagFilter
-
+      - prod-release-approval:
+          context: skipify-stage
+          type: approval
+          requires:
+            - deploy-stage
+          <<: *stageTagFilter
+      - run-script:
+          name: prod-release
+          context: skipify-stage
+          script: prod-release.sh 
+          requires:
+            - prod-release-approval
+          <<: *stageTagFilter
+      - create-hotfix-branch-approval:
+          context: skipify-stage
+          type: approval
+          requires:
+            - build
+          <<: *stageTagFilter
+      - run-script:
+          name: create-hotfix-branch
+          context: skipify-stage
+          script: create-hotfix-branch.sh
+          requires:
+            - create-hotfix-branch-approval
+          <<: *stageTagFilter
   prod:
     jobs:
       - build-approval:
@@ -241,4 +302,9 @@ workflows:
           test_name: prodTests/prodShakiraSmoke.spec.js
           requires:
             - deploy-prod
+          <<: *prodTagFilter
+      - manage-branches:
+          context: skipify-prod
+          requires:
+            - deploy
           <<: *prodTagFilter

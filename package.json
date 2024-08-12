@@ -17,7 +17,8 @@
     "all:lint": "npx nx run-many --target=lint --all",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage --silent"
+    "test:cov": "jest --coverage --silent",
+    "hotfix": "./.circleci/scripts/create-hotfix-branch.sh"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
