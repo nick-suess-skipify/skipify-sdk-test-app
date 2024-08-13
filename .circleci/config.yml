@@ -306,5 +306,5 @@ workflows:
       - manage-branches:
           context: skipify-prod
           requires:
-            - deploy
+            - deploy-prod
           <<: *prodTagFilter
