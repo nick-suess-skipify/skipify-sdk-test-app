@@ -8,5 +8,5 @@ export const environment = {
   SKIPIFY_CHECKOUT_URL: 'https://devcheckout.skipify.com',
   SIMPLE_CHECKOUT_URL: 'https://simple.dev.skipify.com',
   // LAUNCHDARKLY_CLIENT_SIDE_ID: '6489e1e8cf7e3a141b261fa5',
-  LAUNCHDARKLY_CLIENT_SIDE_ID: '65f32c8a47dbad0faa4df1bb', // sandbox
+  LAUNCHDARKLY_CLIENT_SIDE_ID: '6489e1e8cf7e3a141b261fa5', // dev
 };

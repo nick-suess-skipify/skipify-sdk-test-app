@@ -94,9 +94,11 @@ class CustomSDK {
   }
 
   async getFlags() {
-    // Can this be a merchant based flag?
-    this.launchdarkly = await LaunchDarkly.getInstance();
-    this.skipifyLightFlag = await this.launchdarkly.getVariation(FeatureFlags.skipifyLight, false)
+    if (!this.config.merchantId) {
+      throw new Error('Merchant data not available');
+    }
+    this.launchdarkly = await LaunchDarkly.getInstance(this.config.merchantId);
+    this.skipifyLightFlag = await this.launchdarkly.getVariation(FeatureFlags.skipifyLight, false);
 
     if (this.skipifyLightFlag && this.merchant?.streamlinedFlowEligible) {
       this.enableSkipifyLight()

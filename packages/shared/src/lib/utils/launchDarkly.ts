@@ -7,13 +7,13 @@ export class LaunchDarkly {
   private ldClient: LDClient.LDClient;
   private initialized = false;
 
-  private constructor() {
-    this.ldClient = LDClient.initialize(LaunchDarklyConfig.clientSideId, LaunchDarklyConfig.context);
+  private constructor(merchantId: string) {
+    this.ldClient = LDClient.initialize(LaunchDarklyConfig.clientSideId, LaunchDarklyConfig.context(merchantId));
   }
 
-  public static async getInstance(): Promise<LaunchDarkly> {
+  public static async getInstance(merchantId: string): Promise<LaunchDarkly> {
     if (!LaunchDarkly.instance) {
-      LaunchDarkly.instance = new LaunchDarkly();
+      LaunchDarkly.instance = new LaunchDarkly(merchantId);
       await LaunchDarkly.instance.initialize();
     }
     return LaunchDarkly.instance;

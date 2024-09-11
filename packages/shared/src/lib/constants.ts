@@ -14,11 +14,10 @@ export const SimpleCheckoutUrl = environment.SIMPLE_CHECKOUT_URL;
 
 export const LaunchDarklyConfig = {
   clientSideId: environment.LAUNCHDARKLY_CLIENT_SIDE_ID,
-  context: {
-    kind: "service",
-    key: "checkout-sdk",
-    name: "checkout-sdk",
-  }
+  context: (merchantId: string) => ({
+    kind: "merchant",
+    key: merchantId,
+  })
 }
 
 export const SkipifyClassNames = {
