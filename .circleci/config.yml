@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.2.0
-  gcp-cli: circleci/gcp-cli@3.2.1
+  node: circleci/node@6.1.0
+  gcp-cli: circleci/gcp-cli@3.2.2
 
 prodTagFilter: &prodTagFilter
   filters:
@@ -89,7 +89,7 @@ jobs:
         description: Target test environment
         default: dev
         type: enum
-        enum: ["dev", "stage", "prod"]
+        enum: ['dev', 'stage', 'prod']
       test_name:
         description: Name of the QA test to be executed
         type: string
@@ -98,7 +98,7 @@ jobs:
       SKIPIFYENV: << parameters.environment >>
     executor:
       name: node/default
-      tag: "16.7"
+      tag: '16.7'
     steps:
       - run: |
           git clone https://$GITHUB_TOKEN@github.com/SkipifyCheckout/qa-e2e-playwright.git ~/qa-e2e-playwright
@@ -179,7 +179,7 @@ workflows:
       - stage-release-approval:
           context: skipify-dev
           type: approval
-          requires: 
+          requires:
             - run-qa-e2e-playwright
       - run-script:
           name: stage-release
@@ -190,9 +190,9 @@ workflows:
       - hotfix-release-approval:
           context: skipify-dev
           type: approval
-          requires: 
+          requires:
             - build
-          filters: 
+          filters:
             branches:
               only: /^release\/.*/
       - run-script:
@@ -249,7 +249,7 @@ workflows:
       - run-script:
           name: prod-release
           context: skipify-stage
-          script: prod-release.sh 
+          script: prod-release.sh
           requires:
             - prod-release-approval
           <<: *stageTagFilter
