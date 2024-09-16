@@ -28,6 +28,7 @@ class CustomSDK {
   emailListeners: Record<string, EmailListener> = {};
   //  Internal
   skipifyLightFlag = false;
+  routerV2Flag = false;
   skipifyLightActive = false;
   checkoutUrl: string;
   simpleCheckoutUrl: string;
@@ -63,12 +64,17 @@ class CustomSDK {
   }
 
   async launchBaseIframe() {
+    await this.handleRouterFlag();
     this.messenger.launchBaseIframe(this.checkoutUrl);
   }
 
   async enableSkipifyLight() {
     this.skipifyLightActive = true;
     this.messenger.launchLightBaseIframe(this.simpleCheckoutUrl)
+  }
+
+  enableRouterV2() {
+    this.checkoutUrl = `${SkipifyCheckoutUrl}/v2/embed/${this.config.merchantId}/lookup`;
   }
 
   async getMerchant() {
@@ -80,7 +86,7 @@ class CustomSDK {
     }
     this.merchant = merchantPublicData;
     // We only get the flags after merchant data is available
-    this.getFlags();
+    this.handleSkipifyLightFlag();
 
     // Notify already mounted components
     Object.values(this.buttons).forEach(button => {
@@ -93,15 +99,28 @@ class CustomSDK {
     })
   }
 
-  async getFlags() {
+  async getFlags(flagType: FeatureFlags) {
     if (!this.config.merchantId) {
       throw new Error('Merchant data not available');
     }
+    
     this.launchdarkly = await LaunchDarkly.getInstance(this.config.merchantId);
-    this.skipifyLightFlag = await this.launchdarkly.getVariation(FeatureFlags.skipifyLight, false);
-
-    if (this.skipifyLightFlag && this.merchant?.streamlinedFlowEligible) {
-      this.enableSkipifyLight()
+    
+    const flagValue = await this.launchdarkly.getVariation(flagType, false);
+    return flagValue;
+  }
+  
+  async handleRouterFlag() {
+    const routerV2Flag = await this.getFlags(FeatureFlags.routerV2);
+    if (routerV2Flag) {
+      this.enableRouterV2();
+    }
+  }
+  
+  async handleSkipifyLightFlag() {
+    const skipifyLightFlag = await this.getFlags(FeatureFlags.skipifyLight);
+    if (skipifyLightFlag && this.merchant?.streamlinedFlowEligible) {
+      this.enableSkipifyLight();
     }
   }
 
