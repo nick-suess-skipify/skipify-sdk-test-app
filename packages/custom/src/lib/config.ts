@@ -27,4 +27,5 @@ export type AdditionalOptions = {
 
 export type MerchantOptions = {
   cobrandedLogo?: string,
+  cobrandedButtonTheme?: string
 }

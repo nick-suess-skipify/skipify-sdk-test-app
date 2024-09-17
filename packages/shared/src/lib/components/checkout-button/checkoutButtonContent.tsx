@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
+import { ReactComponent as PayNow } from '../../../assets/payNow.svg'
+import { ReactComponent as PoweredBySkipify } from '../../../assets/poweredBySkipify.svg';
 
 // Be careful with cyclic dependencies here
 
@@ -13,6 +15,7 @@ export const SkipifyButtonContent: React.FC = (props) => {
   // if user forgot to set hover color, it should fallback to custom bgColor first, as #444444 could be not compatible with custom bgColor
   const [bgHoverColor,setBgHoverColor] = useState(params.get('bgHoverColor') || params.get('bgColor') || '#444444');
   const [cobrandedLogo, setCobrandedLogo] = useState("")
+  const [cobrandedButtonTheme, setCobrandedButtonTheme] = useState("V1")
 
   const handleClick = () => {
     if (params.get('id')) {
@@ -31,14 +34,26 @@ export const SkipifyButtonContent: React.FC = (props) => {
     if (!data) {
       return;
     }
-    if (data.name === "@skipify/merchant-public-info-fetched" && data.merchant?.cobranding?.logoSrc) {
-      setCobrandedLogo(data.merchant?.cobranding?.logoSrc)
+    if (data.name === "@skipify/merchant-public-info-fetched" && data.merchant?.cobranding) {
+      const { logoSrc, buttonTheme } = data.merchant.cobranding;
+
+      if (logoSrc) {
+        setCobrandedLogo(logoSrc);
+      }
+
+      if (buttonTheme) {
+        setCobrandedButtonTheme(buttonTheme);
+      }
     }
+
   }
 
   useEffect(() => {
     if (params.get('cobrandedLogo')) {
       setCobrandedLogo(params.get('cobrandedLogo') as string)
+    }
+    if (params.get('cobrandedButtonTheme')) {
+      setCobrandedButtonTheme(params.get('cobrandedButtonTheme') as string)
     }
     if (params.get('textColor')) {
       setTextColor(params.get('textColor') as string)
@@ -54,6 +69,18 @@ export const SkipifyButtonContent: React.FC = (props) => {
       window.removeEventListener('message', handleIframeMessage)
     }
   }, [])
+
+  // v2 design for horizon cloud, no customization planned for now
+  if (cobrandedButtonTheme === 'V2') {
+    return (
+      <V2Container>
+        <V2Button onClick={() => handleClick()}>
+          <PayNow />
+        </V2Button>
+        <PoweredBySkipify />
+      </V2Container>
+    );
+  }
 
   return (
     <Container onClick={() => handleClick()} bgColor={bgColor} hoverColor={bgHoverColor}  style={{color : textColor }}>
@@ -98,3 +125,19 @@ const Divider = styled.div`
 const CobrandedLogo = styled.img`
   max-height: 24px;
 `
+const V2Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const V2Button = styled.div`
+  cursor: pointer;
+  display: flex;
+  background: black;
+  height: 56px;
+  min-width: 302px;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+`;

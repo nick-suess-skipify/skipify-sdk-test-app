@@ -195,7 +195,7 @@ export const TestPageContent: React.FC = (props) => {
                         {/* <FormHelperText>Your Skipify checkout button.</FormHelperText> */}
                     </FormControl>
                     <Box sx={{mt:2, fontSize: 9}}>
-                        Custom Button Style Applied: textColor: {buttonTextColor}, bgColor: {buttonBgColor}, bgHoverColor: {buttonBgHoverColor}
+                        Custom Button Style Applied: textColor: {buttonTextColor}, bgColor: {buttonBgColor}, bgHoverColor: {buttonBgHoverColor} (Not supported for v2 button style)
                     </Box>
                 </Box>
                 <Box>
@@ -232,4 +232,5 @@ export const TestPageContent: React.FC = (props) => {
 
 
 const ButtonContainer = styled.div`
-`
+    width: 302px;
+`;

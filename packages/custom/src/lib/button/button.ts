@@ -17,14 +17,17 @@ export class Button {
         const wrapperEl = document.createElement('div');
         const checkoutButtonFrame = document.createElement('iframe');
         checkoutButtonFrame.style.border = 'none';
-        checkoutButtonFrame.style.cursor = 'pointer';
-        checkoutButtonFrame.style.height = '54px';
+        checkoutButtonFrame.style.height = '75px';
         checkoutButtonFrame.style.width = '100%';
 
         const paramsObj: any = { id: this.id, date: new Date().getTime().toString() }
 
         if (this.merchantOptions?.cobrandedLogo) {
             paramsObj.cobrandedLogo = this.merchantOptions?.cobrandedLogo
+        }
+
+        if (this.merchantOptions?.cobrandedButtonTheme) {
+            paramsObj.cobrandedButtonTheme = this.merchantOptions?.cobrandedButtonTheme
         }
 
         if (this.options?.textColor && isValidHexColor(this.options.textColor)) {
