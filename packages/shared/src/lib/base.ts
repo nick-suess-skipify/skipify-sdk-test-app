@@ -478,6 +478,11 @@ export class Base {
     return null
   }
 
+  // can be overwritten by platform class
+  onButtonReady(buttonId: string): null {
+    return null
+  }
+
   canShowIframe(): boolean {
     console.warn('-- canShowIframe should be overwritten by platform class');
     return true;

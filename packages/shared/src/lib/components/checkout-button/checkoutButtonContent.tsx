@@ -9,6 +9,7 @@ import { ReactComponent as PoweredBySkipify } from '../../../assets/poweredBySki
 export const SkipifyButtonContent: React.FC = (props) => {
   // This will be used later for passing variables from checkout script to this component
   const params = new URL(window.location.href).searchParams;
+  const [visible, setVisible] = useState(false);
   const [textColor,setTextColor] = useState(params.get('textColor') || '#fff');
   const [bgColor,setBgColor] = useState(params.get('bgColor') || '#000000');
 
@@ -44,6 +45,7 @@ export const SkipifyButtonContent: React.FC = (props) => {
       if (buttonTheme) {
         setCobrandedButtonTheme(buttonTheme);
       }
+      setVisible(true);
     }
 
   }
@@ -64,11 +66,23 @@ export const SkipifyButtonContent: React.FC = (props) => {
     if (params.get('bgHoverColor')) {
       setBgHoverColor(params.get('bgHoverColor') as string)
     }
+    if (params.get('id')){
+      window.top?.postMessage(
+        {
+          name: '@skipify/checkout-button-ready',
+          id: params.get('id')
+        },
+        '*'
+      );
+    }
     window.addEventListener('message', handleIframeMessage);
     return () => {
       window.removeEventListener('message', handleIframeMessage)
     }
   }, [])
+
+
+  if (!visible)  return null;
 
   // v2 design for horizon cloud, no customization planned for now
   if (cobrandedButtonTheme === 'V2') {

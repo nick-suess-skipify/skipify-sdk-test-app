@@ -32,7 +32,8 @@ class CustomSDK {
   skipifyLightActive = false;
   checkoutUrl: string;
   simpleCheckoutUrl: string;
-
+  // Pending queue for button IDs
+  pendingButtonIds: Record<string, boolean> = {};
   constructor(config: any) {
     // Validate initialization configs
     this.config = new Config(config);
@@ -54,6 +55,40 @@ class CustomSDK {
     this.launchBaseIframe();
     this.getMerchant();
   }
+
+  onButtonReady(buttonId: string): void {
+
+    if (!this.merchant) {
+      this.pendingButtonIds[buttonId] = true;
+      return;
+    }
+
+    this.sendMerchantInfoToButton(buttonId);
+  }
+
+  private sendMerchantInfoToButton(buttonId: string): void {
+    const contentWindow = this.buttons[buttonId]?.frame?.contentWindow;
+    if (contentWindow) {
+      contentWindow.postMessage({
+        name: MESSAGE_NAMES.MERCHANT_PUBLIC_INFO_FETCHED,
+        merchant: this.merchant
+      }, "*");
+    }
+  }
+
+  private processPendingButtons() {
+    const pendingIds = Object.keys(this.pendingButtonIds);
+    if (pendingIds.length === 0) {
+      return;
+    }
+
+    pendingIds.forEach(buttonId => {
+      this.sendMerchantInfoToButton(buttonId);
+      delete this.pendingButtonIds[buttonId];
+    });
+  }
+
+
 
   async resetIframe() {
     if (this.skipifyLightActive) {
@@ -88,15 +123,8 @@ class CustomSDK {
     // We only get the flags after merchant data is available
     this.handleSkipifyLightFlag();
 
-    // Notify already mounted components
-    Object.values(this.buttons).forEach(button => {
-      if (button.frame && button.frame.contentWindow) {
-        button.frame.contentWindow.postMessage({
-          name: MESSAGE_NAMES.MERCHANT_PUBLIC_INFO_FETCHED,
-          merchant: merchantPublicData
-        }, "*")
-      }
-    })
+    // Process any pending buttons that has not received merchant info
+    this.processPendingButtons();
   }
 
   async getFlags(flagType: FeatureFlags) {

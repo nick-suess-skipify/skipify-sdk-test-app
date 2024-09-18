@@ -38,6 +38,8 @@ export class Messenger {
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.CHECKOUT_BUTTON_TRIGGERED:
         return this.listenerCheckoutButtonTriggered(data);
+      case MESSAGE_NAMES.CHECKOUT_BUTTON_READY:
+        return this.listenerCheckoutButtonReady(data);
       case MESSAGE_NAMES.DISPLAY_IFRAME:
         return this.listenerDisplayIframe();
       case MESSAGE_NAMES.ORDER_COMPLETED:
@@ -83,6 +85,19 @@ export class Messenger {
         },
         SkipifyCheckoutUrl
       );
+    }
+  }
+
+
+  listenerCheckoutButtonReady(data: { id: string }) {
+    const { id: buttonId } = data;
+
+    if (!buttonId) {
+      return;
+    }
+    // Notify CustomSDK that the button is ready
+    if (this.sdk.onButtonReady) {
+      this.sdk.onButtonReady(buttonId);
     }
   }
 
