@@ -50,7 +50,7 @@ export const TestPageContent: React.FC = (props) => {
     const buttonTextColor = '#00ff00';
     const buttonBgColor = '#1f1f1f';
     const buttonBgHoverColor = '#676767';
-
+    
     useEffect(() => {
         // Check for Skipify client in the window
         const checkClient = () => {
@@ -211,6 +211,18 @@ export const TestPageContent: React.FC = (props) => {
                             Enable Skipify email listener
                         </FormLabel>
                         <Switch id="email-listener-switch" isChecked={isEmailListenerEnabled} onChange={(e) => setIsEmailListenerEnabled(e.target.checked)} />
+                    </FormControl>
+                    <FormControl display="flex" alignItems="center">
+                        <FormLabel htmlFor="app-router-switch" mb="0">
+                            Enable app router
+                        </FormLabel>
+                        <Switch id="app-router-switch" onChange={(e) => {
+                            if(e.target.checked) {
+                                skipifyClient.enableRouterV2()
+                            } else {
+                                skipifyClient.disableRouterV2()
+                            }
+                        }}/>
                     </FormControl>
                     <FormControl>
                         <FormLabel>Skipify email listener</FormLabel>

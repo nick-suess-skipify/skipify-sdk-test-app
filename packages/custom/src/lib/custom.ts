@@ -112,6 +112,10 @@ class CustomSDK {
     this.checkoutUrl = `${SkipifyCheckoutUrl}/v2/embed/${this.config.merchantId}/lookup`;
   }
 
+  disableRouterV2() {
+    this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`;
+  }
+
   async getMerchant() {
     let merchantPublicData;
     try {
