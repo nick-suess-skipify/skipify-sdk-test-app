@@ -17,9 +17,9 @@ import {
     NumberInputStepper,
     NumberIncrementStepper,
     NumberDecrementStepper,
-    Switch
+    Switch,
 } from '@chakra-ui/react'
-// import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
+import { SDKConfigurator } from './components/SDKConfigurator';
 
 // Be careful with cyclic dependencies here
 
@@ -47,9 +47,9 @@ export const TestPageContent: React.FC = (props) => {
     const errorButtonRef = useRef<HTMLDivElement | null>(null)
     const inputRef1 = useRef(null)
     const inputRef2 = useRef(null)
-    const buttonTextColor = '#00ff00';
-    const buttonBgColor = '#1f1f1f';
-    const buttonBgHoverColor = '#676767';
+    const [buttonTextColor, setButtonTextColor] = useState(queryParams.get('textColor') || undefined);
+    const [buttonBgColor, setButtonBgColor] = useState(queryParams.get('bgColor') || undefined);
+    const [buttonBgHoverColor, setButtonBgHoverColor] = useState(queryParams.get('bgHoverColor') || undefined);
     
     useEffect(() => {
         // Check for Skipify client in the window
@@ -119,6 +119,9 @@ export const TestPageContent: React.FC = (props) => {
         url.searchParams.set('merchantId', merchantId);
         url.searchParams.set('merchantRef', merchantRef);
         url.searchParams.set('orderTotal', orderTotal);
+        if (buttonTextColor) url.searchParams.set('textColor', buttonTextColor);
+        if (buttonBgColor) url.searchParams.set('bgColor', buttonBgColor);
+        if (buttonBgHoverColor) url.searchParams.set('bgHoverColor', buttonBgHoverColor);
         window.location.href = url.toString();
     }
 
@@ -127,6 +130,9 @@ export const TestPageContent: React.FC = (props) => {
         url.searchParams.delete('merchantId');
         url.searchParams.delete('merchantRef');
         url.searchParams.delete('orderTotal');
+        url.searchParams.delete('textColor');
+        url.searchParams.delete('bgColor');
+        url.searchParams.delete('bgHoverColor');
         window.location.href = url.toString();
     }
 
@@ -142,7 +148,7 @@ export const TestPageContent: React.FC = (props) => {
         <Container>
             <Heading mt="24px" mb="16px" as='h2'>SDK Playground</Heading>
             <VStack align="left" spacing='24px' divider={<StackDivider borderColor='gray.200' />}>
-                <Box w="360px">
+                <Box >
                     <FormControl mb="16px" isRequired>
                         <FormLabel>Merchant Id</FormLabel>
                         <Input type='text' value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
@@ -169,6 +175,19 @@ export const TestPageContent: React.FC = (props) => {
                         <Input type='text' value={merchantRef} onChange={(e) => setMerchantRef(e.target.value)} />
                         <FormHelperText>Your merchant ref.</FormHelperText>
                     </FormControl> */}
+
+                    <Box my={6}>
+
+                        <SDKConfigurator
+                          buttonTextColor={buttonTextColor}
+                          buttonBgColor={buttonBgColor}
+                          buttonBgHoverColor={buttonBgHoverColor}
+                          setButtonTextColor={setButtonTextColor}
+                          setButtonBgColor={setButtonBgColor}
+                          setButtonBgHoverColor={setButtonBgHoverColor}
+                        />
+                    </Box>
+
                     <Stack spacing={4} direction='row' align='center'>
                         <Button
                             mt={4}
