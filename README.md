@@ -54,6 +54,7 @@ nx run bigcommerce:build:dev
 nx run shopify:build:dev
 nx run custom:build:dev
 nx run shared:build:dev
+nx run embedded-components:build:dev
 ```
 
 Running all apps:
@@ -71,10 +72,14 @@ npm run all:build:dev
 
 - This SDK requires merchants to manually initialize it and control the experience
 
+#### Embedded Components SDK
+
+- This SDK is used for embedded components.
+
 ## Custom SDK
 
 After building and hosting the custom SDK, you can test the flow on the test page available at
-http://localhost:4200/shared/components/iframe_testPage.html
+http://localhost:4200/shared/components/playground.html
 
 Usage example:
 ```
@@ -94,11 +99,19 @@ skipifyClient.email("my-email-ref-test").enable(inputRef.current)
 
 ```
 
+## Embedded Components SDK
+
+After building and hosting the embedded components SDK, you can test the flow on the test page available at
+
+http://localhost:4200/shared/components/embedded_components_playground.html
+
+
 
 ## Apps and libs dependencies graph
 ```
 nx graph
 ```
+
 
 ## Deployments, Releases, & Rollbacks
 

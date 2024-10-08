@@ -1,0 +1,6 @@
+/*Define CSS for HTML elements on merchant's site, such as iframe*/
+
+#_SKIPIFY_iframe {
+    width: 500px;
+    height: 500px;
+}

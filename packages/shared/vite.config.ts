@@ -30,6 +30,7 @@ export default defineConfig({
         shared: resolve(__dirname, 'src/index.ts'),
         ['components/checkoutbutton']: resolve(__dirname, 'src/lib/components/checkout-button/checkoutButton.tsx'),
         ['components/testpage']: resolve(__dirname, 'src/lib/components/test-page/testPage.tsx'),
+        ['components/embedded_components_test_page']: resolve(__dirname, 'src/lib/components/embedded-components-test-page/testPage.tsx'),
         ['components/enrollmentcheckbox']: resolve(
           __dirname,
           'src/lib/components/enrollment-checkbox/enrollmentCheckbox.tsx'
