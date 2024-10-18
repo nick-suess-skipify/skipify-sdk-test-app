@@ -6,6 +6,16 @@ function isValidHexColor(colorHex: string): boolean {
     return /^#([0-9A-Fa-f]{3}){1,2}$/.test(colorHex); // accept #fff or #ffffff
 }
 
+function isValidLogoPlacement(placement: string): boolean {
+    return placement === 'inside' || placement === 'below';
+}
+
+function isValidButtonLabel(label: string): boolean {
+    return label === 'Buy Now' || label === 'Pay Now';
+}
+
+
+
 export class Button {
     id: string;
     frame: HTMLIFrameElement | null = null;
@@ -26,10 +36,6 @@ export class Button {
             paramsObj.cobrandedLogo = this.merchantOptions?.cobrandedLogo
         }
 
-        if (this.merchantOptions?.cobrandedButtonTheme) {
-            paramsObj.cobrandedButtonTheme = this.merchantOptions?.cobrandedButtonTheme
-        }
-
         if (this.options?.textColor && isValidHexColor(this.options.textColor)) {
             paramsObj.textColor = this.options.textColor
         }
@@ -40,6 +46,14 @@ export class Button {
 
         if (this.options?.bgHoverColor && isValidHexColor(this.options.bgHoverColor)) {
             paramsObj.bgHoverColor = this.options.bgHoverColor;
+        }
+
+        if (this.options?.logoPlacement && isValidLogoPlacement(this.options.logoPlacement)) {
+            paramsObj.logoPlacement = this.options.logoPlacement;
+        }
+
+        if (this.options?.buttonLabel && isValidButtonLabel(this.options.buttonLabel)) {
+            paramsObj.buttonLabel = this.options.buttonLabel;
         }
 
         const params = new URLSearchParams(paramsObj);

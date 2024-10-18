@@ -23,9 +23,10 @@ export type AdditionalOptions = {
   bgHoverColor?: string;
   email?: string;
   phone?: string;
+  logoPlacement?: 'inside' | 'below';
+  buttonLabel?: 'Buy Now' | 'Pay Now';
 }
 
 export type MerchantOptions = {
   cobrandedLogo?: string,
-  cobrandedButtonTheme?: string
 }

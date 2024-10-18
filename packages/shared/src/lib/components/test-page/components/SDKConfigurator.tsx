@@ -22,6 +22,7 @@ import {
     InputLeftAddon,
     Input,
     InputRightElement,
+    Select,
 } from '@chakra-ui/react';
 
 interface ColorInputProps {
@@ -64,18 +65,26 @@ interface SDKConfigUIProps {
   buttonTextColor: string | undefined;
   buttonBgColor: string | undefined;
   buttonBgHoverColor: string | undefined;
+  logoPlacement: 'inside' | 'below' | undefined;
+  buttonLabel: 'Buy Now' | 'Pay Now' | undefined;
   setButtonTextColor: (value: string | undefined) => void;
   setButtonBgColor: (value: string | undefined) => void;
   setButtonBgHoverColor: (value: string | undefined) => void;
+  setLogoPlacement: (value: 'inside' | 'below' | undefined) => void;
+  setButtonLabel: (value: 'Buy Now' | 'Pay Now' | undefined) => void;
 }
 
 export const SDKConfigurator: React.FC<SDKConfigUIProps> = ({
     buttonTextColor,
     buttonBgColor,
     buttonBgHoverColor,
+    logoPlacement,
+    buttonLabel,
     setButtonTextColor,
     setButtonBgColor,
     setButtonBgHoverColor,
+    setLogoPlacement,
+    setButtonLabel,
 }) => {
     return (
         <Accordion allowToggle>
@@ -88,27 +97,48 @@ export const SDKConfigurator: React.FC<SDKConfigUIProps> = ({
                     <VStack spacing={4} align="stretch">
                     <Text size="sm" mb={4}>skipifyClient.button() Options</Text>
                         <ColorInput
-                            label="Button Text Color (textColor)"
+                            label="Button Text Color (textColor, default #FEFEFE)"
                             value={buttonTextColor}
                             onChange={setButtonTextColor}
-                            placeholder="eg. FFFFFF"
+                            placeholder="eg. FEFEFE"
                         />
                         <ColorInput
-                            label="Button Background Color (bgColor)"
+                            label="Button Background Color (bgColor, default #1E1E1E)"
                             value={buttonBgColor}
                             onChange={setButtonBgColor}
-                            placeholder="eg. 000000"
+                            placeholder="eg. 1E1E1E"
                         />
                         <ColorInput
-                            label="Button Hover Background Color (bgHoverColor)"
+                            label="Button Hover Background Color (bgHoverColor, default #444444)"
                             value={buttonBgHoverColor}
                             onChange={setButtonBgHoverColor}
                             placeholder="eg. 444444"
                         />
+                        <FormControl>
+                            <FormLabel>Logo Placement</FormLabel>
+                            <Select 
+                                value={logoPlacement || ''}
+                                onChange={(e) => setLogoPlacement(e.target.value as 'inside' | 'below' | undefined)}
+                            >
+                                <option value="">Select Logo Placement (default "Inside")</option>
+                                <option value="inside">inside</option>
+                                <option value="below">below</option>
+                                <option value="invalid">Invalid value (should fallback to default)</option>
+                            </Select>
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel>Button Label</FormLabel>
+                            <Select 
+                                value={buttonLabel || ''}
+                                onChange={(e) => setButtonLabel(e.target.value as 'Buy Now' | 'Pay Now' | undefined)}
+                            >
+                                <option value="">Select Button Label (default "Buy Now")</option>
+                                <option value="Buy Now">Buy Now</option>
+                                <option value="Pay Now">Pay Now</option>
+                                <option value="invalid">Invalid value (should fallback to default)</option>
+                            </Select>
+                        </FormControl>
                     </VStack>
-                    <Text fontSize="sm" mt="4" fontStyle="italic" color="gray.600">
-                        Note: Some styles may be ignored for the "V2" button. If you don't see the effect of your changes, try changing the merchant ID.
-                    </Text>
                 </AccordionPanel>
             </AccordionItem>
         </Accordion>

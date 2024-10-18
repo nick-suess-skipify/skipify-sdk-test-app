@@ -2,21 +2,24 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as MutedLogo } from '../../../assets/mutedLogo.svg';
 import { ReactComponent as PayNow } from '../../../assets/payNow.svg'
+import { ReactComponent as BuyNow } from '../../../assets/buyNow.svg'
 import { ReactComponent as PoweredBySkipify } from '../../../assets/poweredBySkipify.svg';
 
-// Be careful with cyclic dependencies here
+
+type LogoPlacement = 'inside' | 'below';
+type ButtonLabel = 'Buy Now' | 'Pay Now';
 
 export const SkipifyButtonContent: React.FC = (props) => {
   // This will be used later for passing variables from checkout script to this component
   const params = new URL(window.location.href).searchParams;
   const [visible, setVisible] = useState(false);
-  const [textColor,setTextColor] = useState(params.get('textColor') || '#fff');
-  const [bgColor,setBgColor] = useState(params.get('bgColor') || '#000000');
+  const [textColor,setTextColor] = useState(params.get('textColor') || '#FEFEFE');
+  const [bgColor,setBgColor] = useState(params.get('bgColor') || '#1E1E1E');
 
   // if user forgot to set hover color, it should fallback to custom bgColor first, as #444444 could be not compatible with custom bgColor
   const [bgHoverColor,setBgHoverColor] = useState(params.get('bgHoverColor') || params.get('bgColor') || '#444444');
-  const [cobrandedLogo, setCobrandedLogo] = useState("")
-  const [cobrandedButtonTheme, setCobrandedButtonTheme] = useState("V1")
+  const [logoPlacement, setLogoPlacement] = useState<LogoPlacement>('inside');
+  const [buttonLabel, setButtonLabel] = useState<ButtonLabel>('Buy Now');
 
   const handleClick = () => {
     if (params.get('id')) {
@@ -36,27 +39,13 @@ export const SkipifyButtonContent: React.FC = (props) => {
       return;
     }
     if (data.name === "@skipify/merchant-public-info-fetched" && data.merchant?.cobranding) {
-      const { logoSrc, buttonTheme } = data.merchant.cobranding;
-
-      if (logoSrc) {
-        setCobrandedLogo(logoSrc);
-      }
-
-      if (buttonTheme) {
-        setCobrandedButtonTheme(buttonTheme);
-      }
+      //load any merchant config here if any
       setVisible(true);
     }
 
   }
 
   useEffect(() => {
-    if (params.get('cobrandedLogo')) {
-      setCobrandedLogo(params.get('cobrandedLogo') as string)
-    }
-    if (params.get('cobrandedButtonTheme')) {
-      setCobrandedButtonTheme(params.get('cobrandedButtonTheme') as string)
-    }
     if (params.get('textColor')) {
       setTextColor(params.get('textColor') as string)
     }
@@ -65,6 +54,15 @@ export const SkipifyButtonContent: React.FC = (props) => {
     }
     if (params.get('bgHoverColor')) {
       setBgHoverColor(params.get('bgHoverColor') as string)
+    }
+    if (params.get('logoPlacement')) {
+      // we already validated prop in SDK button.ts, so no need to validate here
+      const logoPlacementParam = params.get('logoPlacement');
+      setLogoPlacement(logoPlacementParam as LogoPlacement);
+    }
+    if (params.get('buttonLabel')) {
+      const buttonLabelParam = params.get('buttonLabel');
+      setButtonLabel(buttonLabelParam as ButtonLabel);
     }
     if (params.get('id')){
       window.top?.postMessage(
@@ -84,74 +82,46 @@ export const SkipifyButtonContent: React.FC = (props) => {
 
   if (!visible)  return null;
 
-  // v2 design for horizon cloud, no customization planned for now
-  if (cobrandedButtonTheme === 'V2') {
-    return (
-      <V2Container>
-        <V2Button onClick={() => handleClick()}>
-          <PayNow />
-        </V2Button>
-        <PoweredBySkipify />
-      </V2Container>
-    );
-  }
-
   return (
-    <Container onClick={() => handleClick()} bgColor={bgColor} hoverColor={bgHoverColor}  style={{color : textColor }}>
-      <StyledMutedLogo />
-      Buy Now{cobrandedLogo ? <><Divider /><CobrandedLogo src={cobrandedLogo} /></> : ""}
-    </Container>
+    <V2Container data-testid="checkout-button-container">
+      <V2Button 
+        onClick={() => handleClick()} 
+        bgColor={bgColor} 
+        hoverColor={bgHoverColor}
+        style={{color: textColor}}
+        data-testid="checkout-button"
+      >
+        {logoPlacement === 'inside' && <MutedLogo data-testid="skipify-logo-inside" />}
+        {buttonLabel === 'Buy Now' ? 
+          <BuyNow data-testid="buy-now" fill={textColor} /> : 
+          <PayNow data-testid="pay-now" fill={textColor} />
+        }
+      </V2Button>
+      {logoPlacement === 'below' && <PoweredBySkipify data-testid="skipify-logo-below" />}
+    </V2Container>
   );
+
 };
 
-const Container = styled.div<{ bgColor: string; hoverColor: string }>`
-    display: flex;
-    flex-direction: row;
-    font-family: Poppins;
-    height: 54px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    background: ${props => props.bgColor};
-    font-size: 19px;
-    font-style: normal;
-    font-weight: 600;
-    cursor: pointer;
 
-    &:hover {
-        background-color: ${props => props.hoverColor};
-    }
-`;
 
-const StyledMutedLogo = styled(MutedLogo)`
-  margin-right: 10px;
-`;
-
-const Divider = styled.div`
-  background: #fff;
-  width: 1px;
-  height: 22px;
-  flex-shrink: 0;
-  margin-left: 12px;
-  margin-right: 12px;
-`
-
-const CobrandedLogo = styled.img`
-  max-height: 24px;
-`
 const V2Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
 `;
 
-const V2Button = styled.div`
+const V2Button = styled.div<{ bgColor: string; hoverColor: string }>`
   cursor: pointer;
   display: flex;
-  background: black;
+  background: ${props => props.bgColor};
   height: 56px;
   min-width: 302px;
   border-radius: 12px;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  &:hover {
+    background-color: ${props => props.hoverColor};
+  }
 `;

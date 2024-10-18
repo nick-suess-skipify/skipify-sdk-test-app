@@ -47,9 +47,15 @@ export const TestPageContent: React.FC = (props) => {
     const errorButtonRef = useRef<HTMLDivElement | null>(null)
     const inputRef1 = useRef(null)
     const inputRef2 = useRef(null)
-    const [buttonTextColor, setButtonTextColor] = useState(queryParams.get('textColor') || undefined);
-    const [buttonBgColor, setButtonBgColor] = useState(queryParams.get('bgColor') || undefined);
-    const [buttonBgHoverColor, setButtonBgHoverColor] = useState(queryParams.get('bgHoverColor') || undefined);
+    const [buttonTextColor, setButtonTextColor] = useState<string | undefined>(queryParams.get('buttonTextColor') || undefined);
+    const [buttonBgColor, setButtonBgColor] = useState<string | undefined>(queryParams.get('buttonBgColor') || undefined);
+    const [buttonBgHoverColor, setButtonBgHoverColor] = useState<string | undefined>(queryParams.get('buttonBgHoverColor') || undefined);
+    const [buttonLogoPlacement, setButtonLogoPlacement] = useState<'inside' | 'below' | undefined>(
+        (queryParams.get('buttonLogoPlacement') as 'inside' | 'below') || undefined
+    );
+    const [buttonLabel, setButtonLabel] = useState<'Buy Now' | 'Pay Now' | undefined>(
+        (queryParams.get('buttonLabel') as 'Buy Now' | 'Pay Now') || undefined
+    );
     
     useEffect(() => {
         // Check for Skipify client in the window
@@ -81,6 +87,8 @@ export const TestPageContent: React.FC = (props) => {
                 textColor: buttonTextColor,
                 bgColor: buttonBgColor,
                 bgHoverColor: buttonBgHoverColor,
+                logoPlacement: buttonLogoPlacement,
+                buttonLabel: buttonLabel,
                 email: email,
                 phone: phone,
             }
@@ -119,9 +127,11 @@ export const TestPageContent: React.FC = (props) => {
         url.searchParams.set('merchantId', merchantId);
         url.searchParams.set('merchantRef', merchantRef);
         url.searchParams.set('orderTotal', orderTotal);
-        if (buttonTextColor) url.searchParams.set('textColor', buttonTextColor);
-        if (buttonBgColor) url.searchParams.set('bgColor', buttonBgColor);
-        if (buttonBgHoverColor) url.searchParams.set('bgHoverColor', buttonBgHoverColor);
+        if (buttonTextColor) url.searchParams.set('buttonTextColor', buttonTextColor);
+        if (buttonBgColor) url.searchParams.set('buttonBgColor', buttonBgColor);
+        if (buttonBgHoverColor) url.searchParams.set('buttonBgHoverColor', buttonBgHoverColor);
+        if (buttonLogoPlacement) url.searchParams.set('buttonLogoPlacement', buttonLogoPlacement);
+        if (buttonLabel) url.searchParams.set('buttonLabel', buttonLabel);
         window.location.href = url.toString();
     }
 
@@ -130,9 +140,11 @@ export const TestPageContent: React.FC = (props) => {
         url.searchParams.delete('merchantId');
         url.searchParams.delete('merchantRef');
         url.searchParams.delete('orderTotal');
-        url.searchParams.delete('textColor');
-        url.searchParams.delete('bgColor');
-        url.searchParams.delete('bgHoverColor');
+        url.searchParams.delete('buttonTextColor');
+        url.searchParams.delete('buttonBgColor');
+        url.searchParams.delete('buttonBgHoverColor');
+        url.searchParams.delete('buttonLogoPlacement');
+        url.searchParams.delete('buttonLabel');
         window.location.href = url.toString();
     }
 
@@ -177,14 +189,17 @@ export const TestPageContent: React.FC = (props) => {
                     </FormControl> */}
 
                     <Box my={6}>
-
                         <SDKConfigurator
-                          buttonTextColor={buttonTextColor}
-                          buttonBgColor={buttonBgColor}
-                          buttonBgHoverColor={buttonBgHoverColor}
-                          setButtonTextColor={setButtonTextColor}
-                          setButtonBgColor={setButtonBgColor}
-                          setButtonBgHoverColor={setButtonBgHoverColor}
+                            buttonTextColor={buttonTextColor}
+                            buttonBgColor={buttonBgColor}
+                            buttonBgHoverColor={buttonBgHoverColor}
+                            logoPlacement={buttonLogoPlacement}
+                            buttonLabel={buttonLabel}
+                            setButtonTextColor={setButtonTextColor}
+                            setButtonBgColor={setButtonBgColor}
+                            setButtonBgHoverColor={setButtonBgHoverColor}
+                            setLogoPlacement={setButtonLogoPlacement}
+                            setButtonLabel={setButtonLabel}
                         />
                     </Box>
 
@@ -213,9 +228,6 @@ export const TestPageContent: React.FC = (props) => {
                         <ButtonContainer ref={buttonRef}></ButtonContainer>
                         {/* <FormHelperText>Your Skipify checkout button.</FormHelperText> */}
                     </FormControl>
-                    <Box sx={{mt:2, fontSize: 9}}>
-                        Custom Button Style Applied: textColor: {buttonTextColor}, bgColor: {buttonBgColor}, bgHoverColor: {buttonBgHoverColor} (Not supported for v2 button style)
-                    </Box>
                 </Box>
                 <Box>
                     <FormControl>
