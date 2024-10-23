@@ -34,11 +34,13 @@
     "qs": "^6.12.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-json-pretty": "^2.2.0",
     "styled-components": "^6.0.5",
     "tslib": "^2.6.2",
     "vite-plugin-css-injected-by-js": "^3.5.0",
     "vite-plugin-package-version": "^1.0.2",
     "vite-plugin-svgr": "^3.2.0",
+    "zod": "^3.23.8",
     "zustand": "^4.3.9"
   },
   "devDependencies": {
@@ -64,6 +66,7 @@
     "jest-environment-jsdom": "^29.6.2",
     "jest-environment-node": "^29.4.1",
     "jest-fetch-mock": "^3.0.3",
+    "jest-mock-extended": "^4.0.0-beta1",
     "nx": "16.5.2",
     "prettier": "^2.6.2",
     "ts-jest": "^29.1.2",

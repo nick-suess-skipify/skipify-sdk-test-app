@@ -27,7 +27,7 @@ export const SkipifyClassNames = {
   paymentButton: '_SKIPIFY_payment_button',
   enrollmentIframe: '_SKIPIFY_enrollment_iframe',
   body: '_SKIPIFY_body',
-  embedBody:  '_SKIPIFY_embed_body',
+  embedBody: '_SKIPIFY_embed_body',
   skipifyV2: '_SKIPIFY_V2',
   skipifyEmbed: '_SKIPIFY_embed',
   hiding: '_SKIPIFY_hiding',
@@ -70,6 +70,8 @@ export const MESSAGE_NAMES = {
   SEND_LD_FLAGS: `${MESSAGE_NAME_PREFIX}/send-ld-flags`,
   LOOKUP_BY_FINGERPRINT_RESULT: `${MESSAGE_NAME_PREFIX}/lookup-by-fingerprint-result`,
   TRACK_EVENT: `${MESSAGE_NAME_PREFIX}/track-event`,
+  LISTENER_READY: `${MESSAGE_NAME_PREFIX}/listener-ready`,
+  LOOKUP_RESPONSE: `${MESSAGE_NAME_PREFIX}/shoppers-lookup-response`,
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
