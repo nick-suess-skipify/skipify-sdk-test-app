@@ -1,5 +1,5 @@
 import * as LDClient from 'launchdarkly-js-client-sdk';
-import { LaunchDarklyConfig } from "../constants";
+import { LaunchDarklyConfig, DefaultFeatureFlags, FeatureFlagsType } from "../constants";
 
 
 export class LaunchDarkly {
@@ -34,6 +34,15 @@ export class LaunchDarkly {
       throw new Error("LaunchDarkly client is not initialized. Please call getInstance() first.");
     }
     return this.ldClient.variation(flagName, defaultValue);
+  }
+
+  public async getAllFlags(): Promise<FeatureFlagsType> {
+    if (!this.initialized) {
+      throw new Error("LaunchDarkly client is not initialized. Please call getInstance() first.");
+    }
+
+    const allFlags = this.ldClient.allFlags();
+    return { ...DefaultFeatureFlags, ...allFlags }
   }
 
   public close(): void {

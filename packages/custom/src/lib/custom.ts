@@ -1,4 +1,11 @@
-import { SkipifyCheckoutUrl, SDKVersion, MESSAGE_NAMES, SimpleCheckoutUrl, FeatureFlags } from '@checkout-sdk/shared/lib/constants';
+import {
+  SkipifyCheckoutUrl,
+  SDKVersion,
+  MESSAGE_NAMES,
+  SimpleCheckoutUrl,
+  FeatureFlags,
+  DefaultFeatureFlags
+} from '@checkout-sdk/shared/lib/constants';
 import { SkipifyApi, MerchantType } from '@checkout-sdk/shared';
 import { Config, AdditionalOptions, MerchantOptions } from './config';
 import { Messenger } from './messenger';
@@ -23,6 +30,7 @@ class CustomSDK {
   messenger: Messenger;
   api: SkipifyApi;
   launchdarkly: LaunchDarkly | null = null;
+  flags = DefaultFeatureFlags;
   // Components
   buttons: Record<string, Button> = {};
   emailListeners: Record<string, EmailListener> = {};
@@ -51,7 +59,8 @@ class CustomSDK {
   // Static var to store SDK version
   static version = SDKVersion
 
-  start() {
+  async start() {
+    await this.initializeFlags();
     this.launchBaseIframe();
     this.getMerchant();
   }
@@ -88,7 +97,15 @@ class CustomSDK {
     });
   }
 
+  private async initializeFlags() {
+    if (!this.config.merchantId) {
+      throw new Error('Merchant data not available');
+    }
 
+    this.launchdarkly = await LaunchDarkly.getInstance(this.config.merchantId);
+    const flags = await this.launchdarkly.getAllFlags();
+    this.flags = flags
+  }
 
   async resetIframe() {
     if (this.skipifyLightActive) {
@@ -99,7 +116,7 @@ class CustomSDK {
   }
 
   async launchBaseIframe() {
-    await this.handleRouterFlag();
+    this.handleRouterFlag();
     this.messenger.launchBaseIframe(this.checkoutUrl);
   }
 
@@ -131,26 +148,15 @@ class CustomSDK {
     this.processPendingButtons();
   }
 
-  async getFlags(flagType: FeatureFlags) {
-    if (!this.config.merchantId) {
-      throw new Error('Merchant data not available');
-    }
-    
-    this.launchdarkly = await LaunchDarkly.getInstance(this.config.merchantId);
-    
-    const flagValue = await this.launchdarkly.getVariation(flagType, false);
-    return flagValue;
-  }
-  
   async handleRouterFlag() {
-    const routerV2Flag = await this.getFlags(FeatureFlags.routerV2);
+    const routerV2Flag = this.flags[FeatureFlags.routerV2]
     if (routerV2Flag) {
       this.enableRouterV2();
     }
   }
-  
+
   async handleSkipifyLightFlag() {
-    const skipifyLightFlag = await this.getFlags(FeatureFlags.skipifyLight);
+    const skipifyLightFlag = this.flags[FeatureFlags.skipifyLight]
     if (skipifyLightFlag && this.merchant?.streamlinedFlowEligible) {
       this.enableSkipifyLight();
     }

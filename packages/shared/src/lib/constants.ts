@@ -5,6 +5,14 @@ export enum FeatureFlags {
   skipifyLight = 'UseSkipifyLight',
   routerV2 = 'useCheckoutAppRouter'
 }
+export type FeatureFlagsType = {
+  [FeatureFlags.skipifyLight]: boolean,
+  [FeatureFlags.routerV2]: boolean
+}
+export const DefaultFeatureFlags = {
+  [FeatureFlags.skipifyLight]: false,
+  [FeatureFlags.routerV2]: false
+}
 
 export const IFRAME_ORIGIN = environment.IFRAME_ORIGIN;
 
@@ -20,6 +28,7 @@ export const LaunchDarklyConfig = {
     key: merchantId,
   })
 }
+
 
 export const SkipifyClassNames = {
   emailInput: '_SKIPIFY_email_input',
