@@ -42,6 +42,9 @@ export const TestPageContent: React.FC = () => {
                     merchantId: MERCHANT_ID,
                 });
 
+                // Exposing the Skipify client to help testing in the console
+                (window as any).skipifyClient = initializedClient;
+
                 setSkipifyClient(initializedClient);
             } else {
                 setTimeout(checkClient, 200); // Check again after 200ms

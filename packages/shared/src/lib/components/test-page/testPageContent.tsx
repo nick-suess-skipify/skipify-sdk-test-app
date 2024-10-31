@@ -56,14 +56,17 @@ export const TestPageContent: React.FC = (props) => {
     const [buttonLabel, setButtonLabel] = useState<'Buy Now' | 'Pay Now' | undefined>(
         (queryParams.get('buttonLabel') as 'Buy Now' | 'Pay Now') || undefined
     );
-    
+
     useEffect(() => {
         // Check for Skipify client in the window
         const checkClient = () => {
             if ((window as any).skipify && !skipifyClient) {
                 const initializedClient = new (window as any).skipify({
                     merchantId,
-                })
+                });
+
+                // Exposing the Skipify client to help testing in the console
+                (window as any).skipifyClient = initializedClient;
 
                 setSkipifyClient(initializedClient);
             } else {
@@ -97,7 +100,7 @@ export const TestPageContent: React.FC = (props) => {
             skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.', '')) }).render(buttonRef.current)
 
             skipifyClient.button(ERROR_MERCHANT_REF, { ...options, total: Number(orderTotal.replace('.', '')) }).render(errorButtonRef.current)
-            
+
         }
     }, [buttonRef, skipifyClient])
 
@@ -248,12 +251,12 @@ export const TestPageContent: React.FC = (props) => {
                             Enable app router
                         </FormLabel>
                         <Switch id="app-router-switch" onChange={(e) => {
-                            if(e.target.checked) {
+                            if (e.target.checked) {
                                 skipifyClient.enableRouterV2()
                             } else {
                                 skipifyClient.disableRouterV2()
                             }
-                        }}/>
+                        }} />
                     </FormControl>
                     <FormControl>
                         <FormLabel>Skipify email listener</FormLabel>
