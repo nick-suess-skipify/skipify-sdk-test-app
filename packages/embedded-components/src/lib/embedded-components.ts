@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { SkipifyApi } from '@checkout-sdk/shared/lib/utils/api';
 import { SDKVersion, SkipifyCheckoutUrl } from "@checkout-sdk/shared/lib/constants";
-import { ShopperType } from './embedded-components.types';
-import { ShopperSchema } from './embedded-components.schemas';
+import { ShopperType, LookupResponseType, AuthenticationOptionsType, AuthenticationResultType, AuthenticationErrorType } from './embedded-components.types';
+import { ShopperSchema, AuthenticationOptionsSchema, LookupResponseSchema } from './embedded-components.schemas';
 import { MerchantType } from '@checkout-sdk/shared/lib/shared.types'; // Import styles, likely will not use shared styles
 import { SkipifyError } from './error';
 import { Messenger } from './messenger';
@@ -72,6 +72,57 @@ class EmbeddedComponentsSDK {
       }
       return new SkipifyError();
     }
+  }
+
+  authentication(lookupResult: LookupResponseType, options: AuthenticationOptionsType) {
+    // Validate lookup result
+    const lookupValidation = this.validateWithSchema(LookupResponseSchema, lookupResult);
+    console.log(lookupResult);
+    if (lookupValidation instanceof SkipifyError) {
+        options.onError(lookupValidation);
+        return;
+    }
+
+    // Validate options
+    const optionsValidation = this.validateWithSchema(AuthenticationOptionsSchema, options);
+    if (optionsValidation instanceof SkipifyError) {
+        options.onError(optionsValidation);
+        return;
+    }
+
+    const authUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/authentication`;
+
+    return {
+        render: (containerId: string) => {
+            if (!containerId) {
+                options.onError(new SkipifyError('Container ID is required'));
+                return;
+            }
+
+            const container = document.getElementById(containerId);
+            if (!container) {
+                options.onError(new SkipifyError(`Container with ID "${containerId}" not found`));
+                return;
+            }
+
+
+            this.messenger.onAuthenticationSuccess((data: AuthenticationResultType) => {
+                options.onSuccess(data);
+            });
+
+            this.messenger.onAuthenticationError((error: AuthenticationErrorType) => {
+                options.onError(error);
+            });
+
+            // Launch authentication iframe
+            this.messenger.launchAuthIframe(authUrl, container, {
+                lookupData: lookupResult,
+                options: {                 
+                    phone: options.phone
+                }
+            });
+        }
+    };
   }
 }
 

@@ -8,3 +8,33 @@ export const ShopperSchema = z.object({
     message: "Invalid phone number",
   }),
 });
+
+// Schema for authentication() options
+export const AuthenticationOptionsSchema = z.object({
+  onSuccess: z.function().args(z.object({ 
+    shopperId: z.string(),
+    sessionId: z.string() 
+  })),
+  onError: z.function().args(z.any()),
+  phone: z.string().optional().refine((val) => !val || phoneRegex.test(val), {
+    message: "Invalid phone number",
+  }),
+});
+
+// Schema for lookup result passed to authentication()
+export const LookupResponseSchema = z.object({
+  challengeId: z.string(),
+  flags: z.object({
+    phoneRequired: z.boolean(),
+    potentialPaymentMethods: z.boolean(),
+    usePrefilledPhoneAvailable: z.boolean(),
+  }),
+  metadata: z.object({
+    maskedEmail: z.string().optional(),
+    maskedPhone: z.string().optional(),
+  }).optional(),
+  defaults: z.object({
+    maskedChannel: z.string().optional(),
+    destination: z.string().optional(),
+  }).optional(),
+});

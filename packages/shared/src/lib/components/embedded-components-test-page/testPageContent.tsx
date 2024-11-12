@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import JSONPretty from 'react-json-pretty';
 import {
     Container,
@@ -33,6 +33,9 @@ export const TestPageContent: React.FC = () => {
     const [lookupRes, setLookupRes] = useState<any>({})
     const [lookupResponseTime, setLookupResponseTime] = useState<string>('')
     const [lookupLoading, setLookupLoading] = useState(false)
+    const [authRes, setAuthRes] = useState<any>({});
+    const [authPhone, setAuthPhone] = useState('');
+    const authContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // Check for Skipify client in the window
@@ -81,13 +84,27 @@ export const TestPageContent: React.FC = () => {
         lookupResStatus = 'ERROR'
     }
 
+    const handleAuthentication = async () => {
+        if (!lookupRes.challengeId) return;
+
+        
+        skipifyClient?.authentication(lookupRes, {
+            onSuccess: (results: any) => {
+                setAuthRes(results);
+            },
+            onError: (error: any) => {
+                setAuthRes({ error });
+            },
+            ...(authPhone ? { phone: authPhone } : {}) // Only include phone if authPhone has a value
+        }).render(authContainerRef.current?.id || '');
+    };
 
     return (
         <Container>
             <Heading mt="24px" mb="40px" as='h2'>
                 Embedded Components Playground
             </Heading>
-            <VStack align="left" spacing='24px' divider={<StackDivider borderColor='gray.200' />}>
+            <VStack align="left" spacing='48px' divider={<StackDivider borderColor='gray.200' />}>
                 <Box>
                     <Box mb="32px" position='relative'>
                         <Divider />
@@ -118,7 +135,53 @@ export const TestPageContent: React.FC = () => {
 
                     <Text fontSize='md'>Response: <Badge {...lookupResProps}>{lookupResStatus}</Badge><Badge>{lookupResponseTime}</Badge></Text>
                     <Code><JSONPretty id="json-pretty" data={lookupRes}></JSONPretty></Code>
-                    <Divider mt="32px" />
+                </Box>
+
+                <Box >
+                    <Box mb="32px" position='relative'>
+                        <Divider />
+                        <AbsoluteCenter bg='white' px='4'>
+                            <b>Authentication</b>
+                        </AbsoluteCenter>
+                    </Box>
+
+                    <FormControl mb="16px">
+                        <FormLabel>Authentication Phone Number (Optional)</FormLabel>
+                        <Input 
+                            type='text' 
+                            value={authPhone} 
+                            onChange={(e) => setAuthPhone(e.target.value)} 
+                            placeholder="Optional phone number"
+                        />
+                    </FormControl>
+
+                    <Button
+                        mt={4}
+                        colorScheme='teal'
+                        type='button'
+                        onClick={handleAuthentication}
+                        isDisabled={!lookupRes.challengeId}
+                    >
+                        Render Authenticate
+                    </Button>
+
+                    <div 
+                        id="merchant-auth-container" 
+                        ref={authContainerRef}
+                        style={{ 
+                            border: '1px dashed #718096', 
+                            borderRadius: '8px',
+                            padding: '16px',
+                            marginTop: '16px',
+                            minHeight: '100px'
+                        }}
+                    
+                    >
+                        Target for authentication iframe (#merchant-auth-container)
+                    </div>
+                    <Text fontSize='md'>Response: </Text>
+
+                    <Code><JSONPretty id="json-pretty-auth" data={authRes}></JSONPretty></Code>
                 </Box>
             </VStack>
         </Container>

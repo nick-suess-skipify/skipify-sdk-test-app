@@ -20,6 +20,22 @@ export type LookupResponseType = {
     }
 };
 
+export type AuthenticationResultType = {
+    shopperId: string,
+    sessionId: string
+};
+
+export type AuthenticationErrorType = {
+  error: {
+    message: string;
+  };
+} 
+export type AuthenticationOptionsType = {
+    onSuccess: (results: AuthenticationResultType) => void,
+    onError: (error: AuthenticationErrorType) => void,
+    phone?: string
+};
+
 export type SkipifyErrorType = {
     message: string
 }

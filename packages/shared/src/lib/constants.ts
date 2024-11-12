@@ -54,7 +54,10 @@ export const SkipifyElementIds = {
   checkButton: '_SKIPIFY_check_button',
   emailWrapper: '_SKIPIFY_email_wrapper',
   v2Checkbox: '_SKIPIFY_v2_checkbox',
-  loadingParallelogram: '_SKIPIFY_Loader'
+  loadingParallelogram: '_SKIPIFY_Loader',
+
+  // ids for components sdk
+  authIframe: '_SKIPIFY_auth_iframe'
 };
 
 /**
@@ -81,6 +84,10 @@ export const MESSAGE_NAMES = {
   TRACK_EVENT: `${MESSAGE_NAME_PREFIX}/track-event`,
   LISTENER_READY: `${MESSAGE_NAME_PREFIX}/listener-ready`,
   LOOKUP_RESPONSE: `${MESSAGE_NAME_PREFIX}/shoppers-lookup-response`,
+  
+  AUTH_COMPONENT_SUCCESS: `${MESSAGE_NAME_PREFIX}/auth-component-success`, // auth component
+  AUTH_COMPONENT_ERROR: `${MESSAGE_NAME_PREFIX}/auth-component-error`, // auth component
+
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
@@ -88,11 +95,20 @@ export const MESSAGE_NAMES = {
   REQUEST_DEVICE_ID: `${MESSAGE_NAME_PREFIX}/request-device-id`,
   RECEIVE_ORDER_ID: `${MESSAGE_NAME_PREFIX}/receive-order-id`,
   LOOKUP_BY_FINGERPRINT: `${MESSAGE_NAME_PREFIX}/lookup-by-fingerprint`,
+
+
+  RECEIVE_COMPONENT_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/receive-auth-component-data`, // auth component
+
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
   CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,
   CHECKOUT_BUTTON_READY: `${MESSAGE_NAME_PREFIX}/checkout-button-ready`,
   MERCHANT_PUBLIC_INFO_FETCHED: `${MESSAGE_NAME_PREFIX}/merchant-public-info-fetched`,
+} as const;
+
+export const COMPONENT_LISTENER_IDS = {
+  AUTH_COMPONENT: 'auth-component',
+  LOOKUP_COMPONENT: 'lookup-component'
 } as const;
 
 declare global {
