@@ -11,9 +11,9 @@ export const ShopperSchema = z.object({
 
 // Schema for authentication() options
 export const AuthenticationOptionsSchema = z.object({
-  onSuccess: z.function().args(z.object({ 
+  onSuccess: z.function().args(z.object({
     shopperId: z.string(),
-    sessionId: z.string() 
+    sessionId: z.string()
   })),
   onError: z.function().args(z.any()),
   phone: z.string().optional().refine((val) => !val || phoneRegex.test(val), {
@@ -27,7 +27,7 @@ export const LookupResponseSchema = z.object({
   flags: z.object({
     phoneRequired: z.boolean(),
     potentialPaymentMethods: z.boolean(),
-    usePrefilledPhoneAvailable: z.boolean(),
+    partnerProvidedPhone: z.boolean(),
   }),
   metadata: z.object({
     maskedEmail: z.string().optional(),

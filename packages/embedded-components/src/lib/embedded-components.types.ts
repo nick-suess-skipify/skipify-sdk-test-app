@@ -8,7 +8,7 @@ export type LookupResponseType = {
     flags: {
         phoneRequired: boolean,
         potentialPaymentMethods: boolean,
-        usePrefilledPhoneAvailable: boolean
+        partnerProvidedPhone: boolean
     },
     metadata?: {
         maskedEmail?: string,
@@ -29,7 +29,7 @@ export type AuthenticationErrorType = {
   error: {
     message: string;
   };
-} 
+}
 export type AuthenticationOptionsType = {
     onSuccess: (results: AuthenticationResultType) => void,
     onError: (error: AuthenticationErrorType) => void,

@@ -27,7 +27,7 @@ describe('EmbeddedComponentsSDK', () => {
       flags: {
         phoneRequired: false,
         potentialPaymentMethods: true,
-        usePrefilledPhoneAvailable: true
+        partnerProvidedPhone: true
       },
     }
 
