@@ -15,7 +15,8 @@ import {
     Code,
     Text,
     Button,
-    Badge
+    Badge,
+    Switch
 } from '@chakra-ui/react' // Import Chakra UI components and VStack
 
 // Be careful with cyclic dependencies here
@@ -36,6 +37,8 @@ export const TestPageContent: React.FC = () => {
     const [authRes, setAuthRes] = useState<any>({});
     const [authPhone, setAuthPhone] = useState('');
     const authContainerRef = useRef<HTMLDivElement>(null);
+
+    const [sendOtp, setSendOtp] = useState(false);
 
     useEffect(() => {
         // Check for Skipify client in the window
@@ -87,7 +90,6 @@ export const TestPageContent: React.FC = () => {
     const handleAuthentication = async () => {
         if (!lookupRes.challengeId) return;
 
-        
         skipifyClient?.authentication(lookupRes, {
             onSuccess: (results: any) => {
                 setAuthRes(results);
@@ -95,7 +97,8 @@ export const TestPageContent: React.FC = () => {
             onError: (error: any) => {
                 setAuthRes({ error });
             },
-            ...(authPhone ? { phone: authPhone } : {}) // Only include phone if authPhone has a value
+            phone: authPhone,
+            sendOtp
         }).render(authContainerRef.current?.id || '');
     };
 
@@ -152,6 +155,17 @@ export const TestPageContent: React.FC = () => {
                             value={authPhone} 
                             onChange={(e) => setAuthPhone(e.target.value)} 
                             placeholder="Optional phone number"
+                        />
+                    </FormControl>
+
+                    <FormControl display="flex" alignItems="center" mb="16px">
+                        <FormLabel htmlFor="send-otp-switch" mb="0">
+                            Send OTP
+                        </FormLabel>
+                        <Switch
+                            id="send-otp-switch"
+                            isChecked={sendOtp}
+                            onChange={() => setSendOtp(!sendOtp)}
                         />
                     </FormControl>
 

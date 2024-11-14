@@ -33,7 +33,8 @@ export type AuthenticationErrorType = {
 export type AuthenticationOptionsType = {
     onSuccess: (results: AuthenticationResultType) => void,
     onError: (error: AuthenticationErrorType) => void,
-    phone?: string
+    phone?: string,
+    sendOtp?: boolean
 };
 
 export type SkipifyErrorType = {

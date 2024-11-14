@@ -77,7 +77,6 @@ class EmbeddedComponentsSDK {
   authentication(lookupResult: LookupResponseType, options: AuthenticationOptionsType) {
     // Validate lookup result
     const lookupValidation = this.validateWithSchema(LookupResponseSchema, lookupResult);
-    console.log(lookupResult);
     if (lookupValidation instanceof SkipifyError) {
         options.onError(lookupValidation);
         return;
@@ -118,7 +117,8 @@ class EmbeddedComponentsSDK {
             this.messenger.launchAuthIframe(authUrl, container, {
                 lookupData: lookupResult,
                 options: {                 
-                    phone: options.phone
+                    phone: options.phone,
+                    sendOtp: options.sendOtp ?? false
                 }
             });
         }

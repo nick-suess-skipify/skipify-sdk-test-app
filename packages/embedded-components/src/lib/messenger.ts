@@ -125,7 +125,7 @@ export class Messenger {
 
     // Auth component
 
-    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { lookupData: LookupResponseType; options?: { phone?: string } }) {
+    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean } }) {
         this.authIframe = launchIframe(iframeSrc, SkipifyElementIds.authIframe, container);
         this.authData = authData;
     }

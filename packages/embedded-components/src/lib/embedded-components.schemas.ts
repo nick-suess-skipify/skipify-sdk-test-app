@@ -19,6 +19,7 @@ export const AuthenticationOptionsSchema = z.object({
   phone: z.string().optional().refine((val) => !val || phoneRegex.test(val), {
     message: "Invalid phone number",
   }),
+  sendOtp: z.boolean().optional()
 });
 
 // Schema for lookup result passed to authentication()
