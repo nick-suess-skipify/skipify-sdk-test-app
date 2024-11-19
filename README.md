@@ -55,6 +55,7 @@ nx run shopify:build:dev
 nx run custom:build:dev
 nx run shared:build:dev
 nx run embedded-components:build:dev
+nx run magento:build:dev
 ```
 
 Running all apps:

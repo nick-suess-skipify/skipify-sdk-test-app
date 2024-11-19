@@ -35,7 +35,8 @@
       "@checkout-sdk/shared/*": ["packages/shared/src/*"],
       "@checkout-sdk/embedded-components": [
         "packages/embedded-components/src/index.ts"
-      ]
+      ],
+      "@checkout-sdk/magento": ["packages/magento/src/index.ts"]
     },
     "types": ["vite/client", "node", "jest", "vite-plugin-svgr/client"]
   },

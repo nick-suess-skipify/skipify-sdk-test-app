@@ -116,5 +116,6 @@ declare global {
     BigCommerceSDK: any;
     CustomSDK: any;
     skipify: any;
+    MagentoSDK: any;
   }
 }
