@@ -42,7 +42,10 @@ export const SkipifyClassNames = {
   hiding: '_SKIPIFY_hiding',
   samsungDemo: '_SAMSUNG_DEMO',
   embedOverlay: '_SKIPIFY_embed_overlay',
-  embedOverlayWrapper: '_SKIPIFY_embed_overlay_wrapper'
+  embedOverlayWrapper: '_SKIPIFY_embed_overlay_wrapper',
+
+  // classes for components sdk
+  componentOverlayIframe: '_SKIPIFY_component_overlay_iframe' // class for component iframe when displayMode is overlay
 };
 
 export const SkipifyElementIds = {

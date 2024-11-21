@@ -1,7 +1,7 @@
 import { MESSAGE_NAMES, SkipifyCheckoutUrl, COMPONENT_LISTENER_IDS, SkipifyElementIds } from "@checkout-sdk/shared/lib/constants";
 import { ShopperType } from "./embedded-components.types";
 import { SkipifyError } from "./error";
-import { launchHiddenIframe, launchIframe } from "./iframe";
+import { launchHiddenIframe, launchIframe, positionIframeInOverlay, removeUI } from "./iframe";
 import { AuthenticationResultType, LookupResponseType } from "./embedded-components.types";
 import { log } from "@checkout-sdk/shared/lib/utils/log";
 
@@ -9,7 +9,7 @@ export class Messenger {
     iframe: HTMLIFrameElement | null = null;
     authIframe: HTMLIFrameElement | null = null;
     listenerReady = false;
-    authData: { lookupData: any; options?: { phone?: string } } | null = null;
+    authData: { lookupData: any; options?: { phone?: string, displayMode?: string, sendOtp?: boolean } } | null = null;
 
     // return promises
     lookupPromiseResolve: ((data: any) => void) | null = null;
@@ -123,11 +123,18 @@ export class Messenger {
         });
     }
 
+    handleReposition() {
+        positionIframeInOverlay();
+    }
+
     // Auth component
 
-    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean } }) {
-        this.authIframe = launchIframe(iframeSrc, SkipifyElementIds.authIframe, container);
+    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean; displayMode?: string } }) {
+        this.authIframe = launchIframe(iframeSrc, SkipifyElementIds.authIframe, container, authData.options?.displayMode);
         this.authData = authData;
+
+        window.addEventListener('scroll', this.handleReposition);
+        window.addEventListener('resize', this.handleReposition);
     }
 
     handleAuthListenerReady() {
@@ -178,6 +185,8 @@ export class Messenger {
         if (this.authIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.AUTH_COMPONENT) {
             this.handleCloseAuthIframe();
         }
+
+        removeUI()
     }
 
     handleCloseAuthIframe() {

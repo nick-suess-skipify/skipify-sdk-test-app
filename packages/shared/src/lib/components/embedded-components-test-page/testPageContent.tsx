@@ -87,7 +87,10 @@ export const TestPageContent: React.FC = () => {
         lookupResStatus = 'ERROR'
     }
 
-    const handleAuthentication = async () => {
+    const handleAuthentication = async (
+        targetId: string,
+        displayMode: 'embedded' | 'overlay'
+    ) => {
         if (!lookupRes.challengeId) return;
 
         skipifyClient?.authentication(lookupRes, {
@@ -98,8 +101,9 @@ export const TestPageContent: React.FC = () => {
                 setAuthRes({ error });
             },
             phone: authPhone,
-            sendOtp
-        }).render(authContainerRef.current?.id || '');
+            sendOtp,
+            displayMode,
+        }).render(targetId);
     };
 
     return (
@@ -117,7 +121,12 @@ export const TestPageContent: React.FC = () => {
                     </Box>
                     <FormControl mb="16px" isRequired>
                         <FormLabel>Email</FormLabel>
-                        <Input type='text' value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <Input 
+                            id="email-input"
+                            type='text' 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
+                        />
                     </FormControl>
                     <FormControl mb="16px">
                         <FormLabel>Phone</FormLabel>
@@ -131,6 +140,7 @@ export const TestPageContent: React.FC = () => {
                             type='button'
                             onClick={() => handleLookup()}
                             isLoading={lookupLoading}
+                            data-testid="lookup-button"
                         >
                             Lookup
                         </Button>
@@ -140,7 +150,7 @@ export const TestPageContent: React.FC = () => {
                     <Code><JSONPretty id="json-pretty" data={lookupRes}></JSONPretty></Code>
                 </Box>
 
-                <Box >
+                <VStack spacing='24px' align='left'>
                     <Box mb="32px" position='relative'>
                         <Divider />
                         <AbsoluteCenter bg='white' px='4'>
@@ -173,10 +183,24 @@ export const TestPageContent: React.FC = () => {
                         mt={4}
                         colorScheme='teal'
                         type='button'
-                        onClick={handleAuthentication}
+                        onClick={() => handleAuthentication('merchant-auth-container', 'embedded')}
                         isDisabled={!lookupRes.challengeId}
+                        data-testid="render-authenticate-button"
                     >
                         Render Authenticate
+                    </Button>
+
+
+
+                    <Button
+                        mt={4}
+                        colorScheme='blue'
+                        type='button'
+                        onClick={() => handleAuthentication('email-input', 'overlay')}
+                        isDisabled={!lookupRes.challengeId}
+                        data-testid="render-authenticate-overlay-button"
+                    >
+                        Render Authenticate Overlay
                     </Button>
 
                     <div 
@@ -187,16 +211,19 @@ export const TestPageContent: React.FC = () => {
                             borderRadius: '8px',
                             padding: '16px',
                             marginTop: '16px',
-                            minHeight: '100px'
+                            minHeight: '100px',
+                            backgroundColor: 'rgba(0, 0, 255, 0.1)'
                         }}
-                    
+                        data-testid="merchant-auth-container"
                     >
                         Target for authentication iframe (#merchant-auth-container)
                     </div>
+
+
                     <Text fontSize='md'>Response: </Text>
 
                     <Code><JSONPretty id="json-pretty-auth" data={authRes}></JSONPretty></Code>
-                </Box>
+                </VStack>
             </VStack>
         </Container>
     );

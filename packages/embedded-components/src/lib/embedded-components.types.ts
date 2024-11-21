@@ -34,7 +34,8 @@ export type AuthenticationOptionsType = {
     onSuccess: (results: AuthenticationResultType) => void,
     onError: (error: AuthenticationErrorType) => void,
     phone?: string,
-    sendOtp?: boolean
+    sendOtp?: boolean,
+    displayMode?: 'embedded' | 'overlay'
 };
 
 export type SkipifyErrorType = {

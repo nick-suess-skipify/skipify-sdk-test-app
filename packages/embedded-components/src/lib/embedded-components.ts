@@ -104,6 +104,11 @@ class EmbeddedComponentsSDK {
                 return;
             }
 
+            // Check if container is an input type when displayMode is 'overlay'
+            if (options.displayMode === 'overlay' && container.tagName.toLowerCase() !== 'input') {
+                options.onError(new SkipifyError('Container must be an input element for overlay display mode'));
+                return;
+            }
 
             this.messenger.onAuthenticationSuccess((data: AuthenticationResultType) => {
                 options.onSuccess(data);
@@ -118,7 +123,8 @@ class EmbeddedComponentsSDK {
                 lookupData: lookupResult,
                 options: {                 
                     phone: options.phone,
-                    sendOtp: options.sendOtp ?? false
+                    sendOtp: options.sendOtp ?? false,
+                    displayMode: options.displayMode ?? 'embedded'
                 }
             });
         }
