@@ -20,7 +20,7 @@ export type LookupResponseType = {
     }
 };
 
-export type AuthenticationResultType = {
+export type AuthenticationResponseType = {
     shopperId: string,
     sessionId: string
 };
@@ -31,7 +31,7 @@ export type AuthenticationErrorType = {
   };
 }
 export type AuthenticationOptionsType = {
-    onSuccess: (results: AuthenticationResultType) => void,
+    onSuccess: (results: AuthenticationResponseType) => void,
     onError: (error: AuthenticationErrorType) => void,
     phone?: string,
     sendOtp?: boolean,
@@ -41,3 +41,23 @@ export type AuthenticationOptionsType = {
 export type SkipifyErrorType = {
     message: string
 }
+
+export type CarouselResponseType = {
+    paymentId: string | null;
+    sessionId?: string;
+};
+
+export type CarouselErrorResponseType = {
+    error: {
+        message: string;
+    };
+};
+
+export type CarouselOptionsType = {
+    onSelect: (results: CarouselResponseType) => void,
+    onError: (error: CarouselErrorResponseType) => void,
+    orderTotal: number,
+    phone?: string,
+    sendOtp?: boolean,
+    displayMode?: 'embedded' | 'overlay'
+};

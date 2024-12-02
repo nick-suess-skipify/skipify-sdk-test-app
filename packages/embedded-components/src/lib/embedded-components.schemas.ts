@@ -40,3 +40,20 @@ export const LookupResponseSchema = z.object({
     destination: z.string().optional(),
   }).optional(),
 });
+
+// Schema for authentication success response
+export const AuthenticationResponseSchema = z.object({
+  shopperId: z.string(),
+  sessionId: z.string()
+});
+
+export const CarouselOptionsSchema = z.object({
+  onSelect: z.function().args(z.any()),
+  onError: z.function().args(z.any()),
+  orderTotal: z.number(),
+  phone: z.string().optional().refine((val) => !val || phoneRegex.test(val), {
+    message: "Invalid phone number",
+  }),
+  sendOtp: z.boolean().optional(),
+  displayMode: z.enum(['embedded', 'overlay']).optional()
+});

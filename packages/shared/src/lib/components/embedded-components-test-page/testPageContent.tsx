@@ -40,6 +40,13 @@ export const TestPageContent: React.FC = () => {
 
     const [sendOtp, setSendOtp] = useState(false);
 
+    const [carouselPhone, setCarouselPhone] = useState('');
+    const [orderTotal, setOrderTotal] = useState('80');
+    const carouselContainerRef = useRef<HTMLDivElement>(null);
+    const [carouselRes, setCarouselRes] = useState<any>({});
+
+    const [carouselSendOtp, setCarouselSendOtp] = useState(false);
+
     useEffect(() => {
         // Check for Skipify client in the window
         const checkClient = () => {
@@ -102,6 +109,21 @@ export const TestPageContent: React.FC = () => {
             },
             phone: authPhone,
             sendOtp,
+            displayMode,
+        }).render(targetId);
+    };
+
+    const handleCarousel = async (targetId: string, useLookupResponse = false, displayMode: 'embedded' | 'overlay' = 'embedded') => {
+        skipifyClient?.carousel(useLookupResponse ? lookupRes : authRes, {
+            onSelect: (results: any) => {
+                setCarouselRes(results);
+            },
+            onError: (error: any) => {
+                setCarouselRes({ error });
+            },
+            phone: carouselPhone,
+            orderTotal: Number(orderTotal),
+            sendOtp: carouselSendOtp,
             displayMode,
         }).render(targetId);
     };
@@ -223,6 +245,107 @@ export const TestPageContent: React.FC = () => {
                     <Text fontSize='md'>Response: </Text>
 
                     <Code><JSONPretty id="json-pretty-auth" data={authRes}></JSONPretty></Code>
+                </VStack>
+
+                {/* Add new Carousel section */}
+                <VStack spacing='24px' align='left'>
+                    <Box mb="32px" position='relative'>
+                        <Divider />
+                        <AbsoluteCenter bg='white' px='4'>
+                            <b>Carousel</b>
+                        </AbsoluteCenter>
+                    </Box>
+
+                    <FormControl mb="16px">
+                        <FormLabel>Carousel Phone Number (Optional)</FormLabel>
+                        <Input 
+                            type='text' 
+                            value={carouselPhone} 
+                            onChange={(e) => setCarouselPhone(e.target.value)} 
+                            placeholder="Optional phone number (only works when using lookup response)"
+                            isDisabled={!!authRes.shopperId && !!authRes.sessionId}
+                        />
+                    </FormControl>
+
+                    <FormControl mb="16px">
+                        <FormLabel>Order Total</FormLabel>
+                        <Input 
+                            type='number' 
+                            value={orderTotal} 
+                            onChange={(e) => setOrderTotal(e.target.value)} 
+                            placeholder="Enter order total"
+                        />
+                    </FormControl>
+
+                    <FormControl display="flex" alignItems="center" mb="16px">
+                        <FormLabel htmlFor="carousel-send-otp-switch" mb="0">
+                            Send OTP
+                        </FormLabel>
+                        <Switch
+                            id="carousel-send-otp-switch"
+                            isChecked={carouselSendOtp}
+                            onChange={() => setCarouselSendOtp(!carouselSendOtp)}
+                        />
+                    </FormControl>
+
+                    <Button
+                        mt={4}
+                        colorScheme='teal'
+                        type='button'
+                        onClick={() => handleCarousel('merchant-carousel-container')}
+                        isDisabled={!authRes.shopperId || !authRes.sessionId}
+                        data-testid="render-carousel-button"
+                    >
+                        Render Carousel base on Auth Response
+                    </Button>
+                    <Text fontSize="sm" color="gray.500">
+                            Authentication required before rendering carousel base on auth response
+                    </Text>
+
+                    <Button
+                        mt={4}
+                        colorScheme='blue'
+                        type='button'
+                        onClick={() => handleCarousel('merchant-carousel-container', true)}
+                        isDisabled={!lookupRes.challengeId || !!authRes.shopperId}
+                        data-testid="render-carousel-lookup-button"
+                    >
+                        Render Carousel base on Lookup Response
+                    </Button>
+
+                    <Button
+                        mt={4}
+                        colorScheme='purple'
+                        type='button'
+                        onClick={() => handleCarousel('email-input', true, 'overlay')}
+                        isDisabled={!lookupRes.challengeId || !!authRes.shopperId}
+                        data-testid="render-carousel-lookup-overlay-button"
+                    >
+                        Render Carousel base on Lookup Response (Overlay Mode)
+                    </Button>
+
+                    <Text fontSize="sm" color="gray.500">
+                        This enable merchant to render carousel without rendering authentication seperately
+                    </Text>
+
+                    <div 
+                        id="merchant-carousel-container" 
+                        ref={carouselContainerRef}
+                        style={{ 
+                            border: '1px dashed #718096', 
+                            borderRadius: '8px',
+                            padding: '16px',
+                            marginTop: '16px',
+                            minHeight: '100px',
+                            backgroundColor: 'rgba(0, 128, 0, 0.1)'
+                        }}
+                        data-testid="merchant-carousel-container"
+                    >
+                        Target for carousel iframe (#merchant-carousel-container)
+                    </div>
+
+                    <Text fontSize='md'>Response: </Text>
+                    <Code><JSONPretty id="json-pretty-carousel" data={carouselRes}></JSONPretty></Code>
                 </VStack>
             </VStack>
         </Container>

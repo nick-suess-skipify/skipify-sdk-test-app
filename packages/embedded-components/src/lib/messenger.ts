@@ -1,8 +1,8 @@
 import { MESSAGE_NAMES, SkipifyCheckoutUrl, COMPONENT_LISTENER_IDS, SkipifyElementIds } from "@checkout-sdk/shared/lib/constants";
-import { ShopperType } from "./embedded-components.types";
+import { CarouselErrorResponseType, CarouselResponseType, ShopperType } from "./embedded-components.types";
 import { SkipifyError } from "./error";
 import { launchHiddenIframe, launchIframe, positionIframeInOverlay, removeUI } from "./iframe";
-import { AuthenticationResultType, LookupResponseType } from "./embedded-components.types";
+import { AuthenticationResponseType, LookupResponseType } from "./embedded-components.types";
 import { log } from "@checkout-sdk/shared/lib/utils/log";
 
 export class Messenger {
@@ -16,10 +16,25 @@ export class Messenger {
     lookupPromiseReject: ((error: any) => void) | null = null;
 
     // auth promises
-    authPromiseResolve: ((data: any) => void) | null = null;
-    authPromiseReject: ((error: any) => void) | null = null;
+    authPromiseResolve: ((data: AuthenticationResponseType) => void) | null = null;
+    authPromiseReject: ((error: { error: { message: string } }) => void) | null = null;
 
-    onAuthSuccessCallback: ((data: AuthenticationResultType) => void) | null = null;
+    // Carousel component
+    carouselIframe: HTMLIFrameElement | null = null;
+    carouselData: { 
+        lookupData?: LookupResponseType;
+        authenticationResult?: AuthenticationResponseType;
+        options?: {
+            phone?: string;
+            orderTotal: number;
+            sendOtp?: boolean;
+            displayMode?: string;
+        }
+    } | null = null;
+
+    carouselPromiseResolve: ((data: { paymentId: string | null, sessionId?: string }) => void) | null = null;
+    carouselPromiseReject: ((error: { error: { message: string } }) => void) | null = null;
+
 
     constructor() {
         window.addEventListener('message', (e) => this.handleIframeMessage(e));
@@ -51,6 +66,10 @@ export class Messenger {
                 return this.handleResize(event);
             case MESSAGE_NAMES.CLOSE_IFRAME:
                 return this.handleCloseIframe(event);
+            case MESSAGE_NAMES.CAROUSEL_COMPONENT_SUCCESS:
+                return this.handleCarouselSelect(event);
+            case MESSAGE_NAMES.CAROUSEL_COMPONENT_ERROR:
+                return this.handleCarouselError(event);
             default:
                 return;
         }
@@ -67,6 +86,8 @@ export class Messenger {
 
         if (event.data.payload?.id === COMPONENT_LISTENER_IDS.AUTH_COMPONENT) {
             this.handleAuthListenerReady();
+        } else if (event.data.payload?.id === COMPONENT_LISTENER_IDS.CAROUSEL_COMPONENT) {
+            this.handleCarouselListenerReady();
         }
     }
 
@@ -127,6 +148,17 @@ export class Messenger {
         positionIframeInOverlay();
     }
 
+    handleCloseIframe(event: MessageEvent) {
+        if (this.authIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.AUTH_COMPONENT) {
+            this.handleCloseAuthIframe();
+        }
+        if (this.carouselIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.CAROUSEL_COMPONENT) {
+            this.handleCloseCarouselIframe();
+        }
+        removeUI()
+    }
+
+
     // Auth component
 
     launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean; displayMode?: string } }) {
@@ -149,22 +181,14 @@ export class Messenger {
     }
 
     handleAuthSuccess(event: MessageEvent) {
-        const authResult: AuthenticationResultType = event.data.payload;
-        if (this.onAuthSuccessCallback) {
-            this.onAuthSuccessCallback(authResult);
+        if (this.authPromiseResolve) {
+            this.authPromiseResolve(event.data.payload);
         }
     }
 
     handleAuthError(event: MessageEvent) {
         if (this.authPromiseReject) {
-            this.authPromiseReject(new SkipifyError(event.data.payload.error));
-            this.clearAuthPromises();
-        }
-    }
-
-    handleResize(event: MessageEvent) {
-        if (this.authIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.AUTH_COMPONENT) {
-            this.authIframe.style.height = `${event.data.payload.height}px`;
+            this.authPromiseReject(event.data.payload);
         }
     }
 
@@ -173,20 +197,23 @@ export class Messenger {
         this.authPromiseReject = null;
     }
 
-    onAuthenticationSuccess(callback: (data: AuthenticationResultType) => void) {
-        this.onAuthSuccessCallback = callback;
-    }
-
-    onAuthenticationError(callback: (error: any) => void) {
-        this.authPromiseReject = callback;
-    }
-
-    handleCloseIframe(event: MessageEvent) {
+    handleResize(event: MessageEvent) {
         if (this.authIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.AUTH_COMPONENT) {
-            this.handleCloseAuthIframe();
+            this.authIframe.style.height = `${event.data.payload.height}px`;
+        } else if (this.carouselIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.CAROUSEL_COMPONENT) {
+            this.carouselIframe.style.height = `${event.data.payload.height}px`;
+        } else if (this.carouselIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.AUTH_COMPONENT) {
+            // This is to handle auth + carousel combo iframe resize message
+            this.carouselIframe.style.height = `${event.data.payload.height}px`;
         }
+    }
 
-        removeUI()
+    onAuthenticationSuccess(callback: (data: AuthenticationResponseType) => void) {
+        this.authPromiseResolve = callback;
+    }
+
+    onAuthenticationError(callback: (error: { error: { message: string } }) => void) {
+        this.authPromiseReject = callback;
     }
 
     handleCloseAuthIframe() {
@@ -196,5 +223,73 @@ export class Messenger {
             this.authIframe.remove();
             this.authIframe = null;
         }
+        this.clearAuthPromises();
+        window.removeEventListener('scroll', this.handleReposition);
+        window.removeEventListener('resize', this.handleReposition);
     }
+
+
+    // Carousel component
+
+    launchCarouselIframe(
+        iframeSrc: string, 
+        container: HTMLElement, 
+        carouselData: typeof this.carouselData
+    ) {
+        this.carouselIframe = launchIframe(iframeSrc, SkipifyElementIds.carouselIframe, container, carouselData?.options?.displayMode);
+        this.carouselData = carouselData;
+
+        if (carouselData?.options?.displayMode === 'overlay') {
+            window.addEventListener('scroll', this.handleReposition);
+            window.addEventListener('resize', this.handleReposition);
+        }
+    }
+
+    handleCarouselListenerReady() {
+        if (this.carouselIframe && this.carouselData) {
+            const message = {
+                name: MESSAGE_NAMES.RECEIVE_COMPONENT_CAROUSEL_DATA,
+                payload: this.carouselData,
+            };
+            log('Sending message:', message);
+            this.carouselIframe.contentWindow?.postMessage(message, SkipifyCheckoutUrl);
+        }
+    }
+
+    onCarouselSelect(callback: (data: CarouselResponseType) => void) {
+        this.carouselPromiseResolve = callback;
+    }
+
+    onCarouselError(callback: (error: CarouselErrorResponseType) => void) {
+        this.carouselPromiseReject = callback;
+    }
+
+    handleCarouselSelect(event: MessageEvent) {
+        if (this.carouselPromiseResolve) {
+            this.carouselPromiseResolve(event.data.payload);
+        }
+    }
+
+    handleCarouselError(event: MessageEvent) {
+        if (this.carouselPromiseReject) {
+            this.carouselPromiseReject(event.data.payload);
+        }
+    }
+
+    clearCarouselPromises() {
+        this.carouselPromiseResolve = null;
+        this.carouselPromiseReject = null;
+    }
+
+    handleCloseCarouselIframe() {
+        if (this.carouselIframe) {
+            this.carouselIframe.remove();
+            this.carouselIframe = null;
+        }
+        this.clearCarouselPromises();
+        window.removeEventListener('scroll', this.handleReposition);
+        window.removeEventListener('resize', this.handleReposition);
+    }
+
+
 }

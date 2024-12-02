@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { SkipifyApi } from '@checkout-sdk/shared/lib/utils/api';
 import { SDKVersion, SkipifyCheckoutUrl } from "@checkout-sdk/shared/lib/constants";
-import { ShopperType, LookupResponseType, AuthenticationOptionsType, AuthenticationResultType, AuthenticationErrorType } from './embedded-components.types';
-import { ShopperSchema, AuthenticationOptionsSchema, LookupResponseSchema } from './embedded-components.schemas';
+import { ShopperType, LookupResponseType, AuthenticationOptionsType, AuthenticationResponseType, AuthenticationErrorType, CarouselOptionsType } from './embedded-components.types';
+import { ShopperSchema, AuthenticationOptionsSchema, LookupResponseSchema, AuthenticationResponseSchema, CarouselOptionsSchema } from './embedded-components.schemas';
 import { MerchantType } from '@checkout-sdk/shared/lib/shared.types'; // Import styles, likely will not use shared styles
 import { SkipifyError } from './error';
 import { Messenger } from './messenger';
@@ -110,7 +110,7 @@ class EmbeddedComponentsSDK {
                 return;
             }
 
-            this.messenger.onAuthenticationSuccess((data: AuthenticationResultType) => {
+            this.messenger.onAuthenticationSuccess((data: AuthenticationResponseType) => {
                 options.onSuccess(data);
             });
 
@@ -128,6 +128,75 @@ class EmbeddedComponentsSDK {
                 }
             });
         }
+    };
+  }
+
+  carousel(data: LookupResponseType | AuthenticationResponseType, options: CarouselOptionsType) {
+    // Validate data based on its type
+    if ('sessionId' in data) {
+      // It's AuthenticationResult data
+      const authResultValidation = this.validateWithSchema(AuthenticationResponseSchema, data);
+      if (authResultValidation instanceof SkipifyError) {
+        options.onError(authResultValidation);
+        return;
+      }
+    } else {
+      // It's LookupResponse data
+      const lookupValidation = this.validateWithSchema(LookupResponseSchema, data);
+      if (lookupValidation instanceof SkipifyError) {
+        options.onError(lookupValidation);
+        return;
+      }
+    }
+
+    // Validate options
+    const optionsValidation = this.validateWithSchema(CarouselOptionsSchema, options);
+    if (optionsValidation instanceof SkipifyError) {
+      options.onError(optionsValidation);
+      return;
+    }
+
+
+    const carouselUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/carousel`;
+
+    return {
+      render: (containerId: string) => {
+        if (!containerId) {
+          options.onError({ error: { message: 'Container ID is required' } });
+          return;
+        }
+
+        const container = document.getElementById(containerId);
+        if (!container) {
+          options.onError({ error: { message: `Container with ID "${containerId}" not found` } });
+          return;
+        }
+
+        if (options.displayMode === 'overlay' && container.tagName.toLowerCase() !== 'input') {
+          options.onError(new SkipifyError('Container must be an input element for overlay display mode'));
+          return;
+       }
+
+        this.messenger.onCarouselSelect((data: { paymentId: string | null, sessionId?: string }) => {
+          options.onSelect(data);
+        });
+
+        this.messenger.onCarouselError((error: { error: { message: string } }) => {
+          options.onError(error);
+        });
+
+        // Launch carousel iframe with appropriate data
+        this.messenger.launchCarouselIframe(carouselUrl, container, {
+          lookupData: 'sessionId' in data ? undefined : data,
+          authenticationResult: 'sessionId' in data ? data : undefined,
+          options: {
+            orderTotal: options.orderTotal,
+            phone: options.phone,
+            sendOtp: options.sendOtp ?? false,
+            displayMode: options.displayMode ?? 'embedded'
+          }
+        });
+      }
     };
   }
 }

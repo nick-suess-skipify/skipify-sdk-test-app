@@ -60,7 +60,8 @@ export const SkipifyElementIds = {
   loadingParallelogram: '_SKIPIFY_Loader',
 
   // ids for components sdk
-  authIframe: '_SKIPIFY_auth_iframe'
+  authIframe: '_SKIPIFY_auth_iframe',
+  carouselIframe: '_SKIPIFY_carousel_iframe'
 };
 
 /**
@@ -91,6 +92,9 @@ export const MESSAGE_NAMES = {
   AUTH_COMPONENT_SUCCESS: `${MESSAGE_NAME_PREFIX}/auth-component-success`, // auth component
   AUTH_COMPONENT_ERROR: `${MESSAGE_NAME_PREFIX}/auth-component-error`, // auth component
 
+  CAROUSEL_COMPONENT_SUCCESS: `${MESSAGE_NAME_PREFIX}/carousel-component-success`, // carousel component
+  CAROUSEL_COMPONENT_ERROR: `${MESSAGE_NAME_PREFIX}/carousel-component-error`, // carousel component
+
   // Outbound
   REQUEST_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/request-lookup-data`,
   ENROLLMENT_INFO_RECEIVED: `${MESSAGE_NAME_PREFIX}/enrollment-info`,
@@ -101,6 +105,7 @@ export const MESSAGE_NAMES = {
 
 
   RECEIVE_COMPONENT_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/receive-auth-component-data`, // auth component
+  RECEIVE_COMPONENT_CAROUSEL_DATA: `${MESSAGE_NAME_PREFIX}/receive-carousel-component-data`, // carousel component
 
   // Internal
   ENROLLMENT_VALUE_CHANGED: `${MESSAGE_NAME_PREFIX}/enrollment-checkbox-changed`,
@@ -111,7 +116,8 @@ export const MESSAGE_NAMES = {
 
 export const COMPONENT_LISTENER_IDS = {
   AUTH_COMPONENT: 'auth-component',
-  LOOKUP_COMPONENT: 'lookup-component'
+  LOOKUP_COMPONENT: 'lookup-component',
+  CAROUSEL_COMPONENT: 'carousel-component'
 } as const;
 
 declare global {
