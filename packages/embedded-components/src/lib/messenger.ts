@@ -21,7 +21,8 @@ export class Messenger {
 
     // Carousel component
     carouselIframe: HTMLIFrameElement | null = null;
-    carouselData: { 
+    carouselData: {
+        skipifySessionId: string;
         lookupData?: LookupResponseType;
         authenticationResult?: AuthenticationResponseType;
         options?: {
@@ -124,12 +125,12 @@ export class Messenger {
         this.lookupPromiseReject = null;
     }
 
-    async lookup(shopper: ShopperType) {
+    async lookup(shopper: ShopperType, options?: { skipifySessionId: string }) {
         if (!this.iframe) {
             return Promise.reject(new SkipifyError('Iframe is not available.'))
         }
 
-        const payload = { email: shopper.email, phone: shopper.phone }
+        const payload = { email: shopper.email, phone: shopper.phone, skipifySessionId: options?.skipifySessionId }
         const message = {
             name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
             payload,
@@ -161,7 +162,7 @@ export class Messenger {
 
     // Auth component
 
-    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean; displayMode?: string } }) {
+    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { skipifySessionId: string, lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean; displayMode?: string } }) {
         this.authIframe = launchIframe(iframeSrc, SkipifyElementIds.authIframe, container, authData.options?.displayMode);
         this.authData = authData;
 

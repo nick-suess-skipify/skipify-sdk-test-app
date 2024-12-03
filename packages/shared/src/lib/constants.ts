@@ -120,6 +120,11 @@ export const COMPONENT_LISTENER_IDS = {
   CAROUSEL_COMPONENT: 'carousel-component'
 } as const;
 
+export const SKIPIFY_ANALYTICS_CONST = {
+  HEADER_NAME: 'x-amplitude-session-id',
+  SESSION_STORAGE_KEY: "asid",
+} as const;
+
 declare global {
   interface Window {
     BigCommerceSDK: any;

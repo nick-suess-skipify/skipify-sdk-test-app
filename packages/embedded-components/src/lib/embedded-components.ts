@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SkipifyApi } from '@checkout-sdk/shared/lib/utils/api';
-import { SDKVersion, SkipifyCheckoutUrl } from "@checkout-sdk/shared/lib/constants";
+import { SDKVersion, SKIPIFY_ANALYTICS_CONST, SkipifyCheckoutUrl } from "@checkout-sdk/shared/lib/constants";
 import { ShopperType, LookupResponseType, AuthenticationOptionsType, AuthenticationResponseType, AuthenticationErrorType, CarouselOptionsType } from './embedded-components.types';
 import { ShopperSchema, AuthenticationOptionsSchema, LookupResponseSchema, AuthenticationResponseSchema, CarouselOptionsSchema } from './embedded-components.schemas';
 import { MerchantType } from '@checkout-sdk/shared/lib/shared.types'; // Import styles, likely will not use shared styles
@@ -24,6 +24,9 @@ class EmbeddedComponentsSDK {
   //  Internal
   componentsUrl: string;
 
+  // Analytics session ID
+  private readonly analyticsSessionId: string;
+
   constructor(config: ConfigType) {
     // Validate initialization configs
     this.config = new Config(config);
@@ -33,7 +36,16 @@ class EmbeddedComponentsSDK {
 
     // Initial setup
     this.messenger = new Messenger();
-    this.api = new SkipifyApi({ merchantId: this.config.merchantId });
+
+    /* Recover or generate analytics session id */
+    this.analyticsSessionId = Date.now().toString(10);
+    if (typeof window !== 'undefined') {
+      const savedSessionId = window.sessionStorage.getItem(SKIPIFY_ANALYTICS_CONST.SESSION_STORAGE_KEY);
+      this.analyticsSessionId = savedSessionId || this.analyticsSessionId;
+      window.sessionStorage.setItem(SKIPIFY_ANALYTICS_CONST.SESSION_STORAGE_KEY, this.analyticsSessionId);
+    }
+
+    this.api = new SkipifyApi({ merchantId: this.config.merchantId, analyticsSessionId: this.analyticsSessionId });
 
     this.start();
   }
@@ -59,7 +71,7 @@ class EmbeddedComponentsSDK {
       return new SkipifyError('Iframe is not available. Please try again later.');
     }
 
-    return this.messenger.lookup(shopper);
+    return this.messenger.lookup(shopper, { skipifySessionId: this.analyticsSessionId });
   }
 
   validateWithSchema<T>(schema: z.ZodSchema<T>, data: unknown): T | SkipifyError {
@@ -120,8 +132,9 @@ class EmbeddedComponentsSDK {
 
             // Launch authentication iframe
             this.messenger.launchAuthIframe(authUrl, container, {
+                skipifySessionId: this.analyticsSessionId,
                 lookupData: lookupResult,
-                options: {                 
+                options: {
                     phone: options.phone,
                     sendOtp: options.sendOtp ?? false,
                     displayMode: options.displayMode ?? 'embedded'
@@ -187,6 +200,7 @@ class EmbeddedComponentsSDK {
 
         // Launch carousel iframe with appropriate data
         this.messenger.launchCarouselIframe(carouselUrl, container, {
+          skipifySessionId: this.analyticsSessionId,
           lookupData: 'sessionId' in data ? undefined : data,
           authenticationResult: 'sessionId' in data ? data : undefined,
           options: {
