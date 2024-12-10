@@ -3,12 +3,13 @@ import {
   Base,
   SkipifyClassNames,
   SkipifyElementIds,
-  UserEnrollmentInformationType,
   cleanPhoneNumber,
-  insertLoadingStateElement
+  insertLoadingStateElement,
+  UserEnrollmentInformationType,
+  PlatformCartType
 } from "@checkout-sdk/shared";
+import { EmailInput } from "@checkout-sdk/shared/classes"
 import {
-  EmailInput,
   CheckoutCompleted,
   EnrollmentCheckbox,
   BigCommerceStoreFrontApi,
@@ -218,7 +219,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     return newItem;
   }
 
-  override async getCartData(): Promise<BigCommerceLineItem[] | null> {
+  override async getCartData(): Promise<PlatformCartType> {
     const userCart = await this.storeFrontApi.getUserCart();
 
     if (!userCart) {
@@ -230,7 +231,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     if (digitalItems.length > 0) {
       return null; // We aren't supporting Digital Items as of now - let the customer finish the order in the merchant website
     }
-    return [...physicalItems.map(this.transformLineItem)];
+    return { items: [...physicalItems.map(this.transformLineItem)] };
   }
 
   override async getCartTotal() {

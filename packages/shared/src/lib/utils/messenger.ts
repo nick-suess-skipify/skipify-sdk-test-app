@@ -13,7 +13,7 @@ import {
   hideIframe,
   changeIframeHeight,
 } from './iframe';
-import { UserEnrollmentInformationType, LookupUserType } from '../shared.types';
+import { UserEnrollmentInformationType, PlatformCartType } from '../shared.types';
 import isEqual from 'lodash.isequal';
 import {
   hideLoader,
@@ -34,7 +34,7 @@ export class Messenger {
   iframe: HTMLIFrameElement | null = null;
   iframeHeight = 0;
   base: Base;
-  userToLookup: { email: string; phone?: string; cartData: unknown } | null = null;
+  userToLookup: { email: string; phone?: string; cartData: PlatformCartType } | null = null;
   prevUserEmail: string | null = null;
   userRecognizedByDeviceId: boolean | null = null;
   hasIframeReloaded = false;
@@ -47,17 +47,16 @@ export class Messenger {
   handleIframeMessage(event: MessageEvent) {
     const { data, origin } = event;
 
+
+    if (origin != SkipifyCheckoutUrl || !data?.name) {
+      return;
+    }
+
     if (origin?.match(/\.skipify\.com/) || origin === IFRAME_ORIGIN) {
       log('Received message from iframe', {
         name: data?.name,
         payload: data?.payload,
       });
-    }
-
-    // TODO Add back origin check once we have SDK components origins defined
-    // if (origin != IFRAME_ORIGIN || !data)
-    if (!data) {
-      return;
     }
 
     switch (data.name) {
@@ -175,16 +174,19 @@ export class Messenger {
     }
   }
 
-  lookupUser(email: string, phone?: string, cart?: unknown, forceLookup = false) {
+  lookupUser(email: string, phone?: string, cart?: PlatformCartType, forceLookup = false) {
+    if (!cart) {
+      return;
+    }
     if (email === this.prevUserEmail && !forceLookup) {
       // Prevent lookup racing condition and sending multiple lookup requests on input blur
       return;
     }
     if (this.iframe) {
       this.prevUserEmail = email;
-      const payload: LookupUserType = {
+      const payload: any = {
         email,
-        cart: { items: cart },
+        cart: { items: cart.items, cartId: cart.cartId },
         skipifySessionId: this.base.skipifyEvents.getSessionId(), // override iframe's skipify session id
       };
 
@@ -217,7 +219,7 @@ export class Messenger {
     if (cart && this.iframe && !this.userRecognizedByDeviceId && !this.hasIframeReloaded) {
       const payload = {
         skipifySessionId: this.base.skipifyEvents.getSessionId(), // override iframe's skipify session id
-        cart: { items: cart },
+        cart: { items: cart.items, cartId: cart.cartId },
         buttonCheckout: useButtonCheckout ? true : undefined,
       };
 
@@ -242,7 +244,8 @@ export class Messenger {
     if (cart && this.iframe) {
       const payload = {
         cart: {
-          items: cart,
+          items: cart.items,
+          cartId: cart.cartId
         },
       };
 
@@ -375,8 +378,8 @@ export class Messenger {
       return;
     }
     this.base.setHasInitializedIframe(true);
-    
-    if(!this.base.canShowIframe()) return 
+
+    if (!this.base.canShowIframe()) return
     this.requestDeviceId(); // immediately request device id from iframe after iframe is initialized
     if (this.userToLookup) {
       const { email, phone, cartData } = this.userToLookup;

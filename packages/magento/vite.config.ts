@@ -15,6 +15,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '@checkout-sdk/shared/classes': resolve(__dirname, '../shared/src/lib/classes/index.ts'),
       '@checkout-sdk/shared': resolve(__dirname, '../shared/src/index.ts'),
     },
   },

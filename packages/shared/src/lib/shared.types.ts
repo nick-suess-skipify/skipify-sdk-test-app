@@ -49,3 +49,8 @@ export type LookupUserType = {
   };
   skipifySessionId?: number;
 }
+
+export type PlatformCartType = {
+  items: unknown;
+  cartId?: string
+} | null

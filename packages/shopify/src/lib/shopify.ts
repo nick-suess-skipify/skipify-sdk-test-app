@@ -135,13 +135,13 @@ class ShopifySDK extends Base implements AbstractSDK {
     const emailInputElem = document.getElementById(
       this.emailInputId
     ) as HTMLInputElement;
-    
+
     if (!emailInputElem) {
       if (!emailInputElem) log("Email input not found.");
       this.messenger.resetIframeStyles();
       return;
     }
-    
+
     if (emailInputElem?.classList.contains(SkipifyClassNames.emailInput)) {
       return;
     }
@@ -338,7 +338,7 @@ class ShopifySDK extends Base implements AbstractSDK {
     email = email.trim().toLowerCase();
 
     const { testMode, userEmail } = this.store.getState();
-    if(email === userEmail) {
+    if (email === userEmail) {
       return;
     }
     this.store.setState({
@@ -389,9 +389,9 @@ class ShopifySDK extends Base implements AbstractSDK {
 
     if (cartData) {
       if (this.hasInitializedIframe) {
-        this.messenger.lookupUser(email, undefined, cartData);
+        this.messenger.lookupUser(email, undefined, { items: cartData });
       } else {
-        this.messenger.addUserToLookup(email, undefined, cartData);
+        this.messenger.addUserToLookup(email, undefined, { items: cartData });
       }
     } else {
       log("Cart data not found, skip");

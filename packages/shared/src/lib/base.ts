@@ -365,26 +365,32 @@ export class Base {
     this.isSkipifyResumable = value;
   }
 
-  insertButton(emailInput: HTMLElement) {
+  createResumeButton() {
+    const button = document.createElement('button');
+
+    button.type = 'button';
+    button.id = SkipifyElementIds.checkButton;
+    button.innerHTML = `<svg id="_SKIPIFY_expand_more_icon" style="display: none;" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg>
+      <svg id="_SKIPIFY_check_icon" style="display: block;" viewBox="0 0 24 24" data-testid="CheckIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>`;
+    button.onclick = (e) => {
+      e.preventDefault();
+      displayIframe();
+      if (this.store.getState().flags?.['skipifyLayer']) {
+        // Only show the check icon on V2 - as on V1 the iframe is covering the button no need to change back n forth.
+        showCheckIcon();
+        // Only position iframe (the V2 positioning) if on V2 - if not leave the same
+        this.positionIframe(true);
+      }
+      this.messenger.restoreIframeHeight();
+    };
+    return button;
+  }
+
+  insertButton(emailInput: HTMLElement, overrideStyles: Record<string, string | number> = {}) {
     const wrapper = document.createElement('div');
     wrapper.id = SkipifyElementIds.emailWrapper;
     if (!this.button) {
-      this.button = document.createElement('button');
-      this.button.type = 'button';
-      this.button.id = SkipifyElementIds.checkButton;
-      this.button.innerHTML = `<svg id="_SKIPIFY_expand_more_icon" style="display: none;" viewBox="0 0 24 24" data-testid="ExpandMoreIcon"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg>
-      <svg id="_SKIPIFY_check_icon" style="display: block;" viewBox="0 0 24 24" data-testid="CheckIcon"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>`;
-      this.button.onclick = (e) => {
-        e.preventDefault();
-        displayIframe();
-        if (this.store.getState().flags?.['skipifyLayer']) {
-          // Only show the check icon on V2 - as on V1 the iframe is covering the button no need to change back n forth.
-          showCheckIcon();
-          // Only position iframe (the V2 positioning) if on V2 - if not leave the same
-          this.positionIframe(true);
-        }
-        this.messenger.restoreIframeHeight();
-      };
+      this.button = this.createResumeButton()
     }
     const buttonSize = emailInput.getBoundingClientRect().height - 4;
     this.button.style.width = `${buttonSize}px`;
@@ -405,12 +411,16 @@ export class Base {
         const borderRadiusValue = parseFloat(
           borderRadius.replace(/px|em|rem|%/, '')
         );
-        this.button.style.setProperty(
+        this.button?.style.setProperty(
           property,
           `${buttonSize / borderRadiusValue}%`
         );
       }
     }
+
+    Object.keys(overrideStyles).forEach((key) => {
+      (this.button?.style as any)[key] = overrideStyles[key];
+    });
 
     this.button.style.display = this.isSkipifyResumable ? 'flex' : 'none';
     emailInput.parentNode?.replaceChild(wrapper, emailInput);

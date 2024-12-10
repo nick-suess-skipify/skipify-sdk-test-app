@@ -31,6 +31,7 @@
       "@checkout-sdk/enrollment-checkbox": [
         "packages/enrollment-checkbox/src/index.ts"
       ],
+      "@checkout-sdk/shared/classes": ["packages/shared/src/lib/classes/index.ts"],
       "@checkout-sdk/shared": ["packages/shared/src/index.ts"],
       "@checkout-sdk/shared/*": ["packages/shared/src/*"],
       "@checkout-sdk/embedded-components": [
