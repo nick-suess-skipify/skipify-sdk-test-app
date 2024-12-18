@@ -1,15 +1,21 @@
-import { MESSAGE_NAMES, SkipifyCheckoutUrl, COMPONENT_LISTENER_IDS, SkipifyElementIds } from "@checkout-sdk/shared/lib/constants";
+import { MESSAGE_NAMES, SkipifyCheckoutUrl, COMPONENT_LISTENER_IDS, SkipifyElementIds, SKIPIFY_ANALYTICS_CONST } from "@checkout-sdk/shared/lib/constants";
 import { CarouselErrorResponseType, CarouselResponseType, ShopperType } from "./embedded-components.types";
 import { SkipifyError } from "./error";
 import { launchHiddenIframe, launchIframe, positionIframeInOverlay, removeUI } from "./iframe";
 import { AuthenticationResponseType, LookupResponseType } from "./embedded-components.types";
 import { log } from "@checkout-sdk/shared/lib/utils/log";
+import EmbeddedComponentsSDK from "./embedded-components";
+
+interface Props {
+    sdk: EmbeddedComponentsSDK;
+}
 
 export class Messenger {
     iframe: HTMLIFrameElement | null = null;
     authIframe: HTMLIFrameElement | null = null;
     listenerReady = false;
     authData: { lookupData: any; options?: { phone?: string, displayMode?: string, sendOtp?: boolean } } | null = null;
+    sdk: EmbeddedComponentsSDK;
 
     // return promises
     lookupPromiseResolve: ((data: any) => void) | null = null;
@@ -37,7 +43,8 @@ export class Messenger {
     carouselPromiseReject: ((error: { error: { message: string } }) => void) | null = null;
 
 
-    constructor() {
+    constructor({ sdk }: Props) {
+        this.sdk = sdk;
         window.addEventListener('message', (e) => this.handleIframeMessage(e));
     }
 
@@ -71,6 +78,8 @@ export class Messenger {
                 return this.handleCarouselSelect(event);
             case MESSAGE_NAMES.CAROUSEL_COMPONENT_ERROR:
                 return this.handleCarouselError(event);
+            case MESSAGE_NAMES.RESET_ANALYTICS_TTL:
+                return this.listenerResetAnalyticsTtl();
             default:
                 return;
         }
@@ -135,7 +144,7 @@ export class Messenger {
             name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
             payload,
         };
-        
+
         return new Promise((resolve, reject) => {
             this.lookupPromiseResolve = resolve;
             this.lookupPromiseReject = reject;
@@ -229,12 +238,16 @@ export class Messenger {
         window.removeEventListener('resize', this.handleReposition);
     }
 
+    listenerResetAnalyticsTtl() {
+        this.sdk.ttlStorage.updateExpiry(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY, SKIPIFY_ANALYTICS_CONST.TTL);
+    }
+
 
     // Carousel component
 
     launchCarouselIframe(
-        iframeSrc: string, 
-        container: HTMLElement, 
+        iframeSrc: string,
+        container: HTMLElement,
         carouselData: typeof this.carouselData
     ) {
         this.carouselIframe = launchIframe(iframeSrc, SkipifyElementIds.carouselIframe, container, carouselData?.options?.displayMode);

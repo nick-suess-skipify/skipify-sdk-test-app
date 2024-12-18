@@ -2,7 +2,8 @@ import {
   MESSAGE_NAMES,
   SkipifyCheckoutUrl,
   SimpleCheckoutUrl,
-  SkipifyClassNames
+  SkipifyClassNames,
+  SKIPIFY_ANALYTICS_CONST
 } from "@checkout-sdk/shared/lib/constants";
 import {
   launchHiddenIframe,
@@ -44,6 +45,8 @@ export class Messenger {
         return this.listenerDisplayIframe();
       case MESSAGE_NAMES.ORDER_COMPLETED:
         return this.listenerOrderCompleted(event);
+      case MESSAGE_NAMES.RESET_ANALYTICS_TTL:
+          return this.listenerResetAnalyticsTtl();
       default:
         return;
     }
@@ -59,12 +62,14 @@ export class Messenger {
         payload = {
           email,
           cart: { merchantReference: emailListener.merchantRef },
+          skipifySessionId: this.sdk.skipifyEvents.getSessionId(), // override iframe's skipify session id
         };
       } else if (buttonListener) {
         payload = {
           email,
           phone: this.sdk.buttons[listenerId].options?.phone,
           cart: { merchantReference: buttonListener.merchantRef },
+          skipifySessionId: this.sdk.skipifyEvents.getSessionId(), // override iframe's skipify session id
         };
       }
       this.iframe.contentWindow?.postMessage(
@@ -166,6 +171,10 @@ export class Messenger {
         activeCheckout.options?.onApprove(activeCheckout.merchantRef, mappedPayload)
       }
     }
+  }
+
+  listenerResetAnalyticsTtl() {
+    this.sdk.ttlStorage.updateExpiry(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY, SKIPIFY_ANALYTICS_CONST.TTL);
   }
 
   listenerDisplayIframe() {

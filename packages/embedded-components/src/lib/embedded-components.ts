@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { SkipifyApi } from '@checkout-sdk/shared/lib/utils/api';
+import { SkipifyEvents } from '@checkout-sdk/shared/lib/utils/skipifyEvents';
 import { SDKVersion, SKIPIFY_ANALYTICS_CONST, SkipifyCheckoutUrl } from "@checkout-sdk/shared/lib/constants";
 import { ShopperType, LookupResponseType, AuthenticationOptionsType, AuthenticationResponseType, AuthenticationErrorType, CarouselOptionsType } from './embedded-components.types';
 import { ShopperSchema, AuthenticationOptionsSchema, LookupResponseSchema, AuthenticationResponseSchema, CarouselOptionsSchema } from './embedded-components.schemas';
 import { MerchantType } from '@checkout-sdk/shared/lib/shared.types'; // Import styles, likely will not use shared styles
 import { SkipifyError } from './error';
 import { Messenger } from './messenger';
+import { TTLStorage } from '@checkout-sdk/shared/lib/utils/ttlStorage';
 
 import './styles/index.css'; // Most likely will not use shared styles because iframes are significantly different
 
@@ -20,6 +22,8 @@ class EmbeddedComponentsSDK {
   //  Helper classes
   messenger: Messenger;
   api: SkipifyApi;
+  skipifyEvents: SkipifyEvents;
+  ttlStorage: TTLStorage;
 
   //  Internal
   componentsUrl: string;
@@ -35,15 +39,22 @@ class EmbeddedComponentsSDK {
     this.componentsUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/lookup`
 
     // Initial setup
-    this.messenger = new Messenger();
+    this.messenger = new Messenger({ sdk: this });
 
     /* Recover or generate analytics session id */
     this.analyticsSessionId = Date.now().toString(10);
+    this.ttlStorage = new TTLStorage();
     if (typeof window !== 'undefined') {
-      const savedSessionId = window.sessionStorage.getItem(SKIPIFY_ANALYTICS_CONST.SESSION_STORAGE_KEY);
+      const savedSessionId = this.ttlStorage.getItem<string>(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY);
       this.analyticsSessionId = savedSessionId || this.analyticsSessionId;
-      window.sessionStorage.setItem(SKIPIFY_ANALYTICS_CONST.SESSION_STORAGE_KEY, this.analyticsSessionId);
+      this.ttlStorage.setItem(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY, this.analyticsSessionId, SKIPIFY_ANALYTICS_CONST.TTL);
     }
+
+    /**
+     * SkipifyEvents implements analytic track requests
+     */
+    this.skipifyEvents = new SkipifyEvents();
+    this.skipifyEvents.setSessionId(+this.analyticsSessionId);
 
     this.api = new SkipifyApi({ merchantId: this.config.merchantId, analyticsSessionId: this.analyticsSessionId });
 

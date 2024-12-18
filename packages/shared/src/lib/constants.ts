@@ -88,7 +88,8 @@ export const MESSAGE_NAMES = {
   TRACK_EVENT: `${MESSAGE_NAME_PREFIX}/track-event`,
   LISTENER_READY: `${MESSAGE_NAME_PREFIX}/listener-ready`,
   LOOKUP_RESPONSE: `${MESSAGE_NAME_PREFIX}/shoppers-lookup-response`,
-  
+  RESET_ANALYTICS_TTL: `${MESSAGE_NAME_PREFIX}/reset-analytics-ttl`, // reseting analytics session id ttl
+
   AUTH_COMPONENT_SUCCESS: `${MESSAGE_NAME_PREFIX}/auth-component-success`, // auth component
   AUTH_COMPONENT_ERROR: `${MESSAGE_NAME_PREFIX}/auth-component-error`, // auth component
 
@@ -122,7 +123,8 @@ export const COMPONENT_LISTENER_IDS = {
 
 export const SKIPIFY_ANALYTICS_CONST = {
   HEADER_NAME: 'x-amplitude-session-id',
-  SESSION_STORAGE_KEY: "asid",
+  LOCAL_STORAGE_KEY: "asid",
+  TTL: 1800000 // 30 min
 } as const;
 
 declare global {

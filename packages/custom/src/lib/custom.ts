@@ -4,9 +4,10 @@ import {
   MESSAGE_NAMES,
   SimpleCheckoutUrl,
   FeatureFlags,
-  DefaultFeatureFlags
+  DefaultFeatureFlags,
+  SKIPIFY_ANALYTICS_CONST
 } from '@checkout-sdk/shared/lib/constants';
-import { SkipifyApi, MerchantType } from '@checkout-sdk/shared';
+import { SkipifyApi, MerchantType, SkipifyEvents, TTLStorage  } from '@checkout-sdk/shared';
 import { Config, AdditionalOptions, MerchantOptions } from './config';
 import { Messenger } from './messenger';
 import { Button } from './button/button';
@@ -31,6 +32,7 @@ class CustomSDK {
   api: SkipifyApi;
   launchdarkly: LaunchDarkly | null = null;
   flags = DefaultFeatureFlags;
+  skipifyEvents: SkipifyEvents;
   // Components
   buttons: Record<string, Button> = {};
   emailListeners: Record<string, EmailListener> = {};
@@ -40,8 +42,11 @@ class CustomSDK {
   skipifyLightActive = false;
   checkoutUrl: string;
   simpleCheckoutUrl: string;
+  analyticsSessionId: string;
   // Pending queue for button IDs
   pendingButtonIds: Record<string, boolean> = {};
+  ttlStorage: TTLStorage;
+
   constructor(config: any) {
     // Validate initialization configs
     this.config = new Config(config);
@@ -50,9 +55,20 @@ class CustomSDK {
     this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`
     this.simpleCheckoutUrl = `${SimpleCheckoutUrl}/embed/${this.config.merchantId}`
 
+    // Analytics setup
+    this.analyticsSessionId = Date.now().toString(10);
+    this.ttlStorage = new TTLStorage();
+    if (typeof window !== 'undefined') {
+      const savedSessionId = this.ttlStorage.getItem<string>(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY);
+      this.analyticsSessionId = savedSessionId || this.analyticsSessionId;
+      this.ttlStorage.setItem(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY, this.analyticsSessionId, SKIPIFY_ANALYTICS_CONST.TTL);
+    }
+    this.skipifyEvents = new SkipifyEvents();
+    this.skipifyEvents.setSessionId(+this.analyticsSessionId);
+
     // Initial setup
     this.messenger = new Messenger(this);
-    this.api = new SkipifyApi({ merchantId: this.config.merchantId });
+    this.api = new SkipifyApi({ merchantId: this.config.merchantId, analyticsSessionId: this.analyticsSessionId });
     this.start();
   }
 

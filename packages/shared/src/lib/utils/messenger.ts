@@ -5,6 +5,7 @@ import {
   SkipifyElementIds,
   SkipifyClassNames,
   SkipifyCheckoutUrl,
+  SKIPIFY_ANALYTICS_CONST,
 } from '../constants';
 import {
   getContainer,
@@ -90,6 +91,8 @@ export class Messenger {
         return this.setFlags(event);
       case MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT_RESULT:
         return this.handleDeviceIdLookupResult(event);
+      case MESSAGE_NAMES.RESET_ANALYTICS_TTL:
+          return this.listenerResetAnalyticsTtl();
       default:
         return;
     }
@@ -114,6 +117,10 @@ export class Messenger {
     if (baseIframe) {
       this.iframe = baseIframe;
     }
+  }
+
+  listenerResetAnalyticsTtl() {
+    this.base.ttlStorage.updateExpiry(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY, SKIPIFY_ANALYTICS_CONST.TTL);
   }
 
   // This function launches the enrollment iframe, it also replaces the current lookup Iframe

@@ -5,12 +5,14 @@ import {
   SDKVersion,
   SkipifyElementIds,
   SkipifyClassNames,
+  SKIPIFY_ANALYTICS_CONST,
 } from './constants';
 import { UserEnrollmentInformationType, MerchantType } from './shared.types';
 import { FlowType } from './analytics';
 
 import { displayIframe } from './utils/iframe';
 import './styles/index.css';
+import { TTLStorage } from './utils/ttlStorage';
 
 export class Base {
   /**
@@ -37,6 +39,7 @@ export class Base {
   messenger: Messenger;
   skipifyEvents: SkipifyEvents;
   store;
+  ttlStorage: TTLStorage;
 
   /**
    * Elements
@@ -49,6 +52,9 @@ export class Base {
    *
    */
   shouldDisplayOnTop = false;
+
+  // Analytics session ID
+  private readonly analyticsSessionId: string;
 
   constructor(merchantId?: string) {
     /**
@@ -75,9 +81,21 @@ export class Base {
     this.store = store;
 
     /**
+     * Generate or recover analytics session ID
+     */
+    this.analyticsSessionId = Date.now().toString(10);
+    this.ttlStorage = new TTLStorage();
+    if (typeof window !== 'undefined') {
+      const savedSessionId = this.ttlStorage.getItem<string>(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY);
+      this.analyticsSessionId = savedSessionId || this.analyticsSessionId;
+      this.ttlStorage.setItem(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY, this.analyticsSessionId, SKIPIFY_ANALYTICS_CONST.TTL);
+    }
+
+
+    /**
      * All outside requests are handled by the SkipifyApi class
      */
-    this.api = new SkipifyApi({ merchantId: this.merchantId });
+    this.api = new SkipifyApi({ merchantId: this.merchantId, analyticsSessionId: this.analyticsSessionId });
     this.getMerchant();
 
     /**
@@ -88,6 +106,8 @@ export class Base {
      * SkipifyEvents implements analytic track requests
      */
     this.skipifyEvents = new SkipifyEvents();
+    this.skipifyEvents.setSessionId(+this.analyticsSessionId);
+    log("Skipify analytics session id:", this.skipifyEvents.getSessionId());
 
     /**
      * Mutation observer used to enable Skipify features on checkout

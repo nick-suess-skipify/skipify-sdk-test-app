@@ -164,14 +164,6 @@ class ShopifySDK extends Base implements AbstractSDK {
         eligible: false,
         emailWhitelisted: false,
       }); // partially reset state before we're creates a new email listener
-
-      log("Create a new skipify session");
-
-      const newSessionId = Date.now();
-
-      this.skipifyEvents.setSessionId(newSessionId); // reset skipify session id
-
-      log("New skipify session id", this.skipifyEvents.getSessionId());
     }
 
     // add email input listener

@@ -3,7 +3,7 @@ import { Event, EventPropertiesMap, EventType } from "../analytics";
 
 export class Pubsub {
   isLoaded = false;
-  
+
   sessionId?: number = undefined;
   deviceId?: string = undefined;
 
