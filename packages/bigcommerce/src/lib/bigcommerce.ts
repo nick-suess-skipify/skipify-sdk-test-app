@@ -8,14 +8,12 @@ import {
   UserEnrollmentInformationType,
   PlatformCartType
 } from "@checkout-sdk/shared";
-import { EmailInput } from "@checkout-sdk/shared/classes"
+import { EmailInput, EnrollmentCheckbox } from "@checkout-sdk/shared/classes"
 import {
   CheckoutCompleted,
-  EnrollmentCheckbox,
   BigCommerceStoreFrontApi,
   LoggedInCustomer,
 } from './utils';
-import { BigCommerceLineItem } from './bigcommerce.types';
 import { SamsungDemo } from "./utils/samsungDemo";
 
 interface OwnProps {

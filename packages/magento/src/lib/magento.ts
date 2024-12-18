@@ -4,10 +4,11 @@ import {
   SkipifyClassNames,
   PlatformCartType,
   isEmailValid,
-  insertLoadingStateElement
-} from "@checkout-sdk/shared";
-import { EmailInput } from "@checkout-sdk/shared/classes";
-import { MagentoStoreFrontApi } from "./utils/storeFrontApi";
+  insertLoadingStateElement,
+  SkipifyElementIds,
+} from '@checkout-sdk/shared';
+import { EmailInput, EnrollmentCheckbox } from '@checkout-sdk/shared/classes';
+import { MagentoStoreFrontApi } from './utils/storeFrontApi';
 
 interface OwnProps {
   merchantId?: string;
@@ -17,32 +18,36 @@ type Props = OwnProps;
 
 export class MagentoSDK extends Base implements AbstractSDK {
   /**
-    * Attributes that can be customizable on SDK instantiation.
-    * Default values are assigned based on default Magento themes.
-    */
+   * Attributes that can be customizable on SDK instantiation.
+   * Default values are assigned based on default Magento themes.
+   */
   emailInputId = 'customer-email';
-
+  paymentFormId = 'co-payment-form';
 
   /**
-    * Child classes that implements specific business logic.
-    */
+   * Child classes that implements specific business logic.
+   */
   emailInput: EmailInput | null = null;
+  enrollmentCheckbox: EnrollmentCheckbox | null = null;
 
   storeFrontApi: MagentoStoreFrontApi;
 
   constructor({ merchantId }: Props = {}) {
     super(merchantId);
 
-    this.platform = "magento";
+    this.platform = 'magento';
     this.storeFrontApi = new MagentoStoreFrontApi();
   }
 
   override processDOM() {
     this.processEmailInput();
+    this.processEnrollmentCheckbox();
   }
 
   processEmailInput() {
-    const emailInputElem = document.getElementById(this.emailInputId) as HTMLInputElement;
+    const emailInputElem = document.getElementById(
+      this.emailInputId
+    ) as HTMLInputElement;
 
     if (!emailInputElem) {
       return;
@@ -55,25 +60,32 @@ export class MagentoSDK extends Base implements AbstractSDK {
     const buttonCustomStyles = {
       width: `${emailInputElem.offsetHeight - 2}px`,
       height: `${emailInputElem.offsetHeight - 2}px`,
-      right: `${(emailInputElem.parentElement?.offsetWidth || 0) - emailInputElem.offsetWidth + 1}px`,
+      right: `${
+        (emailInputElem.parentElement?.offsetWidth || 0) -
+        emailInputElem.offsetWidth +
+        1
+      }px`,
       top: '1px',
-      borderRadius: 0
-    }
+      borderRadius: 0,
+    };
     this.insertButton(emailInputElem, buttonCustomStyles);
 
     if (emailInputElem?.value && isEmailValid(emailInputElem?.value)) {
-      this.setUserLookupData(emailInputElem?.value, undefined, true)
+      this.setUserLookupData(emailInputElem?.value, undefined, true);
     }
 
     this.emailInput = new EmailInput({
       node: emailInputElem,
       setUserEmail: (email) => this.setUserLookupData(email, undefined, true),
       resetIframe: () => {
-        this.messenger.closeIframe(true)
+        this.messenger.closeIframe(true);
       },
     });
 
-    insertLoadingStateElement(emailInputElem, { ...buttonCustomStyles, transform: 'none' })
+    insertLoadingStateElement(emailInputElem, {
+      ...buttonCustomStyles,
+      transform: 'none',
+    });
   }
 
   processCheckoutCompleted(): void {
@@ -81,7 +93,28 @@ export class MagentoSDK extends Base implements AbstractSDK {
   }
 
   processEnrollmentCheckbox(): void {
-    // TODO
+    const paymentForm = document.getElementById(this.paymentFormId);
+
+    const enrollmentCheckboxElem = document.getElementById(
+      SkipifyElementIds.enrollmentCheckbox
+    );
+
+    if (!paymentForm || enrollmentCheckboxElem) {
+      return;
+    }
+
+    this.setEnrollmentCheckboxValue(true);
+
+    const { eligible, userEmail } = this.store.getState();
+
+    if (!userEmail || !eligible) {
+      return;
+    }
+
+    this.enrollmentCheckbox = new EnrollmentCheckbox({
+      node: paymentForm as HTMLElement,
+      insertionType: 'append',
+    });
   }
 
   override async getCartData(): Promise<PlatformCartType> {
