@@ -112,10 +112,11 @@ export class Messenger {
       const clickedButton = this.sdk.buttons[data.id];
       if (iframe && clickedButton) {
         this.activeCheckoutId = data.id;
-        const orderData: any = { 
+        const orderData: any = {
           cart: { merchantReference: clickedButton.merchantRef },
-          email: clickedButton.options?.email, 
-          phone: clickedButton.options?.phone
+          email: clickedButton.options?.email,
+          phone: clickedButton.options?.phone,
+          skipifySessionId: this.sdk.skipifyEvents.getSessionId(), // override iframe's skipify session id
         }
 
         // Skipify simple flow
