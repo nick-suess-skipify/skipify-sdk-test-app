@@ -3,7 +3,8 @@ import {
   SkipifyCheckoutUrl,
   SimpleCheckoutUrl,
   SkipifyClassNames,
-  SKIPIFY_ANALYTICS_CONST
+  SKIPIFY_ANALYTICS_CONST,
+  SDKOrigin
 } from "@checkout-sdk/shared/lib/constants";
 import {
   launchHiddenIframe,
@@ -13,7 +14,7 @@ import {
   displayIframe,
 } from '@checkout-sdk/shared/lib/utils/iframe';
 import CustomSDK from './custom';
-import {approvalEventMapper} from './data/eventMapper';
+import { approvalEventMapper } from './data/eventMapper';
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
@@ -26,9 +27,9 @@ export class Messenger {
   }
 
   handleIframeMessage(event: MessageEvent) {
-    const { data } = event;
+    const { data, origin } = event;
 
-    if (!data) {
+    if (![SDKOrigin, SkipifyCheckoutUrl ].includes(origin) || !data?.name) {
       return;
     }
 
@@ -46,7 +47,7 @@ export class Messenger {
       case MESSAGE_NAMES.ORDER_COMPLETED:
         return this.listenerOrderCompleted(event);
       case MESSAGE_NAMES.RESET_ANALYTICS_TTL:
-          return this.listenerResetAnalyticsTtl();
+        return this.listenerResetAnalyticsTtl();
       default:
         return;
     }

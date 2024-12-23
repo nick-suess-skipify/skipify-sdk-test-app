@@ -1,4 +1,11 @@
-import { MESSAGE_NAMES, SkipifyCheckoutUrl, COMPONENT_LISTENER_IDS, SkipifyElementIds, SKIPIFY_ANALYTICS_CONST } from "@checkout-sdk/shared/lib/constants";
+import {
+    MESSAGE_NAMES,
+    SkipifyCheckoutUrl,
+    COMPONENT_LISTENER_IDS,
+    SkipifyElementIds,
+    SKIPIFY_ANALYTICS_CONST,
+    SDKOrigin
+} from "@checkout-sdk/shared/lib/constants";
 import { CarouselErrorResponseType, CarouselResponseType, ShopperType } from "./embedded-components.types";
 import { SkipifyError } from "./error";
 import { launchHiddenIframe, launchIframe, positionIframeInOverlay, removeUI } from "./iframe";
@@ -51,7 +58,7 @@ export class Messenger {
     handleIframeMessage(event: MessageEvent) {
         const { data, origin } = event;
 
-        if (origin != SkipifyCheckoutUrl || !data) {
+        if (![SDKOrigin, SkipifyCheckoutUrl].includes(origin) || !data?.name) {
             return;
         }
 

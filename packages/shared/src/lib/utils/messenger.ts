@@ -1,11 +1,11 @@
 import { Base } from '../base';
 import {
-  IFRAME_ORIGIN,
   MESSAGE_NAMES,
   SkipifyElementIds,
   SkipifyClassNames,
   SkipifyCheckoutUrl,
   SKIPIFY_ANALYTICS_CONST,
+  SDKOrigin
 } from '../constants';
 import {
   getContainer,
@@ -48,17 +48,14 @@ export class Messenger {
   handleIframeMessage(event: MessageEvent) {
     const { data, origin } = event;
 
-
-    if (origin != SkipifyCheckoutUrl || !data?.name) {
+    if (![SDKOrigin, SkipifyCheckoutUrl].includes(origin) || !data?.name) {
       return;
     }
 
-    if (origin?.match(/\.skipify\.com/) || origin === IFRAME_ORIGIN) {
-      log('Received message from iframe', {
-        name: data?.name,
-        payload: data?.payload,
-      });
-    }
+    log('Received message from iframe', {
+      name: data?.name,
+      payload: data?.payload,
+    });
 
     switch (data.name) {
       case MESSAGE_NAMES.INIT:
@@ -92,7 +89,7 @@ export class Messenger {
       case MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT_RESULT:
         return this.handleDeviceIdLookupResult(event);
       case MESSAGE_NAMES.RESET_ANALYTICS_TTL:
-          return this.listenerResetAnalyticsTtl();
+        return this.listenerResetAnalyticsTtl();
       default:
         return;
     }

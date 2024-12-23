@@ -1,6 +1,9 @@
 import { environment } from '../environments/environment';
 
 export const SDKVersion = environment.SDK_VERSION;
+export const SDKOrigin = environment.SDK_ORIGIN;
+export const Environment = environment.ENV;
+
 export enum FeatureFlags {
   skipifyLight = 'UseSkipifyLight',
   routerV2 = 'useCheckoutAppRouter'
@@ -13,8 +16,6 @@ export const DefaultFeatureFlags = {
   [FeatureFlags.skipifyLight]: false,
   [FeatureFlags.routerV2]: false
 }
-
-export const IFRAME_ORIGIN = environment.IFRAME_ORIGIN;
 
 export const MerchantServiceUrl = environment.MERCHANT_SERVICE_URL;
 export const SdkUrl = environment.SDK_URL;

@@ -116,7 +116,7 @@ const V2Button = styled.div<{ bgColor: string; hoverColor: string }>`
   display: flex;
   background: ${props => props.bgColor};
   height: 56px;
-  min-width: 302px;
+  min-width: 150px;
   border-radius: 12px;
   align-items: center;
   justify-content: center;

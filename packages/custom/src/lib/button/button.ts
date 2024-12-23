@@ -28,7 +28,7 @@ export class Button {
         const checkoutButtonFrame = document.createElement('iframe');
         checkoutButtonFrame.style.border = 'none';
         checkoutButtonFrame.style.height = '75px';
-        checkoutButtonFrame.style.width = '100%';
+        checkoutButtonFrame.style.maxWidth = '100%';
 
         const paramsObj: any = { id: this.id, date: new Date().getTime().toString() }
 
