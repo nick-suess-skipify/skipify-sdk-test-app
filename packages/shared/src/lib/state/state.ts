@@ -1,5 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 import { persist } from 'zustand/middleware';
+import { ShippingAddressType } from '../shared.types';
 
 export type State = {
   enrollmentCheckboxValue: boolean;
@@ -8,6 +9,8 @@ export type State = {
   testMode: boolean;
   emailWhitelisted: boolean;
   flags?: Record<string, unknown>;
+  userShippingAddress?: ShippingAddressType;
+  userPhone?: string;
 };
 
 export const defaultState: State = {
@@ -17,6 +20,8 @@ export const defaultState: State = {
   testMode: true,
   emailWhitelisted: false,
   flags: undefined,
+  userShippingAddress: undefined,
+  userPhone: undefined,
 };
 
 export const store = createStore(

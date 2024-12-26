@@ -6,8 +6,14 @@ import {
   isEmailValid,
   insertLoadingStateElement,
   SkipifyElementIds,
+  UserEnrollmentInformationType,
+  ShippingAddressType,
 } from '@checkout-sdk/shared';
-import { EmailInput, EnrollmentCheckbox } from '@checkout-sdk/shared/classes';
+import {
+  CheckoutCompleted,
+  EmailInput,
+  EnrollmentCheckbox,
+} from '@checkout-sdk/shared/classes';
 import { MagentoStoreFrontApi } from './utils/storeFrontApi';
 
 interface OwnProps {
@@ -23,12 +29,15 @@ export class MagentoSDK extends Base implements AbstractSDK {
    */
   emailInputId = 'customer-email';
   paymentFormId = 'co-payment-form';
+  orderPaymentUrlMatch = /^.*\/checkout\/.*payment.*$/;
+  orderConfirmationUrlMatch = /^.*\/checkout\/.*success.*$/;
 
   /**
    * Child classes that implements specific business logic.
    */
   emailInput: EmailInput | null = null;
   enrollmentCheckbox: EnrollmentCheckbox | null = null;
+  checkoutCompleted: CheckoutCompleted | null = null;
 
   storeFrontApi: MagentoStoreFrontApi;
 
@@ -42,6 +51,8 @@ export class MagentoSDK extends Base implements AbstractSDK {
   override processDOM() {
     this.processEmailInput();
     this.processEnrollmentCheckbox();
+    this.storeUserShippingAddress();
+    this.processCheckoutCompleted();
   }
 
   processEmailInput() {
@@ -89,7 +100,75 @@ export class MagentoSDK extends Base implements AbstractSDK {
   }
 
   processCheckoutCompleted(): void {
-    // TODO
+    if (!this.orderConfirmationUrlMatch || !this.merchantId) return;
+
+    const { enrollmentCheckboxValue, userEmail, eligible } =
+      this.store.getState();
+
+    const urlMatches = this.orderConfirmationUrlMatch.test(
+      window.location.href
+    );
+    if (urlMatches && enrollmentCheckboxValue && userEmail && eligible) {
+      this.checkoutCompleted = new CheckoutCompleted({
+        launchEnrollmentIframe: () => this.launchEnrollmentIframe(),
+      });
+    }
+  }
+
+  storeUserShippingAddress() {
+    if (
+      !this.orderPaymentUrlMatch ||
+      this.store.getState().userShippingAddress
+    ) {
+      return;
+    }
+
+    const urlMatches = this.orderPaymentUrlMatch.test(window.location.href);
+    if (urlMatches) {
+      this.storeFrontApi.getUserShippingAddress().then((address) => {
+        if (!address) return;
+
+        const userShippingAddress: ShippingAddressType = {
+          address1: address.street[0],
+          city: address.city,
+          state: address.regionCode,
+          zipCode: address.postcode,
+          firstName: address.firstname,
+          lastName: address.lastname,
+        };
+
+        if (address.street[1]) {
+          userShippingAddress.address2 = address.street[1];
+        }
+
+        this.store.setState({
+          userShippingAddress,
+          userPhone: address.telephone,
+        });
+      });
+    }
+  }
+
+  override async getUserEnrollmentInformation(): Promise<UserEnrollmentInformationType | null> {
+    const { userEmail, eligible, userShippingAddress, userPhone } =
+      this.store.getState();
+    if (!userEmail || !eligible) {
+      return null;
+    }
+
+    const enrollmentData: UserEnrollmentInformationType = {
+      email: userEmail,
+    };
+
+    if (userShippingAddress) {
+      enrollmentData.shippingAddress = userShippingAddress;
+    }
+
+    if (userPhone) {
+      enrollmentData.phone = userPhone;
+    }
+
+    return enrollmentData;
   }
 
   processEnrollmentCheckbox(): void {
