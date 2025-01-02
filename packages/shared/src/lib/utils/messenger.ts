@@ -328,7 +328,7 @@ export class Messenger {
   closeIframe(reload: boolean) {
     if (this.base.skipifyCheckoutCompleted) {
       this.base.skipifyCheckoutCompleted = false;
-      window.location.assign(`/`);
+      window.location.replace(`/`);
     }
 
     this.base.onIframeClose(this.base.skipifyCheckoutCompleted);

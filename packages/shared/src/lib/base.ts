@@ -65,6 +65,9 @@ export class Base {
       SDKVersion: SDKVersion,
     };
 
+    if (!this.shouldInitialize()) {
+      throw new Error('Initialization skipped.');
+    }
     /**
      * Get Merchant Id from script query params, if not present script will fail
      */
@@ -515,6 +518,11 @@ export class Base {
 
   canShowIframe(): boolean {
     console.warn('-- canShowIframe should be overwritten by platform class');
+    return true;
+  }
+
+  // can be overwritten by platform class
+  shouldInitialize(): boolean {
     return true;
   }
 }

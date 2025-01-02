@@ -357,4 +357,14 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
   }
 }
 
-export default new BigCommerceSDK();
+// Factory function for creating an instance
+export function createBigCommerceSDK(): BigCommerceSDK | null {
+  try {
+    return new BigCommerceSDK();
+  } catch (error) {
+    return null; // Fail silently
+  }
+}
+
+const bigCommerceSDK = createBigCommerceSDK();
+export default bigCommerceSDK;

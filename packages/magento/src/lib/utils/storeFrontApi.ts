@@ -28,6 +28,27 @@ export class MagentoStoreFrontApi {
     });
   }
 
+  async clearCart(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      (require as any)(['Magento_Customer/js/customer-data'], function (customerData: any) {
+        try {
+          const currentCartData = customerData.get('cart')() || {};
+          const clearedCartData = {
+            ...currentCartData,
+            items: [],
+            summary_count: 0,
+          };
+
+          customerData.set('cart', clearedCartData);
+
+          resolve(true);
+        } catch (error) {
+          reject(false);
+        }
+      });
+    });
+  }
+
   async getUserShippingAddress(): Promise<MagentoShippingAddressType> {
     return new Promise((resolve, reject) => {
       (require as any)(

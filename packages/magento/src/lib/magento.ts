@@ -43,7 +43,6 @@ export class MagentoSDK extends Base implements AbstractSDK {
 
   constructor({ merchantId }: Props = {}) {
     super(merchantId);
-
     this.platform = 'magento';
     this.storeFrontApi = new MagentoStoreFrontApi();
   }
@@ -71,11 +70,10 @@ export class MagentoSDK extends Base implements AbstractSDK {
     const buttonCustomStyles = {
       width: `${emailInputElem.offsetHeight - 2}px`,
       height: `${emailInputElem.offsetHeight - 2}px`,
-      right: `${
-        (emailInputElem.parentElement?.offsetWidth || 0) -
+      right: `${(emailInputElem.parentElement?.offsetWidth || 0) -
         emailInputElem.offsetWidth +
         1
-      }px`,
+        }px`,
       top: '1px',
       borderRadius: 0,
     };
@@ -196,7 +194,19 @@ export class MagentoSDK extends Base implements AbstractSDK {
     });
   }
 
+  isCheckoutOrCartPage(): boolean {
+    const bodyClass = document.body.className;
+    return window.location.pathname.includes('checkout') ||
+      window.location.pathname.includes('cart') ||
+      bodyClass.includes('checkout-index-index') ||
+      bodyClass.includes('cart-index-index')
+  }
+
   override async getCartData(): Promise<PlatformCartType> {
+    if (!this.isCheckoutOrCartPage()) {
+      return null;
+    }
+
     const userCart = await this.storeFrontApi.getUserCart();
     if (!userCart) {
       return null;
@@ -205,9 +215,30 @@ export class MagentoSDK extends Base implements AbstractSDK {
     return { items: userCart.items, cartId: userCart.data_id };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override async handleOrderCompleted(_externalOrderId: string) {
+    this.skipifyCheckoutCompleted = true;
+    this.reset(); // Reset the store after the order is completed
+    this.storeFrontApi.clearCart();
+  }
+
   override canShowIframe(): boolean {
     return true;
   }
+
+  override shouldInitialize() {
+    return this.isCheckoutOrCartPage();
+  }
 }
 
-export default new MagentoSDK();
+// Factory function for creating an instance
+export function createMagentoSDK(): MagentoSDK | null {
+  try {
+    return new MagentoSDK();
+  } catch (error) {
+    return null; // Fail silently
+  }
+}
+
+const magentoSDK = createMagentoSDK();
+export default magentoSDK;
