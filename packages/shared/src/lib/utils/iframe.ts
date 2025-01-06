@@ -101,6 +101,15 @@ export async function hideIframe() {
   }, 400);
 }
 
+// Used to display iframe after closing for button flow
+export function showIframe() {
+  document.body.classList.remove(SkipifyClassNames.hiding);
+  document.body.classList.add(SkipifyClassNames.body);
+  document.body.classList.add(SkipifyClassNames.hiding);
+  const iframeEl = document.getElementById(SkipifyElementIds.iframe);
+  iframeEl?.style.height
+}
+
 export function changeIframeHeight(height: number) {
   const iframeEl = document.getElementById(SkipifyElementIds.iframe);
 

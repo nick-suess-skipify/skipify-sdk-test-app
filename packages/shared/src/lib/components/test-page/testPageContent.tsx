@@ -98,9 +98,6 @@ export const TestPageContent: React.FC = (props) => {
 
             // Render Skipify buttons
             skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.', '')) }).render(buttonRef.current)
-
-            skipifyClient.button(ERROR_MERCHANT_REF, { ...options, total: Number(orderTotal.replace('.', '')) }).render(errorButtonRef.current)
-
         }
     }, [buttonRef, skipifyClient])
 
@@ -230,13 +227,6 @@ export const TestPageContent: React.FC = (props) => {
                         <FormLabel>Skipify Button - success flow</FormLabel>
                         <ButtonContainer ref={buttonRef}></ButtonContainer>
                         {/* <FormHelperText>Your Skipify checkout button.</FormHelperText> */}
-                    </FormControl>
-                </Box>
-                <Box>
-                    <FormControl>
-                        <FormLabel>Skipify Button - error flow</FormLabel>
-                        <ButtonContainer ref={errorButtonRef}></ButtonContainer>
-                        <FormHelperText>This flow will trigger a payment error from payments service if using mock-psp.</FormHelperText>
                     </FormControl>
                 </Box>
                 <Box>

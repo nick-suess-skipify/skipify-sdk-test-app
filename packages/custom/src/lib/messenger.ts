@@ -12,14 +12,17 @@ import {
   changeIframeHeight,
   getBaseIframe,
   displayIframe,
+  showIframe,
 } from '@checkout-sdk/shared/lib/utils/iframe';
 import CustomSDK from './custom';
 import { approvalEventMapper } from './data/eventMapper';
+import { Button } from "./button/button";
 
 export class Messenger {
   iframe: HTMLIFrameElement | null = null;
   activeCheckoutId: string | null = null;
   activeCheckoutSuccess = false;
+  resumableIframeHidden = false;
 
   constructor(private sdk: CustomSDK) {
     window.addEventListener('message', (e) => this.handleIframeMessage(e));
@@ -29,13 +32,13 @@ export class Messenger {
   handleIframeMessage(event: MessageEvent) {
     const { data, origin } = event;
 
-    if (![SDKOrigin, SkipifyCheckoutUrl ].includes(origin) || !data?.name) {
+    if (![SDKOrigin, SkipifyCheckoutUrl].includes(origin) || !data?.name) {
       return;
     }
 
     switch (data.name) {
       case MESSAGE_NAMES.CLOSE_IFRAME:
-        return this.listenerCloseIframe();
+        return this.listenerCloseIframe(event);
       case MESSAGE_NAMES.RESIZE_CONTAINER:
         return this.listenerIframeHeightChange(event);
       case MESSAGE_NAMES.CHECKOUT_BUTTON_TRIGGERED:
@@ -111,55 +114,86 @@ export class Messenger {
     if (data.id) {
       const iframe = getBaseIframe();
       const clickedButton = this.sdk.buttons[data.id];
-      if (iframe && clickedButton) {
-        this.activeCheckoutId = data.id;
-        const orderData: any = {
-          cart: { merchantReference: clickedButton.merchantRef },
-          email: clickedButton.options?.email,
-          phone: clickedButton.options?.phone,
-          skipifySessionId: this.sdk.skipifyEvents.getSessionId(), // override iframe's skipify session id
-        }
 
-        // Skipify simple flow
-        if (this.sdk.skipifyLightActive && clickedButton.options?.total) {
-          orderData.cart.total = clickedButton.options?.total
-          iframe.contentWindow?.postMessage(
-            {
-              name: MESSAGE_NAMES.CREATE_ORDER,
-              payload: orderData,
-            },
-            SimpleCheckoutUrl
-          );
-        } else {
-          // Regular checkout flow
-          iframe.contentWindow?.postMessage(
-            {
-              name: MESSAGE_NAMES.CREATE_ORDER,
-              payload: orderData,
-            },
-            SkipifyCheckoutUrl
-          );
-        }
+      if (!iframe || !clickedButton) {
+        return;
+      }
+
+      if (this.resumableIframeHidden) {
+        // Display the iframe if we have one hidden from closing resumable button flow
+        showIframe();
+        this.resumableIframeHidden = false;
+        return;
+      }
+
+      this.activeCheckoutId = data.id;
+
+      const orderData: any = {
+        cart: { merchantReference: clickedButton.merchantRef },
+        email: clickedButton.options?.email,
+        phone: clickedButton.options?.phone,
+        skipifySessionId: this.sdk.skipifyEvents.getSessionId(), // override iframe's skipify session id
+      }
+
+      // Skipify simple flow
+      if (this.sdk.skipifyLightActive && clickedButton.options?.total) {
+        orderData.cart.total = clickedButton.options?.total
+        iframe.contentWindow?.postMessage(
+          {
+            name: MESSAGE_NAMES.CREATE_ORDER,
+            payload: orderData,
+          },
+          SimpleCheckoutUrl
+        );
+      } else {
+        // Regular checkout flow
+        iframe.contentWindow?.postMessage(
+          {
+            name: MESSAGE_NAMES.CREATE_ORDER,
+            payload: orderData,
+          },
+          SkipifyCheckoutUrl
+        );
       }
     }
   }
 
-  async listenerCloseIframe() {
+  async listenerCloseIframe(event: MessageEvent) {
+    let activeCheckout = null;
+
     if (this.activeCheckoutId) {
-      // Trigger onClose UI callback
-      const activeCheckout = this.getCurrentCheckout(this.activeCheckoutId)
-      if (activeCheckout && activeCheckout.options?.onClose) {
-        activeCheckout.options?.onClose(activeCheckout.merchantRef, this.activeCheckoutSuccess)
+      activeCheckout = this.getCurrentCheckout(this.activeCheckoutId);
+
+      // Trigger onClose UI callback if defined
+      if (activeCheckout?.options?.onClose) {
+        activeCheckout.options.onClose(activeCheckout.merchantRef, this.activeCheckoutSuccess);
       }
     }
-    this.activeCheckoutId = null;
-    this.activeCheckoutSuccess = false;
 
+
+    this.activeCheckoutSuccess = false;
     await hideIframe();
-    // Give some time for the close animation to be shown
-    setTimeout(() => {
-      this.sdk.resetIframe();
-    }, 500)
+
+    const canResumeIframe = activeCheckout instanceof Button && Object.keys(this.sdk.buttons).length === 1;
+
+    // Set resumableIframeHidden for specific button flow
+    if (canResumeIframe) {
+      this.resumableIframeHidden = true;
+    }
+
+    // We only want to hide for button flow - otherwise reset
+    if (
+      event.data.payload.reload ||
+      !canResumeIframe
+    ) {
+      this.resumableIframeHidden = false;
+      this.activeCheckoutId = null;
+
+      // Give some time for the close animation to be shown
+      setTimeout(() => {
+        this.sdk.resetIframe();
+      }, 500);
+    }
   }
 
   listenerOrderCompleted(event: MessageEvent) {
