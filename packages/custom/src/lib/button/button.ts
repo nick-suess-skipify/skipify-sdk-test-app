@@ -29,6 +29,7 @@ export class Button {
         checkoutButtonFrame.style.border = 'none';
         checkoutButtonFrame.style.height = '75px';
         checkoutButtonFrame.style.maxWidth = '100%';
+        checkoutButtonFrame.style.width = '100%';
 
         const paramsObj: any = { id: this.id, date: new Date().getTime().toString() }
 
