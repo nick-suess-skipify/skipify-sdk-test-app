@@ -51,10 +51,6 @@ class CustomSDK {
     // Validate initialization configs
     this.config = new Config(config);
 
-    // Checkout Urls
-    this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`
-    this.simpleCheckoutUrl = `${SimpleCheckoutUrl}/embed/${this.config.merchantId}`
-
     // Analytics setup
     this.analyticsSessionId = Date.now().toString(10);
     this.ttlStorage = new TTLStorage();
@@ -65,6 +61,10 @@ class CustomSDK {
     }
     this.skipifyEvents = new SkipifyEvents();
     this.skipifyEvents.setSessionId(+this.analyticsSessionId);
+
+    // Checkout Urls
+    this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup?asid=${this.analyticsSessionId}`
+    this.simpleCheckoutUrl = `${SimpleCheckoutUrl}/embed/${this.config.merchantId}`
 
     // Initial setup
     this.messenger = new Messenger(this);
@@ -142,11 +142,11 @@ class CustomSDK {
   }
 
   enableRouterV2() {
-    this.checkoutUrl = `${SkipifyCheckoutUrl}/v2/embed/${this.config.merchantId}/lookup`;
+    this.checkoutUrl = `${SkipifyCheckoutUrl}/v2/embed/${this.config.merchantId}/lookup?asid=${this.analyticsSessionId}`;
   }
 
   disableRouterV2() {
-    this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup`;
+    this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup?asid=${this.analyticsSessionId}`;
   }
 
   async getMerchant() {
