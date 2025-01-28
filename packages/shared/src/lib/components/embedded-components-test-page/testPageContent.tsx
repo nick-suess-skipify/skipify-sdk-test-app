@@ -26,6 +26,10 @@ const MERCHANT_ID = '59958510-0316-4d68-9b03-ff189d0fb3e3';
 export const TestPageContent: React.FC = () => {
     const [skipifyClient, setSkipifyClient] = useState<any>(null);
 
+    // MID
+    const queryParams = new URLSearchParams(window.location.search);
+    const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID);
+
     // Inputs
     const [email, setEmail] = useState('')
     const [phone, setPhone] = useState('')
@@ -52,7 +56,7 @@ export const TestPageContent: React.FC = () => {
         const checkClient = () => {
             if ((window as any).skipify && !skipifyClient) {
                 const initializedClient = new (window as any).skipify({
-                    merchantId: MERCHANT_ID,
+                    merchantId,
                 });
 
                 // Exposing the Skipify client to help testing in the console
@@ -65,7 +69,7 @@ export const TestPageContent: React.FC = () => {
         };
 
         checkClient();
-    }, []);
+    }, [merchantId]);
 
     const handleLookup = async () => {
         try {
@@ -128,12 +132,41 @@ export const TestPageContent: React.FC = () => {
         }).render(targetId);
     };
 
+    const handleSaveMid = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('merchantId', merchantId);
+        window.location.href = url.toString();
+    };
+
     return (
         <Container>
             <Heading mt="24px" mb="40px" as='h2'>
                 Embedded Components Playground
             </Heading>
             <VStack align="left" spacing='48px' divider={<StackDivider borderColor='gray.200' />}>
+                <Box>
+                    <Box mb="32px" position='relative'>
+                        <Divider />
+                        <AbsoluteCenter bg='white' px='4'>
+                            <b>Merchant ID</b>
+                        </AbsoluteCenter>
+                    </Box>
+                    <FormControl mb="16px">
+                        <FormLabel>MID</FormLabel>
+                        <Input type='text' value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
+                    </FormControl>
+                    <Stack mb="16px" spacing={4} direction='row' align='center'>
+                        <Button
+                            mt={4}
+                            colorScheme='teal'
+                            type='button'
+                            onClick={() => handleSaveMid()}
+                            data-testid="mid-button"
+                        >
+                            Save MID
+                        </Button>
+                    </Stack>
+                </Box>
                 <Box>
                     <Box mb="32px" position='relative'>
                         <Divider />
