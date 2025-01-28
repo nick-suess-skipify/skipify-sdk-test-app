@@ -185,7 +185,7 @@ export class Base {
     }
 
     this.messenger.launchBaseIframe(
-      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup`
+      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/lookup?asid=${this.analyticsSessionId}`
     );
   }
 
