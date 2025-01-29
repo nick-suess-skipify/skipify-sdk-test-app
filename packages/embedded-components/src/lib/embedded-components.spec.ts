@@ -34,7 +34,13 @@ describe('EmbeddedComponentsSDK', () => {
     beforeEach(() => {
       mockMessenger = mock<Messenger>();
       sdk.messenger = mockMessenger;
+      jest.useFakeTimers();
     });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    })
+
     it('should return SkipifyError if schema validation fails', async () => {
       const result: any = await sdk.lookup({ email: '123' });
       expect(result).toBeInstanceOf(SkipifyError);
@@ -58,12 +64,28 @@ describe('EmbeddedComponentsSDK', () => {
       expect(result.error.message).toBe('Invalid phone number');
     });
 
-    it('should throw an error if Iframe is not ready', async () => {
+    it('should queue lookup when listener not ready and process when ready', async () => {
       mockMessenger.listenerReady = false;
+      mockMessenger.lookup = jest.fn().mockResolvedValueOnce(mockLookupResponse)
 
-      const result: any = await sdk.lookup({ email: 'm@m.com' });
+      const lookupPromise = sdk.lookup({ email: 'm@m.com' });
+      
+      mockMessenger.listenerReady = true;
+      sdk.processLookupQueue();
+
+      const result = await lookupPromise;
+      expect(result).toEqual(mockLookupResponse);
+    });
+
+    it('should timeout if listener does not become ready', async () => {
+      mockMessenger.listenerReady = false;
+      const lookupPromise = sdk.lookup({ email: 'm@m.com' });
+      
+      jest.advanceTimersByTime(5000);
+      
+      const result = await lookupPromise;
       expect(result).toBeInstanceOf(SkipifyError);
-      expect(result.error.message).toBe('Iframe is not available. Please try again later.');
+      expect(result).toEqual(new SkipifyError('Iframe is not available. Please try again later.'));
     });
 
     it('should call messenger lookup', async () => {

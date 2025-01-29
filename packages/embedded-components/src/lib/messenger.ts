@@ -101,6 +101,8 @@ export class Messenger {
         this.listenerReady = true;
         // this.requestDeviceId(); // TODO add Iframe support to deviceId
 
+        this.sdk.processLookupQueue();
+
         if (event.data.payload?.id === COMPONENT_LISTENER_IDS.AUTH_COMPONENT) {
             this.handleAuthListenerReady();
         } else if (event.data.payload?.id === COMPONENT_LISTENER_IDS.CAROUSEL_COMPONENT) {

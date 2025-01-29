@@ -31,6 +31,14 @@ class EmbeddedComponentsSDK {
   // Analytics session ID
   private readonly analyticsSessionId: string;
 
+  private lookupQueue: {
+    shopper: ShopperType,
+    resolve: (value: unknown) => void,
+    reject: (reason?: unknown) => void,
+    timeoutId: NodeJS.Timeout,
+  }[] = [];
+  private readonly LOOKUP_TIMEOUT = 5000; // 5 seconds
+
   constructor(config: ConfigType) {
     // Validate initialization configs
     this.config = new Config(config);
@@ -78,11 +86,35 @@ class EmbeddedComponentsSDK {
       return schemaValidation;
     }
 
-    if (!this.messenger.listenerReady) {
-      return new SkipifyError('Iframe is not available. Please try again later.');
-    }
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        this.lookupQueue = this.lookupQueue.filter((item) => item.shopper !== shopper);
+        resolve(new SkipifyError('Iframe is not available. Please try again later.'));
+      }, this.LOOKUP_TIMEOUT);
+      
+      this.lookupQueue.push({ shopper, resolve, reject, timeoutId });
 
-    return this.messenger.lookup(shopper, { skipifySessionId: this.analyticsSessionId });
+      if (this.messenger.listenerReady) {
+        this.processLookupQueue();
+      }
+    });
+  }
+
+  async processLookupQueue() {
+    while (this.lookupQueue.length > 0) {
+      const request = this.lookupQueue.shift();
+      if (!request) continue;
+      clearTimeout(request.timeoutId);
+
+      try {
+        const result = await this.messenger.lookup(request.shopper, {
+          skipifySessionId: this.analyticsSessionId,
+        });
+        request.resolve(result);
+      } catch (error) {
+        request.reject(error);
+      }
+    }
   }
 
   validateWithSchema<T>(schema: z.ZodSchema<T>, data: unknown): T | SkipifyError {
