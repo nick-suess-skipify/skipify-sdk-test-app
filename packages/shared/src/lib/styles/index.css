@@ -14,7 +14,7 @@
   width: 100%;
   height: 100%;
   z-index: 99999;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.2);
   transition: opacity 300ms ease-in-out;
   pointer-events: auto;
   /* DO NOT USE display=none, FINGERPRINT.JS WILL NOT WORK */
