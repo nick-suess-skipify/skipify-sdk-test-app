@@ -103,6 +103,7 @@ export const TestPageContent: React.FC = () => {
         displayMode: 'embedded' | 'overlay'
     ) => {
         if (!lookupRes.challengeId) return;
+        const element = document.getElementById(targetId);
 
         skipifyClient?.authentication(lookupRes, {
             onSuccess: (results: any) => {
@@ -114,10 +115,11 @@ export const TestPageContent: React.FC = () => {
             phone: authPhone,
             sendOtp,
             displayMode,
-        }).render(targetId);
+        }).render(element);
     };
 
     const handleCarousel = async (targetId: string, useLookupResponse = false, displayMode: 'embedded' | 'overlay' = 'embedded') => {
+        const element = document.getElementById(targetId);
         skipifyClient?.carousel(useLookupResponse ? lookupRes : authRes, {
             onSelect: (results: any) => {
                 setCarouselRes(results);
@@ -129,7 +131,7 @@ export const TestPageContent: React.FC = () => {
             orderTotal: Number(orderTotal),
             sendOtp: carouselSendOtp,
             displayMode,
-        }).render(targetId);
+        }).render(element);
     };
 
     const handleSaveMid = () => {

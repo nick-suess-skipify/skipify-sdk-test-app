@@ -115,20 +115,19 @@ class EmbeddedComponentsSDK {
     const authUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/authentication`;
 
     return {
-        render: (containerId: string) => {
-            if (!containerId) {
-                options.onError(new SkipifyError('Container ID is required'));
+        render: (element: HTMLElement) => {
+            if (!element) {
+                options.onError(new SkipifyError(`Target element not found`));
                 return;
             }
 
-            const container = document.getElementById(containerId);
-            if (!container) {
-                options.onError(new SkipifyError(`Container with ID "${containerId}" not found`));
-                return;
-            }
+            if (!(element instanceof HTMLElement)) {
+              options.onError(new SkipifyError(`Element must be a HTMLElement`));
+              return;
+          }
 
             // Check if container is an input type when displayMode is 'overlay'
-            if (options.displayMode === 'overlay' && container.tagName.toLowerCase() !== 'input') {
+            if (options.displayMode === 'overlay' && !(element instanceof HTMLInputElement)) {
                 options.onError(new SkipifyError('Container must be an input element for overlay display mode'));
                 return;
             }
@@ -142,7 +141,7 @@ class EmbeddedComponentsSDK {
             });
 
             // Launch authentication iframe
-            this.messenger.launchAuthIframe(authUrl, container, {
+            this.messenger.launchAuthIframe(authUrl, element, {
                 skipifySessionId: this.analyticsSessionId,
                 lookupData: lookupResult,
                 options: {
@@ -184,19 +183,18 @@ class EmbeddedComponentsSDK {
     const carouselUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/carousel`;
 
     return {
-      render: (containerId: string) => {
-        if (!containerId) {
-          options.onError({ error: { message: 'Container ID is required' } });
-          return;
-        }
-
-        const container = document.getElementById(containerId);
+      render: (container: HTMLElement) => {
         if (!container) {
-          options.onError({ error: { message: `Container with ID "${containerId}" not found` } });
+          options.onError({ error: { message: "Target element not found" } });
           return;
         }
 
-        if (options.displayMode === 'overlay' && container.tagName.toLowerCase() !== 'input') {
+        if (!(container instanceof HTMLElement)) {
+          options.onError(new SkipifyError(`Element must be a HTMLElement`));
+          return;
+      }
+
+        if (options.displayMode === 'overlay' && !(container instanceof HTMLInputElement)) {
           options.onError(new SkipifyError('Container must be an input element for overlay display mode'));
           return;
        }
