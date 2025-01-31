@@ -32,7 +32,7 @@ export class Messenger {
   handleIframeMessage(event: MessageEvent) {
     const { data, origin } = event;
 
-    if (![SDKOrigin, SkipifyCheckoutUrl].includes(origin) || !data?.name) {
+    if (![SDKOrigin, SkipifyCheckoutUrl, SimpleCheckoutUrl].includes(origin) || !data?.name) {
       return;
     }
 
