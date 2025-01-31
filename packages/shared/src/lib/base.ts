@@ -193,7 +193,7 @@ export class Base {
     this.canProceedCheck();
 
     this.messenger.launchEnrollmentIframe(
-      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll`
+      `${SkipifyCheckoutUrl}/embed/${this.merchantId}/enroll?asid=${this.analyticsSessionId}`
     );
   }
 
