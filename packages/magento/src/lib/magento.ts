@@ -28,7 +28,9 @@ export class MagentoSDK extends Base implements AbstractSDK {
    * Default values are assigned based on default Magento themes.
    */
   emailInputId = 'customer-email';
+  emailInputSelector = '';
   paymentFormId = 'co-payment-form';
+  paymentFormSelector = '';
   orderPaymentUrlMatch = /^.*\/checkout\/.*payment.*$/;
   orderConfirmationUrlMatch = /^.*\/checkout\/.*success.*$/;
 
@@ -40,11 +42,14 @@ export class MagentoSDK extends Base implements AbstractSDK {
   checkoutCompleted: CheckoutCompleted | null = null;
 
   storeFrontApi: MagentoStoreFrontApi;
+  isHyva = false;
+  hasStoredAddress = false;
 
   constructor({ merchantId }: Props = {}) {
     super(merchantId);
     this.platform = 'magento';
-    this.storeFrontApi = new MagentoStoreFrontApi();
+    this.detectHyvaTheme();
+    this.storeFrontApi = new MagentoStoreFrontApi({ isHyva: this.isHyva });
   }
 
   override processDOM() {
@@ -54,10 +59,20 @@ export class MagentoSDK extends Base implements AbstractSDK {
     this.processCheckoutCompleted();
   }
 
+  detectHyvaTheme() {
+    this.isHyva = Boolean((window as any).Alpine) // Hyvä replaces Magento's default frontend stack with Alpine.js and Tailwind CSS
+    if (this.isHyva) {
+      this.emailInputSelector = 'input[type="email"]';
+      this.paymentFormSelector = '.nav-main'
+    }
+  }
+
   processEmailInput() {
-    const emailInputElem = document.getElementById(
-      this.emailInputId
-    ) as HTMLInputElement;
+    const emailInputElem = (
+      this.emailInputSelector
+        ? document.querySelector(this.emailInputSelector)
+        : document.getElementById(this.emailInputId)
+    ) as HTMLInputElement | null;
 
     if (!emailInputElem) {
       return;
@@ -67,16 +82,19 @@ export class MagentoSDK extends Base implements AbstractSDK {
       return;
     }
 
-    const buttonCustomStyles = {
-      width: `${emailInputElem.offsetHeight - 2}px`,
-      height: `${emailInputElem.offsetHeight - 2}px`,
-      right: `${(emailInputElem.parentElement?.offsetWidth || 0) -
+    const sizeOffset = this.isHyva ? 4 : 2;
+    const buttonCustomStyles: any = {
+      width: `${emailInputElem.offsetHeight - sizeOffset}px`,
+      height: `${emailInputElem.offsetHeight - sizeOffset}px`,
+      top: this.isHyva ? '2px' : '1px',
+      borderRadius: this.isHyva ? '4px' : '1px',
+    };
+    if (!this.isHyva) {
+      buttonCustomStyles.right = `${(emailInputElem.parentElement?.offsetWidth || 0) -
         emailInputElem.offsetWidth +
         1
-        }px`,
-      top: '1px',
-      borderRadius: 0,
-    };
+        }px`
+    }
     this.insertButton(emailInputElem, buttonCustomStyles);
 
     if (emailInputElem?.value && isEmailValid(emailInputElem?.value)) {
@@ -116,7 +134,8 @@ export class MagentoSDK extends Base implements AbstractSDK {
   storeUserShippingAddress() {
     if (
       !this.orderPaymentUrlMatch ||
-      this.store.getState().userShippingAddress
+      this.isHyva ||
+      this.hasStoredAddress
     ) {
       return;
     }
@@ -139,6 +158,7 @@ export class MagentoSDK extends Base implements AbstractSDK {
           userShippingAddress.address2 = address.street[1];
         }
 
+        this.hasStoredAddress = true;
         this.store.setState({
           userShippingAddress,
           userPhone: address.telephone,
@@ -170,7 +190,11 @@ export class MagentoSDK extends Base implements AbstractSDK {
   }
 
   processEnrollmentCheckbox(): void {
-    const paymentForm = document.getElementById(this.paymentFormId);
+    const paymentForm = (
+      this.paymentFormSelector
+        ? document.querySelector(this.paymentFormSelector)
+        : document.getElementById(this.paymentFormId)
+    ) as HTMLElement | null;
 
     const enrollmentCheckboxElem = document.getElementById(
       SkipifyElementIds.enrollmentCheckbox
@@ -191,6 +215,7 @@ export class MagentoSDK extends Base implements AbstractSDK {
     this.enrollmentCheckbox = new EnrollmentCheckbox({
       node: paymentForm as HTMLElement,
       insertionType: 'append',
+      customStyles: this.isHyva ? { marginTop: '24px' } : {}
     });
   }
 
@@ -199,7 +224,8 @@ export class MagentoSDK extends Base implements AbstractSDK {
     return window.location.pathname.includes('checkout') ||
       window.location.pathname.includes('cart') ||
       bodyClass.includes('checkout-index-index') ||
-      bodyClass.includes('cart-index-index')
+      bodyClass.includes('cart-index-index') ||
+      bodyClass.includes('hyva_checkout-index-index')
   }
 
   override async getCartData(): Promise<PlatformCartType> {
@@ -208,6 +234,7 @@ export class MagentoSDK extends Base implements AbstractSDK {
     }
 
     const userCart = await this.storeFrontApi.getUserCart();
+
     if (!userCart) {
       return null;
     }

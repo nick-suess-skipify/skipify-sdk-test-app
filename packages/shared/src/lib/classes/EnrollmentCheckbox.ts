@@ -3,6 +3,7 @@ import { SkipifyElementIds, SdkUrl, getIsDarkColor } from '..';
 interface OwnProps {
   node: HTMLElement;
   insertionType?: 'prepend' | 'append';
+  customStyles?: Partial<CSSStyleDeclaration>
 }
 
 type Props = OwnProps;
@@ -10,9 +11,11 @@ type Props = OwnProps;
 export class EnrollmentCheckbox {
   node: HTMLElement;
   insertionType: 'prepend' | 'append';
-  constructor({ node, insertionType = 'prepend' }: Props) {
+  customStyles: Partial<CSSStyleDeclaration> = {}
+  constructor({ node, insertionType = 'prepend', customStyles = {} }: Props) {
     this.node = node;
     this.insertionType = insertionType;
+    this.customStyles = customStyles;
     this.start();
   }
 
@@ -33,6 +36,8 @@ export class EnrollmentCheckbox {
     enrollmentCheckboxFrame.id = `${SkipifyElementIds.enrollmentCheckbox}_frame`;
 
     wrapperEl.appendChild(enrollmentCheckboxFrame);
+
+    Object.assign(wrapperEl.style, this.customStyles);
 
     if (this.insertionType === 'append') {
       this.node.parentNode?.append(wrapperEl);
