@@ -141,7 +141,15 @@ jobs:
           command: bash .circleci/scripts/manage_branches.sh
 
 workflows:
-  dev:
+  on-commit:
+    when:
+      not:
+        or:
+        - equal: ["dev", << pipeline.git.branch >>]
+        - equal: ["main", << pipeline.git.branch >>]
+        - matches:
+            pattern: /^release\/.*/
+            value: << pipeline.git.branch >>
     jobs:
       - code-quality:
           context: skipify-dev
@@ -150,6 +158,46 @@ workflows:
           context: skipify-dev
           requires:
             - code-quality
+      - deploy-dev-approval:
+          context: skipify-dev
+          type: approval
+          requires:
+            - build
+      - deploy:
+          name: deploy-dev
+          bucket: checkout-sdk-dev/sdk
+          context: skipify-dev
+          requires:
+            - deploy-dev-approval
+      - deploy:
+          name: deploy-dev-legacy-bucket
+          bucket: checkout-sdk-dev
+          context: skipify-dev
+          requires:
+            - deploy-dev-approval
+      - run-qa-e2e-playwright:
+          environment: dev
+          context: skipify-dev
+          test_name: shakira/shakiraCheckout.spec.js
+          requires:
+            - deploy-dev
+  dev:
+    jobs:
+      - code-quality:
+          context: skipify-dev
+          filters:
+            branches:
+              only:
+                - dev
+      - build:
+          environment: dev
+          context: skipify-dev
+          requires:
+            - code-quality
+          filters:
+            branches:
+              only:
+                - dev
       - deploy:
           name: deploy-dev
           bucket: checkout-sdk-dev/sdk
