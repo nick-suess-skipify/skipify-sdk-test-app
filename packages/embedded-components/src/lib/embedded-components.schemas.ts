@@ -20,7 +20,12 @@ export const AuthenticationOptionsSchema = z.object({
     message: "Invalid phone number",
   }),
   sendOtp: z.boolean().optional(),
-  displayMode: z.enum(['embedded', 'overlay']).optional()
+  displayMode: z.enum(['embedded', 'overlay']).optional(),
+  config: z.object({
+    theme: z.enum(['light', 'dark']).optional(),
+    fontFamily: z.enum(['serif', 'sans-serif', 'default']).optional(),
+    fontSize: z.enum(['small', 'medium', 'large']).optional(),
+  }).optional()
 });
 
 // Schema for lookup result passed to authentication()
@@ -55,5 +60,10 @@ export const CarouselOptionsSchema = z.object({
     message: "Invalid phone number",
   }),
   sendOtp: z.boolean().optional(),
-  displayMode: z.enum(['embedded', 'overlay']).optional()
+  displayMode: z.enum(['embedded', 'overlay']).optional(),
+  config: z.object({
+    theme: z.enum(['light', 'dark']).optional(),
+    fontFamily: z.enum(['serif', 'sans-serif', 'default']).optional(),
+    fontSize: z.enum(['small', 'medium', 'large']).optional(),
+  }).optional()
 });

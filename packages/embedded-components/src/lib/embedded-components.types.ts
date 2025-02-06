@@ -35,7 +35,12 @@ export type AuthenticationOptionsType = {
     onError: (error: AuthenticationErrorType) => void,
     phone?: string,
     sendOtp?: boolean,
-    displayMode?: 'embedded' | 'overlay'
+    displayMode?: 'embedded' | 'overlay',
+    config?: {
+        theme?: 'light' | 'dark',
+        fontFamily?: 'serif' | 'sans-serif' | 'default',
+        fontSize?: 'small' | 'medium' | 'large'
+    }
 };
 
 export type SkipifyErrorType = {
@@ -59,5 +64,10 @@ export type CarouselOptionsType = {
     orderTotal: number,
     phone?: string,
     sendOtp?: boolean,
-    displayMode?: 'embedded' | 'overlay'
+    displayMode?: 'embedded' | 'overlay',
+    config?: {
+        theme?: 'light' | 'dark',
+        fontFamily?: 'serif' | 'sans-serif' | 'default',
+        fontSize?: 'small' | 'medium' | 'large'
+    }
 };

@@ -43,6 +43,11 @@ export class Messenger {
             orderTotal: number;
             sendOtp?: boolean;
             displayMode?: string;
+            config?: {
+                theme?: string;
+                fontFamily?: string;
+                fontSize?: string;
+            }
         }
     } | null = null;
 
@@ -180,7 +185,7 @@ export class Messenger {
 
     // Auth component
 
-    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { skipifySessionId: string, lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean; displayMode?: string } }) {
+    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { skipifySessionId: string, lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean; displayMode?: string; config?: { theme?: string; fontFamily?: string; fontSize?: string } } }) {
         this.authIframe = launchIframe(iframeSrc, SkipifyElementIds.authIframe, container, authData.options?.displayMode);
         this.authData = authData;
 

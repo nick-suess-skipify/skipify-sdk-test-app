@@ -16,7 +16,8 @@ import {
     Text,
     Button,
     Badge,
-    Switch
+    Switch,
+    Select
 } from '@chakra-ui/react' // Import Chakra UI components and VStack
 
 // Be careful with cyclic dependencies here
@@ -50,6 +51,16 @@ export const TestPageContent: React.FC = () => {
     const [carouselRes, setCarouselRes] = useState<any>({});
 
     const [carouselSendOtp, setCarouselSendOtp] = useState(false);
+
+    // Authentication config states
+    const [authTheme, setAuthTheme] = useState<string | undefined>(undefined);
+    const [authFontFamily, setAuthFontFamily] = useState<string | undefined>(undefined);
+    const [authFontSize, setAuthFontSize] = useState<string | undefined>(undefined);
+
+    // Carousel config states
+    const [carouselTheme, setCarouselTheme] = useState<string | undefined>(undefined);
+    const [carouselFontFamily, setCarouselFontFamily] = useState<string | undefined>(undefined);
+    const [carouselFontSize, setCarouselFontSize] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         // Check for Skipify client in the window
@@ -115,6 +126,11 @@ export const TestPageContent: React.FC = () => {
             phone: authPhone,
             sendOtp,
             displayMode,
+            config: {
+                theme: authTheme,
+                fontFamily: authFontFamily,
+                fontSize: authFontSize
+            }
         }).render(element);
     };
 
@@ -131,6 +147,11 @@ export const TestPageContent: React.FC = () => {
             orderTotal: Number(orderTotal),
             sendOtp: carouselSendOtp,
             displayMode,
+            config: {
+                theme: carouselTheme,
+                fontFamily: carouselFontFamily,
+                fontSize: carouselFontSize
+            }
         }).render(element);
     };
 
@@ -236,6 +257,40 @@ export const TestPageContent: React.FC = () => {
                         />
                     </FormControl>
 
+                    <Stack direction="row" spacing={4} mb="16px">
+                        <FormControl>
+                            <FormLabel>Theme</FormLabel>
+                            <Select value={authTheme || ''} onChange={(e) => setAuthTheme(e.target.value || undefined)}>
+                                <option value="">not set</option>
+                                <option value="light">light</option>
+                                <option value="dark">dark</option>
+                                <option value="invalid">invalid value</option>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>Font Family</FormLabel>
+                            <Select value={authFontFamily || ''} onChange={(e) => setAuthFontFamily(e.target.value || undefined)}>
+                                <option value="">not set</option>
+                                <option value="serif">serif</option>
+                                <option value="sans-serif">sans-serif</option>
+                                <option value="default">default</option>
+                                <option value="invalid">invalid value</option>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>Font Size</FormLabel>
+                            <Select value={authFontSize || ''} onChange={(e) => setAuthFontSize(e.target.value || undefined)}>
+                                <option value="">not set</option>
+                                <option value="small">small</option>
+                                <option value="medium">medium</option>
+                                <option value="large">large</option>
+                                <option value="invalid">invalid value</option>
+                            </Select>
+                        </FormControl>
+                    </Stack>
+
                     <Button
                         mt={4}
                         colorScheme='teal'
@@ -323,6 +378,40 @@ export const TestPageContent: React.FC = () => {
                         />
                     </FormControl>
 
+                    <Stack direction="row" spacing={4} mb="16px">
+                        <FormControl>
+                            <FormLabel>Theme</FormLabel>
+                            <Select value={carouselTheme || ''} onChange={(e) => setCarouselTheme(e.target.value || undefined)}>
+                                <option value="">not set</option>
+                                <option value="light">light</option>
+                                <option value="dark">dark</option>
+                                <option value="invalid">invalid value</option>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>Font Family</FormLabel>
+                            <Select value={carouselFontFamily || ''} onChange={(e) => setCarouselFontFamily(e.target.value || undefined)}>
+                                <option value="">not set</option>
+                                <option value="serif">serif</option>
+                                <option value="sans-serif">sans-serif</option>
+                                <option value="default">default</option>
+                                <option value="invalid">invalid value</option>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>Font Size</FormLabel>
+                            <Select value={carouselFontSize || ''} onChange={(e) => setCarouselFontSize(e.target.value || undefined)}>
+                                <option value="">not set</option>
+                                <option value="small">small</option>
+                                <option value="medium">medium</option>
+                                <option value="large">large</option>
+                                <option value="invalid">invalid value</option>
+                            </Select>
+                        </FormControl>
+                    </Stack>
+
                     <Button
                         mt={4}
                         colorScheme='teal'
@@ -334,7 +423,7 @@ export const TestPageContent: React.FC = () => {
                         Render Carousel base on Auth Response
                     </Button>
                     <Text fontSize="sm" color="gray.500">
-                            Authentication required before rendering carousel base on auth response
+                            Authentication required before rendering carousel base on auth response!
                     </Text>
 
                     <Button
@@ -381,6 +470,47 @@ export const TestPageContent: React.FC = () => {
 
                     <Text fontSize='md'>Response: </Text>
                     <Code><JSONPretty id="json-pretty-carousel" data={carouselRes}></JSONPretty></Code>
+                </VStack>
+
+                <VStack spacing='24px' align='left'>
+                    <Box mb="32px" position='relative'>
+                        <Divider />
+                        <AbsoluteCenter bg='white' px='4'>
+                            <b>config</b>
+                        </AbsoluteCenter>
+                    </Box>
+
+                    <FormControl mb="16px">
+                        <FormLabel>Theme</FormLabel>
+                        <Select value={carouselTheme || ''} onChange={(e) => setCarouselTheme(e.target.value || undefined)}>
+                            <option value="">not set</option>
+                            <option value="light">light</option>
+                            <option value="dark">dark</option>
+                            <option value="invalid">invalid value</option>
+                        </Select>
+                    </FormControl>
+
+                    <FormControl mb="16px">
+                        <FormLabel>Font Family</FormLabel>
+                        <Select value={carouselFontFamily || ''} onChange={(e) => setCarouselFontFamily(e.target.value || undefined)}>
+                            <option value="">not set</option>
+                            <option value="serif">serif</option>
+                            <option value="sans-serif">sans-serif</option>
+                            <option value="default">default</option>
+                            <option value="invalid">invalid value</option>
+                        </Select>
+                    </FormControl>
+
+                    <FormControl mb="16px">
+                        <FormLabel>Font Size</FormLabel>
+                        <Select value={carouselFontSize || ''} onChange={(e) => setCarouselFontSize(e.target.value || undefined)}>
+                            <option value="">not set</option>
+                            <option value="small">small</option>
+                            <option value="medium">medium</option>
+                            <option value="large">large</option>
+                            <option value="invalid">invalid value</option>
+                        </Select>
+                    </FormControl>
                 </VStack>
             </VStack>
         </Container>

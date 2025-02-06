@@ -39,6 +39,10 @@ class EmbeddedComponentsSDK {
   }[] = [];
   private readonly LOOKUP_TIMEOUT = 5000; // 5 seconds
 
+  private static readonly VALIDATION_FAILED_RESPONSE = {
+    render: /* Skip rendering due to validation failure */ () => null
+  } as const;
+
   constructor(config: ConfigType) {
     // Validate initialization configs
     this.config = new Config(config);
@@ -134,14 +138,14 @@ class EmbeddedComponentsSDK {
     const lookupValidation = this.validateWithSchema(LookupResponseSchema, lookupResult);
     if (lookupValidation instanceof SkipifyError) {
         options.onError(lookupValidation);
-        return;
+        return EmbeddedComponentsSDK.VALIDATION_FAILED_RESPONSE;
     }
 
     // Validate options
     const optionsValidation = this.validateWithSchema(AuthenticationOptionsSchema, options);
     if (optionsValidation instanceof SkipifyError) {
         options.onError(optionsValidation);
-        return;
+        return EmbeddedComponentsSDK.VALIDATION_FAILED_RESPONSE;
     }
 
     const authUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/authentication`;
@@ -156,7 +160,7 @@ class EmbeddedComponentsSDK {
             if (!(element instanceof HTMLElement)) {
               options.onError(new SkipifyError(`Element must be a HTMLElement`));
               return;
-          }
+            }
 
             // Check if container is an input type when displayMode is 'overlay'
             if (options.displayMode === 'overlay' && !(element instanceof HTMLInputElement)) {
@@ -179,7 +183,12 @@ class EmbeddedComponentsSDK {
                 options: {
                     phone: options.phone,
                     sendOtp: options.sendOtp ?? false,
-                    displayMode: options.displayMode ?? 'embedded'
+                    displayMode: options.displayMode ?? 'embedded',
+                    config: {
+                        theme: options.config?.theme ?? 'light',
+                        fontFamily: options.config?.fontFamily ?? 'default',
+                        fontSize: options.config?.fontSize ?? 'medium'
+                    }
                 }
             });
         }
@@ -189,18 +198,16 @@ class EmbeddedComponentsSDK {
   carousel(data: LookupResponseType | AuthenticationResponseType, options: CarouselOptionsType) {
     // Validate data based on its type
     if ('sessionId' in data) {
-      // It's AuthenticationResult data
       const authResultValidation = this.validateWithSchema(AuthenticationResponseSchema, data);
       if (authResultValidation instanceof SkipifyError) {
         options.onError(authResultValidation);
-        return;
+        return EmbeddedComponentsSDK.VALIDATION_FAILED_RESPONSE;
       }
     } else {
-      // It's LookupResponse data
       const lookupValidation = this.validateWithSchema(LookupResponseSchema, data);
       if (lookupValidation instanceof SkipifyError) {
         options.onError(lookupValidation);
-        return;
+        return EmbeddedComponentsSDK.VALIDATION_FAILED_RESPONSE;
       }
     }
 
@@ -208,9 +215,8 @@ class EmbeddedComponentsSDK {
     const optionsValidation = this.validateWithSchema(CarouselOptionsSchema, options);
     if (optionsValidation instanceof SkipifyError) {
       options.onError(optionsValidation);
-      return;
+      return EmbeddedComponentsSDK.VALIDATION_FAILED_RESPONSE;
     }
-
 
     const carouselUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/carousel`;
 
@@ -248,7 +254,12 @@ class EmbeddedComponentsSDK {
             orderTotal: options.orderTotal,
             phone: options.phone,
             sendOtp: options.sendOtp ?? false,
-            displayMode: options.displayMode ?? 'embedded'
+            displayMode: options.displayMode ?? 'embedded',
+            config: {
+                theme: options.config?.theme ?? 'light',
+                fontFamily: options.config?.fontFamily ?? 'default',
+                fontSize: options.config?.fontSize ?? 'medium'
+            }
           }
         });
       }
