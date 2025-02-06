@@ -106,6 +106,13 @@ After building and hosting the embedded components SDK, you can test the flow on
 
 http://localhost:4200/shared/components/embedded_components_playground.html
 
+## Integrations
+
+#### BigCommerce
+
+- [App setup guide](https://skipify.atlassian.net/wiki/x/AYDoVQ)
+- [Official documentation](https://docs.skipify.com/docs/bigcommerce)
+- [App installation doc](https://docs.google.com/document/d/1AWvVn6g5RNtpPrdQG7uIuzCIP_kHV64LzWRqymqXuis/edit?usp=sharing)
 
 
 ## Apps and libs dependencies graph
