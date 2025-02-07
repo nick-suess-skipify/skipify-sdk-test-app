@@ -2,7 +2,7 @@ import { z } from "zod";
 import { SkipifyApi } from '@checkout-sdk/shared/lib/utils/api';
 import { SkipifyEvents } from '@checkout-sdk/shared/lib/utils/skipifyEvents';
 import { SDKVersion, SKIPIFY_ANALYTICS_CONST, SkipifyCheckoutUrl } from "@checkout-sdk/shared/lib/constants";
-import { ShopperType, LookupResponseType, AuthenticationOptionsType, AuthenticationResponseType, AuthenticationErrorType, CarouselOptionsType } from './embedded-components.types';
+import { ShopperType, LookupResponseType, AuthenticationOptionsType, AuthenticationResponseType, AuthenticationErrorType, CarouselOptionsType, CarouselResponseType } from './embedded-components.types';
 import { ShopperSchema, AuthenticationOptionsSchema, LookupResponseSchema, AuthenticationResponseSchema, CarouselOptionsSchema } from './embedded-components.schemas';
 import { MerchantType } from '@checkout-sdk/shared/lib/shared.types'; // Import styles, likely will not use shared styles
 import { SkipifyError } from './error';
@@ -237,7 +237,7 @@ class EmbeddedComponentsSDK {
           return;
        }
 
-        this.messenger.onCarouselSelect((data: { paymentId: string | null, sessionId?: string }) => {
+        this.messenger.onCarouselSelect((data: CarouselResponseType) => {
           options.onSelect(data);
         });
 

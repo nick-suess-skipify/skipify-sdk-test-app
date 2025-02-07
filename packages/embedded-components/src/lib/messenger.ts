@@ -51,7 +51,7 @@ export class Messenger {
         }
     } | null = null;
 
-    carouselPromiseResolve: ((data: { paymentId: string | null, sessionId?: string }) => void) | null = null;
+    carouselPromiseResolve: ((data: CarouselResponseType) => void) | null = null;
     carouselPromiseReject: ((error: { error: { message: string } }) => void) | null = null;
 
 

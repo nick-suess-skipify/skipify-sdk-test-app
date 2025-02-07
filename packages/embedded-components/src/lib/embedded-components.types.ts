@@ -1,3 +1,5 @@
+import { ShippingAddressType } from "@checkout-sdk/shared";
+
 export type ShopperType = {
     email: string,
     phone?: string
@@ -50,6 +52,12 @@ export type SkipifyErrorType = {
 export type CarouselResponseType = {
     paymentId: string | null;
     sessionId?: string;
+    metadata?: {
+      networkType?: string;
+      expiryDate?: string;
+      lastFour?: string;
+    };
+    address?: ShippingAddressType;
 };
 
 export type CarouselErrorResponseType = {
