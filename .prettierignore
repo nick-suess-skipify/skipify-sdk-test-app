@@ -5,3 +5,5 @@ coverage
 dist
 node_modules
 jest.config.ts
+build
+.cache

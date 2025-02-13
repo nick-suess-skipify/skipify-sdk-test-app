@@ -54,3 +54,17 @@ export type PlatformCartType = {
   items: unknown;
   cartId?: string
 } | null
+
+export declare const FeeTypeEnum: {
+    general: string;
+    surcharge: string;
+};
+
+export type Unit = {
+    value: number | bigint;
+    uom: string;
+};
+
+export type FeeUnit = Unit & {
+    type: keyof typeof FeeTypeEnum;
+};
