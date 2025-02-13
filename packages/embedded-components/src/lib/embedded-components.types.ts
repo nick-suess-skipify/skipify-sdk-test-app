@@ -79,3 +79,7 @@ export type CarouselOptionsType = {
         fontSize?: 'small' | 'medium' | 'large'
     }
 };
+
+export type DeviceIdResponseType = {
+    deviceId: string;
+}

@@ -42,6 +42,7 @@ export const TestPageContent: React.FC = () => {
     const [authRes, setAuthRes] = useState<any>({});
     const [authPhone, setAuthPhone] = useState('');
     const authContainerRef = useRef<HTMLDivElement>(null);
+    const [deviceIdRes, setDeviceIdRes] = useState<any>({});
 
     const [sendOtp, setSendOtp] = useState(false);
 
@@ -159,6 +160,11 @@ export const TestPageContent: React.FC = () => {
         const url = new URL(window.location.href);
         url.searchParams.set('merchantId', merchantId);
         window.location.href = url.toString();
+    };
+
+    const handleGetDeviceId = async () => {
+        const res = await skipifyClient?.getDeviceId();
+        setDeviceIdRes(res);
     };
 
     return (
@@ -511,6 +517,30 @@ export const TestPageContent: React.FC = () => {
                             <option value="invalid">invalid value</option>
                         </Select>
                     </FormControl>
+                </VStack>
+                <VStack spacing="24px" align="left">
+                    <Box mb={2} position="relative">
+                        <Divider />
+                        <AbsoluteCenter bg="white" px="4">
+                        <b>Device</b>
+                        </AbsoluteCenter>
+                    </Box>
+
+                    <Button
+                        mt={2}
+                        colorScheme="teal"
+                        type="button"
+                        onClick={handleGetDeviceId}
+                        data-testid="render-authenticate-button"
+                    >
+                        Get Device ID
+                    </Button>
+
+                    <Text fontSize="md">Response: </Text>
+
+                    <Code>
+                        <JSONPretty id="json-pretty-auth" data={deviceIdRes}></JSONPretty>
+                    </Code>
                 </VStack>
             </VStack>
         </Container>

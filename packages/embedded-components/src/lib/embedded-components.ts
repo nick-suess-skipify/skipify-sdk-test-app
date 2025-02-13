@@ -103,7 +103,7 @@ class EmbeddedComponentsSDK {
       }
     });
   }
-
+  
   async processLookupQueue() {
     while (this.lookupQueue.length > 0) {
       const request = this.lookupQueue.shift();
@@ -119,6 +119,10 @@ class EmbeddedComponentsSDK {
         request.reject(error);
       }
     }
+  }
+
+  async getDeviceId() {
+    return this.messenger.requestDeviceId();
   }
 
   validateWithSchema<T>(schema: z.ZodSchema<T>, data: unknown): T | SkipifyError {

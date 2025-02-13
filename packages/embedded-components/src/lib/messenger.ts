@@ -6,7 +6,7 @@ import {
     SKIPIFY_ANALYTICS_CONST,
     SDKOrigin
 } from "@checkout-sdk/shared/lib/constants";
-import { CarouselErrorResponseType, CarouselResponseType, ShopperType } from "./embedded-components.types";
+import { CarouselErrorResponseType, CarouselResponseType, DeviceIdResponseType, ShopperType } from "./embedded-components.types";
 import { SkipifyError } from "./error";
 import { launchHiddenIframe, launchIframe, positionIframeInOverlay, removeUI } from "./iframe";
 import { AuthenticationResponseType, LookupResponseType } from "./embedded-components.types";
@@ -53,6 +53,9 @@ export class Messenger {
 
     carouselPromiseResolve: ((data: CarouselResponseType) => void) | null = null;
     carouselPromiseReject: ((error: { error: { message: string } }) => void) | null = null;
+
+    // device id promise
+    deviceIdPromiseResolve: ((data: DeviceIdResponseType) => void) | null = null;
 
 
     constructor({ sdk }: Props) {
@@ -115,18 +118,25 @@ export class Messenger {
         }
     }
 
-    requestDeviceId() {
-        if (this.iframe) {
-            const message = {
-                name: MESSAGE_NAMES.REQUEST_DEVICE_ID,
-            };
-            log('Sending message:', message);
-            this.iframe.contentWindow?.postMessage(message, SkipifyCheckoutUrl);
-        }
+    async requestDeviceId() {
+        if (!this.iframe) return null;
+
+        const message = {
+            name: MESSAGE_NAMES.REQUEST_DEVICE_ID,
+        };
+        log('Sending message:', message);
+        this.iframe.contentWindow?.postMessage(message, SkipifyCheckoutUrl);
+
+        return new Promise((resolve) => {
+            this.deviceIdPromiseResolve = resolve;
+        });
     }
 
     handleDeviceId(event: MessageEvent) {
-        // TODO add Iframe support to deviceId
+        if (this.deviceIdPromiseResolve) {
+            this.deviceIdPromiseResolve(event.data.payload);
+            this.deviceIdPromiseResolve = null;
+        }
     }
 
     handleLookupResponse(event: MessageEvent) {
