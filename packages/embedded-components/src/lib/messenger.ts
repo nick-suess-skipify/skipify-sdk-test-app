@@ -4,14 +4,19 @@ import {
     COMPONENT_LISTENER_IDS,
     SkipifyElementIds,
     SKIPIFY_ANALYTICS_CONST,
-    SDKOrigin
-} from "@checkout-sdk/shared/lib/constants";
-import { CarouselErrorResponseType, CarouselResponseType, DeviceIdResponseType, ShopperType } from "./embedded-components.types";
-import { SkipifyError } from "./error";
-import { launchHiddenIframe, launchIframe, positionIframeInOverlay, removeUI } from "./iframe";
-import { AuthenticationResponseType, LookupResponseType } from "./embedded-components.types";
-import { log } from "@checkout-sdk/shared/lib/utils/log";
-import EmbeddedComponentsSDK from "./embedded-components";
+    SDKOrigin,
+} from '@checkout-sdk/shared/lib/constants';
+import {
+    CarouselErrorResponseType,
+    CarouselResponseType,
+    DeviceIdResponseType,
+    ShopperType,
+} from './embedded-components.types';
+import { SkipifyError } from './error';
+import { launchHiddenIframe, launchIframe, positionIframeInOverlay, removeUI } from './iframe';
+import { AuthenticationResponseType, LookupResponseType } from './embedded-components.types';
+import { log } from '@checkout-sdk/shared/lib/utils/log';
+import EmbeddedComponentsSDK from './embedded-components';
 
 interface Props {
     sdk: EmbeddedComponentsSDK;
@@ -21,7 +26,7 @@ export class Messenger {
     iframe: HTMLIFrameElement | null = null;
     authIframe: HTMLIFrameElement | null = null;
     listenerReady = false;
-    authData: { lookupData: any; options?: { phone?: string, displayMode?: string, sendOtp?: boolean } } | null = null;
+    authData: { lookupData: any; options?: { phone?: string; displayMode?: string; sendOtp?: boolean } } | null = null;
     sdk: EmbeddedComponentsSDK;
 
     // return promises
@@ -47,8 +52,8 @@ export class Messenger {
                 theme?: string;
                 fontFamily?: string;
                 fontSize?: string;
-            }
-        }
+            };
+        };
     } | null = null;
 
     carouselPromiseResolve: ((data: CarouselResponseType) => void) | null = null;
@@ -56,7 +61,6 @@ export class Messenger {
 
     // device id promise
     deviceIdPromiseResolve: ((data: DeviceIdResponseType) => void) | null = null;
-
 
     constructor({ sdk }: Props) {
         this.sdk = sdk;
@@ -107,7 +111,7 @@ export class Messenger {
 
     handleListenerReady(event: MessageEvent) {
         this.listenerReady = true;
-        // this.requestDeviceId(); // TODO add Iframe support to deviceId
+        this.requestDeviceId(); // immediately request device id from iframe after iframe is initialized
 
         this.sdk.processLookupQueue();
 
@@ -121,6 +125,10 @@ export class Messenger {
     async requestDeviceId() {
         if (!this.iframe) return null;
 
+        if (this.sdk.deviceId) {
+            return { deviceId: this.sdk.deviceId };
+        }
+
         const message = {
             name: MESSAGE_NAMES.REQUEST_DEVICE_ID,
         };
@@ -132,7 +140,8 @@ export class Messenger {
         });
     }
 
-    handleDeviceId(event: MessageEvent) {
+    handleDeviceId(event: MessageEvent<{ payload: { deviceId: string } }>) {
+        this.sdk.deviceId = event.data.payload.deviceId;
         if (this.deviceIdPromiseResolve) {
             this.deviceIdPromiseResolve(event.data.payload);
             this.deviceIdPromiseResolve = null;
@@ -148,7 +157,12 @@ export class Messenger {
 
     handleLookupError(event: MessageEvent) {
         if (this.lookupPromiseReject) {
-            this.lookupPromiseReject(new SkipifyError(event.data.payload));
+            const error = new SkipifyError(event.data.payload);
+            if (error.contains('404')) {
+                error.error.message = 'Shopper not found';
+            }
+
+            this.lookupPromiseReject(error);
             this.clearLookupPromises();
         }
     }
@@ -160,12 +174,15 @@ export class Messenger {
 
     async lookup(shopper: ShopperType, options?: { skipifySessionId: string }) {
         if (!this.iframe) {
-            return Promise.reject(new SkipifyError('Iframe is not available.'))
+            return Promise.reject(new SkipifyError('Iframe is not available.'));
         }
 
-        const payload = { email: shopper.email, phone: shopper.phone, skipifySessionId: options?.skipifySessionId }
+        const payload = shopper.email
+            ? { email: shopper.email, phone: shopper.phone, skipifySessionId: options?.skipifySessionId }
+            : { skipifySessionId: options?.skipifySessionId };
+
         const message = {
-            name: MESSAGE_NAMES.REQUEST_LOOKUP_DATA,
+            name: shopper.email ? MESSAGE_NAMES.REQUEST_LOOKUP_DATA : MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT,
             payload,
         };
 
@@ -189,14 +206,31 @@ export class Messenger {
         if (this.carouselIframe && event.data.payload.id === COMPONENT_LISTENER_IDS.CAROUSEL_COMPONENT) {
             this.handleCloseCarouselIframe();
         }
-        removeUI()
+        removeUI();
     }
-
 
     // Auth component
 
-    launchAuthIframe(iframeSrc: string, container: HTMLElement, authData: { skipifySessionId: string, lookupData: LookupResponseType; options?: { phone?: string; sendOtp?: boolean; displayMode?: string; config?: { theme?: string; fontFamily?: string; fontSize?: string } } }) {
-        this.authIframe = launchIframe(iframeSrc, SkipifyElementIds.authIframe, container, authData.options?.displayMode);
+    launchAuthIframe(
+        iframeSrc: string,
+        container: HTMLElement,
+        authData: {
+            skipifySessionId: string;
+            lookupData: LookupResponseType;
+            options?: {
+                phone?: string;
+                sendOtp?: boolean;
+                displayMode?: string;
+                config?: { theme?: string; fontFamily?: string; fontSize?: string };
+            };
+        },
+    ) {
+        this.authIframe = launchIframe(
+            iframeSrc,
+            SkipifyElementIds.authIframe,
+            container,
+            authData.options?.displayMode,
+        );
         this.authData = authData;
 
         window.addEventListener('scroll', this.handleReposition);
@@ -266,15 +300,15 @@ export class Messenger {
         this.sdk.ttlStorage.updateExpiry(SKIPIFY_ANALYTICS_CONST.LOCAL_STORAGE_KEY, SKIPIFY_ANALYTICS_CONST.TTL);
     }
 
-
     // Carousel component
 
-    launchCarouselIframe(
-        iframeSrc: string,
-        container: HTMLElement,
-        carouselData: typeof this.carouselData
-    ) {
-        this.carouselIframe = launchIframe(iframeSrc, SkipifyElementIds.carouselIframe, container, carouselData?.options?.displayMode);
+    launchCarouselIframe(iframeSrc: string, container: HTMLElement, carouselData: typeof this.carouselData) {
+        this.carouselIframe = launchIframe(
+            iframeSrc,
+            SkipifyElementIds.carouselIframe,
+            container,
+            carouselData?.options?.displayMode,
+        );
         this.carouselData = carouselData;
 
         if (carouselData?.options?.displayMode === 'overlay') {
@@ -328,6 +362,4 @@ export class Messenger {
         window.removeEventListener('scroll', this.handleReposition);
         window.removeEventListener('resize', this.handleReposition);
     }
-
-
 }

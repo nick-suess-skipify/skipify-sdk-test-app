@@ -30,6 +30,7 @@ export const TestPageContent: React.FC = () => {
     // MID
     const queryParams = new URLSearchParams(window.location.search);
     const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID);
+    const [deviceId, setDeviceId] = useState(queryParams.get('deviceId') || '');
 
     // Inputs
     const [email, setEmail] = useState('')
@@ -75,6 +76,15 @@ export const TestPageContent: React.FC = () => {
                 (window as any).skipifyClient = initializedClient;
 
                 setSkipifyClient(initializedClient);
+
+                if (deviceId) {
+                    const skipifyIframe = document.getElementById('_SKIPIFY_iframe') as HTMLIFrameElement;
+                    if (skipifyIframe && skipifyIframe.src) {
+                        const url = new URL(skipifyIframe.src);
+                        url.searchParams.set('forceDeviceId', deviceId);
+                        skipifyIframe.src = url.toString();
+                    }
+                }
             } else {
                 setTimeout(checkClient, 200); // Check again after 200ms
             }
@@ -96,6 +106,7 @@ export const TestPageContent: React.FC = () => {
 
             setLookupRes(res)
         } catch (e) {
+            setLookupLoading(false);
             setLookupRes(e)
         }
     }
@@ -156,9 +167,10 @@ export const TestPageContent: React.FC = () => {
         }).render(element);
     };
 
-    const handleSaveMid = () => {
+    const handleSavePlaygroundSettings = () => {
         const url = new URL(window.location.href);
         url.searchParams.set('merchantId', merchantId);
+        url.searchParams.set('deviceId', deviceId);
         window.location.href = url.toString();
     };
 
@@ -177,22 +189,26 @@ export const TestPageContent: React.FC = () => {
                     <Box mb="32px" position='relative'>
                         <Divider />
                         <AbsoluteCenter bg='white' px='4'>
-                            <b>Merchant ID</b>
+                            <b>Playground Settings</b>
                         </AbsoluteCenter>
                     </Box>
                     <FormControl mb="16px">
                         <FormLabel>MID</FormLabel>
                         <Input type='text' value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
                     </FormControl>
+                    <FormControl mb="16px">
+                        <FormLabel>Device ID</FormLabel>
+                        <Input type='text' value={deviceId} onChange={(e) => setDeviceId(e.target.value)} />
+                    </FormControl>
                     <Stack mb="16px" spacing={4} direction='row' align='center'>
                         <Button
                             mt={4}
                             colorScheme='teal'
                             type='button'
-                            onClick={() => handleSaveMid()}
+                            onClick={() => handleSavePlaygroundSettings()}
                             data-testid="mid-button"
                         >
-                            Save MID
+                            Save
                         </Button>
                     </Stack>
                 </Box>
@@ -203,13 +219,13 @@ export const TestPageContent: React.FC = () => {
                             <b>Lookup</b>
                         </AbsoluteCenter>
                     </Box>
-                    <FormControl mb="16px" isRequired>
+                    <FormControl mb="16px">
                         <FormLabel>Email</FormLabel>
-                        <Input 
+                        <Input
                             id="email-input"
-                            type='text' 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)} 
+                            type='text'
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </FormControl>
                     <FormControl mb="16px">
@@ -244,10 +260,10 @@ export const TestPageContent: React.FC = () => {
 
                     <FormControl mb="16px">
                         <FormLabel>Authentication Phone Number (Optional)</FormLabel>
-                        <Input 
-                            type='text' 
-                            value={authPhone} 
-                            onChange={(e) => setAuthPhone(e.target.value)} 
+                        <Input
+                            type='text'
+                            value={authPhone}
+                            onChange={(e) => setAuthPhone(e.target.value)}
                             placeholder="Optional phone number"
                         />
                     </FormControl>
@@ -321,11 +337,11 @@ export const TestPageContent: React.FC = () => {
                         Render Authenticate Overlay
                     </Button>
 
-                    <div 
-                        id="merchant-auth-container" 
+                    <div
+                        id="merchant-auth-container"
                         ref={authContainerRef}
-                        style={{ 
-                            border: '1px dashed #718096', 
+                        style={{
+                            border: '1px dashed #718096',
                             borderRadius: '8px',
                             padding: '16px',
                             marginTop: '16px',
@@ -354,10 +370,10 @@ export const TestPageContent: React.FC = () => {
 
                     <FormControl mb="16px">
                         <FormLabel>Carousel Phone Number (Optional)</FormLabel>
-                        <Input 
-                            type='text' 
-                            value={carouselPhone} 
-                            onChange={(e) => setCarouselPhone(e.target.value)} 
+                        <Input
+                            type='text'
+                            value={carouselPhone}
+                            onChange={(e) => setCarouselPhone(e.target.value)}
                             placeholder="Optional phone number (only works when using lookup response)"
                             isDisabled={!!authRes.shopperId && !!authRes.sessionId}
                         />
@@ -365,10 +381,10 @@ export const TestPageContent: React.FC = () => {
 
                     <FormControl mb="16px">
                         <FormLabel>Order Total</FormLabel>
-                        <Input 
-                            type='number' 
-                            value={orderTotal} 
-                            onChange={(e) => setOrderTotal(e.target.value)} 
+                        <Input
+                            type='number'
+                            value={orderTotal}
+                            onChange={(e) => setOrderTotal(e.target.value)}
                             placeholder="Enter order total"
                         />
                     </FormControl>
@@ -429,7 +445,7 @@ export const TestPageContent: React.FC = () => {
                         Render Carousel base on Auth Response
                     </Button>
                     <Text fontSize="sm" color="gray.500">
-                            Authentication required before rendering carousel base on auth response!
+                        Authentication required before rendering carousel base on auth response!
                     </Text>
 
                     <Button
@@ -458,11 +474,11 @@ export const TestPageContent: React.FC = () => {
                         This enable merchant to render carousel without rendering authentication seperately
                     </Text>
 
-                    <div 
-                        id="merchant-carousel-container" 
+                    <div
+                        id="merchant-carousel-container"
                         ref={carouselContainerRef}
-                        style={{ 
-                            border: '1px dashed #718096', 
+                        style={{
+                            border: '1px dashed #718096',
                             borderRadius: '8px',
                             padding: '16px',
                             marginTop: '16px',
@@ -522,7 +538,7 @@ export const TestPageContent: React.FC = () => {
                     <Box mb={2} position="relative">
                         <Divider />
                         <AbsoluteCenter bg="white" px="4">
-                        <b>Device</b>
+                            <b>Device</b>
                         </AbsoluteCenter>
                     </Box>
 
