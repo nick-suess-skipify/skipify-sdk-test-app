@@ -72,6 +72,7 @@ export function approvalEventMapper(input: any) {
             value: input.taxes,
             uom: 'USD',
         },
+        total: input.total,
         fees,
         tipAmount,
     };
