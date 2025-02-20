@@ -33,15 +33,18 @@ Bundles get generated inside the dist folder
 ```
 
 Inside another terminal:
+
 ```
 // Start development server
 npm run host
 ```
+
 Your scripts should be now live on http://localhost:4200/
 
 BigCommerce
 Add hosted script to the store by pasting the following code snippet
 Remember to replace merchantId in the query
+
 ```
 var script = document.createElement("script");
 script.src = `http://localhost:4200/bigcommerce/bigcommerce.js?merchantId=ca4d3697-4579-4dda-9c89-ee63ae5a7b41&date=${new Date().getTime()}`;
@@ -49,6 +52,7 @@ document.head.appendChild(script);
 ```
 
 Available apps:
+
 ```
 nx run bigcommerce:build:dev
 nx run shopify:build:dev
@@ -59,6 +63,7 @@ nx run magento:build:dev
 ```
 
 Running all apps:
+
 ```
 npm run all:build:dev
 ```
@@ -83,6 +88,7 @@ After building and hosting the custom SDK, you can test the flow on the test pag
 http://localhost:4200/shared/components/playground.html
 
 Usage example:
+
 ```
 // Initialize client
 const skipifyClient = new window.skipify({
@@ -114,12 +120,11 @@ http://localhost:4200/shared/components/embedded_components_playground.html
 - [Official documentation](https://docs.skipify.com/docs/bigcommerce)
 - [App installation doc](https://docs.google.com/document/d/1AWvVn6g5RNtpPrdQG7uIuzCIP_kHV64LzWRqymqXuis/edit?usp=sharing)
 
-
 ## Apps and libs dependencies graph
+
 ```
 nx graph
 ```
-
 
 ## Deployments, Releases, & Rollbacks
 

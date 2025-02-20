@@ -18,7 +18,7 @@ import {
     NumberIncrementStepper,
     NumberDecrementStepper,
     Switch,
-} from '@chakra-ui/react'
+} from '@chakra-ui/react';
 import { SDKConfigurator } from './components/SDKConfigurator';
 
 // Be careful with cyclic dependencies here
@@ -29,32 +29,37 @@ const ERROR_MERCHANT_REF = 'my-error-ref-test';
 const EMAIL = 'email@skipify.com';
 const PHONE = '1234567890';
 const ORDER_TOTAL = '51.73';
-const parse = (val) => val.replace(/^\$/, '')
-const format = (val) => `$` + val
+const parse = (val) => val.replace(/^\$/, '');
+const format = (val) => `$` + val;
 
 export const TestPageContent: React.FC = (props) => {
-
     const queryParams = new URLSearchParams(window.location.search);
 
-    const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID)
-    const [merchantRef, setMerchantRef] = useState(queryParams.get('merchantRef') || MERCHANT_REF)
-    const [orderTotal, setOrderTotal] = useState(queryParams.get('orderTotal') || ORDER_TOTAL)
+    const [merchantId, setMerchantId] = useState(queryParams.get('merchantId') || MERCHANT_ID);
+    const [merchantRef, setMerchantRef] = useState(queryParams.get('merchantRef') || MERCHANT_REF);
+    const [orderTotal, setOrderTotal] = useState(queryParams.get('orderTotal') || ORDER_TOTAL);
     const [isEmailListenerEnabled, setIsEmailListenerEnabled] = useState(false);
-    const [phone, setPhone] = useState(queryParams.get('phone') || PHONE)
-    const [email, setEmail] = useState(queryParams.get('email') || EMAIL)
-    const [skipifyClient, setSkipifyClient] = useState<any>(null)
-    const buttonRef = useRef<HTMLDivElement | null>(null)
-    const errorButtonRef = useRef<HTMLDivElement | null>(null)
-    const inputRef1 = useRef(null)
-    const inputRef2 = useRef(null)
-    const [buttonTextColor, setButtonTextColor] = useState<string | undefined>(queryParams.get('buttonTextColor') || undefined);
-    const [buttonBgColor, setButtonBgColor] = useState<string | undefined>(queryParams.get('buttonBgColor') || undefined);
-    const [buttonBgHoverColor, setButtonBgHoverColor] = useState<string | undefined>(queryParams.get('buttonBgHoverColor') || undefined);
+    const [phone, setPhone] = useState(queryParams.get('phone') || PHONE);
+    const [email, setEmail] = useState(queryParams.get('email') || EMAIL);
+    const [skipifyClient, setSkipifyClient] = useState<any>(null);
+    const buttonRef = useRef<HTMLDivElement | null>(null);
+    const errorButtonRef = useRef<HTMLDivElement | null>(null);
+    const inputRef1 = useRef(null);
+    const inputRef2 = useRef(null);
+    const [buttonTextColor, setButtonTextColor] = useState<string | undefined>(
+        queryParams.get('buttonTextColor') || undefined,
+    );
+    const [buttonBgColor, setButtonBgColor] = useState<string | undefined>(
+        queryParams.get('buttonBgColor') || undefined,
+    );
+    const [buttonBgHoverColor, setButtonBgHoverColor] = useState<string | undefined>(
+        queryParams.get('buttonBgHoverColor') || undefined,
+    );
     const [buttonLogoPlacement, setButtonLogoPlacement] = useState<'inside' | 'below' | undefined>(
-        (queryParams.get('buttonLogoPlacement') as 'inside' | 'below') || undefined
+        (queryParams.get('buttonLogoPlacement') as 'inside' | 'below') || undefined,
     );
     const [buttonLabel, setButtonLabel] = useState<'Buy Now' | 'Pay Now' | undefined>(
-        (queryParams.get('buttonLabel') as 'Buy Now' | 'Pay Now') || undefined
+        (queryParams.get('buttonLabel') as 'Buy Now' | 'Pay Now') || undefined,
     );
 
     useEffect(() => {
@@ -81,11 +86,11 @@ export const TestPageContent: React.FC = (props) => {
         if (buttonRef?.current && skipifyClient) {
             const options = {
                 onClose: (myRef: string, success: boolean) => {
-                    console.log('On close UI callback triggered')
+                    console.log('On close UI callback triggered');
                 },
                 onApprove: (myRef: string, data: any) => {
-                    console.log('On approve UI callback triggered')
-                    console.log(data)
+                    console.log('On approve UI callback triggered');
+                    console.log(data);
                 },
                 textColor: buttonTextColor,
                 bgColor: buttonBgColor,
@@ -94,12 +99,14 @@ export const TestPageContent: React.FC = (props) => {
                 buttonLabel: buttonLabel,
                 email: email,
                 phone: phone,
-            }
+            };
 
             // Render Skipify buttons
-            skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.', '')) }).render(buttonRef.current)
+            skipifyClient
+                .button(merchantRef, { ...options, total: Number(orderTotal.replace('.', '')) })
+                .render(buttonRef.current);
         }
-    }, [buttonRef, skipifyClient])
+    }, [buttonRef, skipifyClient]);
 
     useEffect(() => {
         // Enable input listener
@@ -109,18 +116,18 @@ export const TestPageContent: React.FC = (props) => {
                 //for each button, set the email and phone
             }
         }
-    }, [isEmailListenerEnabled, skipifyClient])
+    }, [isEmailListenerEnabled, skipifyClient]);
 
     useEffect(() => {
         if (buttonRef?.current && skipifyClient) {
-            for (const [key,] of Object.entries(skipifyClient.buttons)) {
+            for (const [key] of Object.entries(skipifyClient.buttons)) {
                 if (skipifyClient.buttons[key].options) {
                     skipifyClient.buttons[key].options.email = email;
                     skipifyClient.buttons[key].options.phone = phone;
                 }
             }
         }
-    }, [email, phone])
+    }, [email, phone]);
 
     const handleSave = () => {
         const url = new URL(window.location.href);
@@ -133,7 +140,7 @@ export const TestPageContent: React.FC = (props) => {
         if (buttonLogoPlacement) url.searchParams.set('buttonLogoPlacement', buttonLogoPlacement);
         if (buttonLabel) url.searchParams.set('buttonLabel', buttonLabel);
         window.location.href = url.toString();
-    }
+    };
 
     const handleReset = () => {
         const url = new URL(window.location.href);
@@ -146,24 +153,26 @@ export const TestPageContent: React.FC = (props) => {
         url.searchParams.delete('buttonLogoPlacement');
         url.searchParams.delete('buttonLabel');
         window.location.href = url.toString();
-    }
+    };
 
     const handleOrderTotalChange = (valueString) => {
         if (!valueString) {
-            setOrderTotal('1')
+            setOrderTotal('1');
         } else {
-            setOrderTotal(parse(valueString))
+            setOrderTotal(parse(valueString));
         }
-    }
+    };
 
     return (
         <Container>
-            <Heading mt="24px" mb="16px" as='h2'>SDK Playground</Heading>
-            <VStack align="left" spacing='24px' divider={<StackDivider borderColor='gray.200' />}>
-                <Box >
+            <Heading mt="24px" mb="16px" as="h2">
+                SDK Playground
+            </Heading>
+            <VStack align="left" spacing="24px" divider={<StackDivider borderColor="gray.200" />}>
+                <Box>
                     <FormControl mb="16px" isRequired>
                         <FormLabel>Merchant Id</FormLabel>
-                        <Input type='text' value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
+                        <Input type="text" value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
                         {/* <FormHelperText>Your playground merchant Id.</FormHelperText> */}
                     </FormControl>
                     <FormControl>
@@ -203,21 +212,11 @@ export const TestPageContent: React.FC = (props) => {
                         />
                     </Box>
 
-                    <Stack spacing={4} direction='row' align='center'>
-                        <Button
-                            mt={4}
-                            colorScheme='teal'
-                            type='button'
-                            onClick={() => handleSave()}
-                        >
+                    <Stack spacing={4} direction="row" align="center">
+                        <Button mt={4} colorScheme="teal" type="button" onClick={() => handleSave()}>
                             Save
                         </Button>
-                        <Button
-                            mt={4}
-                            colorScheme='teal'
-                            type='button'
-                            onClick={() => handleReset()}
-                        >
+                        <Button mt={4} colorScheme="teal" type="button" onClick={() => handleReset()}>
                             Reset
                         </Button>
                     </Stack>
@@ -234,19 +233,26 @@ export const TestPageContent: React.FC = (props) => {
                         <FormLabel htmlFor="email-listener-switch" mb="0">
                             Enable Skipify email listener
                         </FormLabel>
-                        <Switch id="email-listener-switch" isChecked={isEmailListenerEnabled} onChange={(e) => setIsEmailListenerEnabled(e.target.checked)} />
+                        <Switch
+                            id="email-listener-switch"
+                            isChecked={isEmailListenerEnabled}
+                            onChange={(e) => setIsEmailListenerEnabled(e.target.checked)}
+                        />
                     </FormControl>
                     <FormControl display="flex" alignItems="center">
                         <FormLabel htmlFor="app-router-switch" mb="0">
                             Enable app router
                         </FormLabel>
-                        <Switch id="app-router-switch" onChange={(e) => {
-                            if (e.target.checked) {
-                                skipifyClient.enableRouterV2()
-                            } else {
-                                skipifyClient.disableRouterV2()
-                            }
-                        }} />
+                        <Switch
+                            id="app-router-switch"
+                            onChange={(e) => {
+                                if (e.target.checked) {
+                                    skipifyClient.enableRouterV2();
+                                } else {
+                                    skipifyClient.disableRouterV2();
+                                }
+                            }}
+                        />
                     </FormControl>
                     <FormControl>
                         <FormLabel>Skipify email listener</FormLabel>
@@ -261,11 +267,9 @@ export const TestPageContent: React.FC = (props) => {
                     </FormControl>
                 </Box>
             </VStack>
-
         </Container>
     );
 };
-
 
 const ButtonContainer = styled.div`
     width: 302px;

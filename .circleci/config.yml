@@ -1,358 +1,358 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@6.1.0
-  gcp-cli: circleci/gcp-cli@3.2.2
+    node: circleci/node@6.1.0
+    gcp-cli: circleci/gcp-cli@3.2.2
 
 prodTagFilter: &prodTagFilter
-  filters:
-    branches:
-      ignore: /.*/
-    tags:
-      only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+    filters:
+        branches:
+            ignore: /.*/
+        tags:
+            only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
 
 stageTagFilter: &stageTagFilter
-  filters:
-    branches:
-      ignore: /.*/
-    tags:
-      only: /^v[0-9]+\.[0-9]+\.[0-9]+(\.rc[0-9]+)?-stage$/
+    filters:
+        branches:
+            ignore: /.*/
+        tags:
+            only: /^v[0-9]+\.[0-9]+\.[0-9]+(\.rc[0-9]+)?-stage$/
 
 commands:
-  setup_git_write_access:
-    steps:
-      - run:
-          name: Configure Git
-          command: |
-            git config --global user.email "cicd@skipify.com"
-            git config --global user.name "skipify-cicd"
-            git config --global push.autoSetupRemote true
-            git remote set-url origin https://$GITHUB_TOKEN@github.com/SkipifyCheckout/checkout-sdk.git
+    setup_git_write_access:
+        steps:
+            - run:
+                  name: Configure Git
+                  command: |
+                      git config --global user.email "cicd@skipify.com"
+                      git config --global user.name "skipify-cicd"
+                      git config --global push.autoSetupRemote true
+                      git remote set-url origin https://$GITHUB_TOKEN@github.com/SkipifyCheckout/checkout-sdk.git
 
 jobs:
-  code-quality:
-    executor: node/default
-    resource_class: medium
-    steps:
-      - checkout
-      - run:
-          name: Configure npm for JFrog Artifactory
-          command: |
-            npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
-      - run: npm ci
-      - run: npm run all:lint
-      # - run:
-      #     name: Run tests with coverage
-      #     command: npm run test:cov -- --coverageReporters=lcov
+    code-quality:
+        executor: node/default
+        resource_class: medium
+        steps:
+            - checkout
+            - run:
+                  name: Configure npm for JFrog Artifactory
+                  command: |
+                      npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
+            - run: npm ci
+            - run: npm run all:lint
+            # - run:
+            #     name: Run tests with coverage
+            #     command: npm run test:cov -- --coverageReporters=lcov
 
-  build:
-    parameters:
-      environment:
-        description: The environment we are building. Accepted values - dev, stage, or prod
-        type: string
-    executor: node/default
-    resource_class: medium
-    steps:
-      - checkout
-      - run:
-          name: Configure npm for JFrog Artifactory
-          command: |
-            npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
-      - run: npm ci
-      - run:
-          name: 'build all'
-          command: npm run all:build:<< parameters.environment >>
+    build:
+        parameters:
+            environment:
+                description: The environment we are building. Accepted values - dev, stage, or prod
+                type: string
+        executor: node/default
+        resource_class: medium
+        steps:
+            - checkout
+            - run:
+                  name: Configure npm for JFrog Artifactory
+                  command: |
+                      npm set "$ARTIFACTORY_NPM_URL:_authToken=$ARTIFACTORY_SERVICE_AUTH_TOKEN"
+            - run: npm ci
+            - run:
+                  name: 'build all'
+                  command: npm run all:build:<< parameters.environment >>
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
+            - persist_to_workspace:
+                  root: .
+                  paths:
+                      - dist
 
-  deploy:
-    parameters:
-      bucket:
-        description: Google Cloud Storage bucket name where artifact will be deployed to
-        type: string
-    executor: gcp-cli/default
-    steps:
-      - attach_workspace:
-          at: .
-      - gcp-cli/setup:
-          version: 404.0.0
-      - run:
-          name: Push to bucket
-          command: gsutil -m cp -r dist/* gs://<< parameters.bucket >>
+    deploy:
+        parameters:
+            bucket:
+                description: Google Cloud Storage bucket name where artifact will be deployed to
+                type: string
+        executor: gcp-cli/default
+        steps:
+            - attach_workspace:
+                  at: .
+            - gcp-cli/setup:
+                  version: 404.0.0
+            - run:
+                  name: Push to bucket
+                  command: gsutil -m cp -r dist/* gs://<< parameters.bucket >>
 
-  run-qa-e2e-playwright:
-    parameters:
-      environment:
-        description: Target test environment
-        default: dev
-        type: enum
-        enum: ['dev', 'stage', 'prod']
-      test_name:
-        description: Name of the QA test to be executed
-        type: string
-    working_directory: ~/qa-e2e-playwright
-    environment:
-      SKIPIFYENV: << parameters.environment >>
-    executor:
-      name: node/default
-      tag: '16.7'
-    steps:
-      - run: |
-          git clone https://$GITHUB_TOKEN@github.com/SkipifyCheckout/qa-e2e-playwright.git ~/qa-e2e-playwright
-      - run: |
-          if [  parameters.environment = dev ]; then
-          git checkout dev
-          else
-          git checkout stage
-          fi
-      - run: |
-          npm i
-          npx playwright install
-          npx playwright install-deps
-      - run:
-          command: npx playwright test <<parameters.test_name>> --project=chromium
-      - run:
-          command: npx playwright test <<parameters.test_name>> --project=firefox
-  run-script:
-    parameters:
-      script:
-        description: Name of the script file to run. it should be located in .circleci/scripts
-        type: string
-    docker:
-      - image: cimg/base:current
-    resource_class: small
-    steps:
-      - checkout
-      - run:
-          name: Run <<parameters.script>>
-          command: bash .circleci/scripts/<<parameters.script>>
-  manage-branches:
-    docker:
-      - image: cimg/base:current
-    resource_class: small
-    steps:
-      - checkout
-      - setup_git_write_access
-      - run:
-          name: Delete Release Branch
-          command: bash .circleci/scripts/manage_branches.sh
+    run-qa-e2e-playwright:
+        parameters:
+            environment:
+                description: Target test environment
+                default: dev
+                type: enum
+                enum: ['dev', 'stage', 'prod']
+            test_name:
+                description: Name of the QA test to be executed
+                type: string
+        working_directory: ~/qa-e2e-playwright
+        environment:
+            SKIPIFYENV: << parameters.environment >>
+        executor:
+            name: node/default
+            tag: '16.7'
+        steps:
+            - run: |
+                  git clone https://$GITHUB_TOKEN@github.com/SkipifyCheckout/qa-e2e-playwright.git ~/qa-e2e-playwright
+            - run: |
+                  if [  parameters.environment = dev ]; then
+                  git checkout dev
+                  else
+                  git checkout stage
+                  fi
+            - run: |
+                  npm i
+                  npx playwright install
+                  npx playwright install-deps
+            - run:
+                  command: npx playwright test <<parameters.test_name>> --project=chromium
+            - run:
+                  command: npx playwright test <<parameters.test_name>> --project=firefox
+    run-script:
+        parameters:
+            script:
+                description: Name of the script file to run. it should be located in .circleci/scripts
+                type: string
+        docker:
+            - image: cimg/base:current
+        resource_class: small
+        steps:
+            - checkout
+            - run:
+                  name: Run <<parameters.script>>
+                  command: bash .circleci/scripts/<<parameters.script>>
+    manage-branches:
+        docker:
+            - image: cimg/base:current
+        resource_class: small
+        steps:
+            - checkout
+            - setup_git_write_access
+            - run:
+                  name: Delete Release Branch
+                  command: bash .circleci/scripts/manage_branches.sh
 
 workflows:
-  on-commit:
-    when:
-      not:
-        or:
-        - equal: ["dev", << pipeline.git.branch >>]
-        - equal: ["main", << pipeline.git.branch >>]
-        - matches:
-            pattern: /^release\/.*/
-            value: << pipeline.git.branch >>
-    jobs:
-      - code-quality:
-          context: skipify-dev
-      - build:
-          environment: dev
-          context: skipify-dev
-          requires:
-            - code-quality
-      - deploy-dev-approval:
-          context: skipify-dev
-          type: approval
-          requires:
-            - build
-      - deploy:
-          name: deploy-dev
-          bucket: checkout-sdk-dev/sdk
-          context: skipify-dev
-          requires:
-            - deploy-dev-approval
-      - deploy:
-          name: deploy-dev-legacy-bucket
-          bucket: checkout-sdk-dev
-          context: skipify-dev
-          requires:
-            - deploy-dev-approval
-      - run-qa-e2e-playwright:
-          environment: dev
-          context: skipify-dev
-          test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - deploy-dev
-  dev:
-    jobs:
-      - code-quality:
-          context: skipify-dev
-          filters:
-            branches:
-              only:
-                - dev
-      - build:
-          environment: dev
-          context: skipify-dev
-          requires:
-            - code-quality
-          filters:
-            branches:
-              only:
-                - dev
-      - deploy:
-          name: deploy-dev
-          bucket: checkout-sdk-dev/sdk
-          context: skipify-dev
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - dev
-      - deploy:
-          name: deploy-dev-legacy-bucket
-          bucket: checkout-sdk-dev
-          context: skipify-dev
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - dev
-      - run-qa-e2e-playwright:
-          environment: dev
-          context: skipify-dev
-          test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - deploy-dev
-      - stage-release-approval:
-          context: skipify-dev
-          type: approval
-          requires:
-            - run-qa-e2e-playwright
-      - run-script:
-          name: stage-release
-          context: skipify-dev
-          script: stage-release.sh
-          requires:
-            - stage-release-approval
-      - hotfix-release-approval:
-          context: skipify-dev
-          type: approval
-          requires:
-            - build
-          filters:
-            branches:
-              only: /^release\/.*/
-      - run-script:
-          name: hotfix-stage-release
-          context: skipify-dev
-          script: stage-release.sh --hotfix
-          requires:
-            - hotfix-release-approval
-  stage:
-    jobs:
-      - build-approval:
-          type: approval
-          <<: *stageTagFilter
-      - code-quality:
-          context: skipify-stage
-          requires:
-            - build-approval
-          <<: *stageTagFilter
-      - run-qa-e2e-playwright:
-          environment: dev
-          context: skipify-dev
-          test_name: shakira/shakiraCheckout.spec.js
-          requires:
-            - build-approval
-          <<: *stageTagFilter
-      - build:
-          environment: stage
-          context: skipify-stage
-          requires:
-            - code-quality
-          <<: *stageTagFilter
-      - deploy:
-          name: deploy-stage
-          bucket: skipifystagecdn/sdk
-          context: skipify-stage
-          requires:
-            - build
-            - run-qa-e2e-playwright
-          <<: *stageTagFilter
-      - deploy:
-          name: deploy-stage-legacy-bucket
-          bucket: checkout-sdk-stage
-          context: skipify-stage
-          requires:
-            - build
-            - run-qa-e2e-playwright
-          <<: *stageTagFilter
-      - prod-release-approval:
-          context: skipify-stage
-          type: approval
-          requires:
-            - deploy-stage
-          <<: *stageTagFilter
-      - run-script:
-          name: prod-release
-          context: skipify-stage
-          script: prod-release.sh
-          requires:
-            - prod-release-approval
-          <<: *stageTagFilter
-      - create-hotfix-branch-approval:
-          context: skipify-stage
-          type: approval
-          requires:
-            - build
-          <<: *stageTagFilter
-      - run-script:
-          name: create-hotfix-branch
-          context: skipify-stage
-          script: create-hotfix-branch.sh
-          requires:
-            - create-hotfix-branch-approval
-          <<: *stageTagFilter
-  prod:
-    jobs:
-      - build-approval:
-          type: approval
-          <<: *prodTagFilter
-      - code-quality:
-          context: skipify-prod
-          requires:
-            - build-approval
-          <<: *prodTagFilter
-      - build:
-          environment: prod
-          context: skipify-prod
-          requires:
-            - code-quality
-          <<: *prodTagFilter
-      - deploy:
-          name: deploy-prod
-          bucket: skipifycdn/sdk
-          context: skipify-prod
-          requires:
-            - build
-          <<: *prodTagFilter
-      - deploy:
-          name: deploy-prod-legacy-bucket
-          bucket: checkout-sdk
-          context: skipify-prod
-          requires:
-            - build
-          <<: *prodTagFilter
-      - run-qa-e2e-playwright:
-          environment: prod
-          context: skipify-prod
-          test_name: prodTests/prodShakiraSmoke.spec.js
-          requires:
-            - deploy-prod
-          <<: *prodTagFilter
-      - manage-branches:
-          context: skipify-prod
-          requires:
-            - deploy-prod
-          <<: *prodTagFilter
+    on-commit:
+        when:
+            not:
+                or:
+                    - equal: ['dev', << pipeline.git.branch >>]
+                    - equal: ['main', << pipeline.git.branch >>]
+                    - matches:
+                          pattern: /^release\/.*/
+                          value: << pipeline.git.branch >>
+        jobs:
+            - code-quality:
+                  context: skipify-dev
+            - build:
+                  environment: dev
+                  context: skipify-dev
+                  requires:
+                      - code-quality
+            - deploy-dev-approval:
+                  context: skipify-dev
+                  type: approval
+                  requires:
+                      - build
+            - deploy:
+                  name: deploy-dev
+                  bucket: checkout-sdk-dev/sdk
+                  context: skipify-dev
+                  requires:
+                      - deploy-dev-approval
+            - deploy:
+                  name: deploy-dev-legacy-bucket
+                  bucket: checkout-sdk-dev
+                  context: skipify-dev
+                  requires:
+                      - deploy-dev-approval
+            - run-qa-e2e-playwright:
+                  environment: dev
+                  context: skipify-dev
+                  test_name: shakira/shakiraCheckout.spec.js
+                  requires:
+                      - deploy-dev
+    dev:
+        jobs:
+            - code-quality:
+                  context: skipify-dev
+                  filters:
+                      branches:
+                          only:
+                              - dev
+            - build:
+                  environment: dev
+                  context: skipify-dev
+                  requires:
+                      - code-quality
+                  filters:
+                      branches:
+                          only:
+                              - dev
+            - deploy:
+                  name: deploy-dev
+                  bucket: checkout-sdk-dev/sdk
+                  context: skipify-dev
+                  requires:
+                      - build
+                  filters:
+                      branches:
+                          only:
+                              - dev
+            - deploy:
+                  name: deploy-dev-legacy-bucket
+                  bucket: checkout-sdk-dev
+                  context: skipify-dev
+                  requires:
+                      - build
+                  filters:
+                      branches:
+                          only:
+                              - dev
+            - run-qa-e2e-playwright:
+                  environment: dev
+                  context: skipify-dev
+                  test_name: shakira/shakiraCheckout.spec.js
+                  requires:
+                      - deploy-dev
+            - stage-release-approval:
+                  context: skipify-dev
+                  type: approval
+                  requires:
+                      - run-qa-e2e-playwright
+            - run-script:
+                  name: stage-release
+                  context: skipify-dev
+                  script: stage-release.sh
+                  requires:
+                      - stage-release-approval
+            - hotfix-release-approval:
+                  context: skipify-dev
+                  type: approval
+                  requires:
+                      - build
+                  filters:
+                      branches:
+                          only: /^release\/.*/
+            - run-script:
+                  name: hotfix-stage-release
+                  context: skipify-dev
+                  script: stage-release.sh --hotfix
+                  requires:
+                      - hotfix-release-approval
+    stage:
+        jobs:
+            - build-approval:
+                  type: approval
+                  <<: *stageTagFilter
+            - code-quality:
+                  context: skipify-stage
+                  requires:
+                      - build-approval
+                  <<: *stageTagFilter
+            - run-qa-e2e-playwright:
+                  environment: dev
+                  context: skipify-dev
+                  test_name: shakira/shakiraCheckout.spec.js
+                  requires:
+                      - build-approval
+                  <<: *stageTagFilter
+            - build:
+                  environment: stage
+                  context: skipify-stage
+                  requires:
+                      - code-quality
+                  <<: *stageTagFilter
+            - deploy:
+                  name: deploy-stage
+                  bucket: skipifystagecdn/sdk
+                  context: skipify-stage
+                  requires:
+                      - build
+                      - run-qa-e2e-playwright
+                  <<: *stageTagFilter
+            - deploy:
+                  name: deploy-stage-legacy-bucket
+                  bucket: checkout-sdk-stage
+                  context: skipify-stage
+                  requires:
+                      - build
+                      - run-qa-e2e-playwright
+                  <<: *stageTagFilter
+            - prod-release-approval:
+                  context: skipify-stage
+                  type: approval
+                  requires:
+                      - deploy-stage
+                  <<: *stageTagFilter
+            - run-script:
+                  name: prod-release
+                  context: skipify-stage
+                  script: prod-release.sh
+                  requires:
+                      - prod-release-approval
+                  <<: *stageTagFilter
+            - create-hotfix-branch-approval:
+                  context: skipify-stage
+                  type: approval
+                  requires:
+                      - build
+                  <<: *stageTagFilter
+            - run-script:
+                  name: create-hotfix-branch
+                  context: skipify-stage
+                  script: create-hotfix-branch.sh
+                  requires:
+                      - create-hotfix-branch-approval
+                  <<: *stageTagFilter
+    prod:
+        jobs:
+            - build-approval:
+                  type: approval
+                  <<: *prodTagFilter
+            - code-quality:
+                  context: skipify-prod
+                  requires:
+                      - build-approval
+                  <<: *prodTagFilter
+            - build:
+                  environment: prod
+                  context: skipify-prod
+                  requires:
+                      - code-quality
+                  <<: *prodTagFilter
+            - deploy:
+                  name: deploy-prod
+                  bucket: skipifycdn/sdk
+                  context: skipify-prod
+                  requires:
+                      - build
+                  <<: *prodTagFilter
+            - deploy:
+                  name: deploy-prod-legacy-bucket
+                  bucket: checkout-sdk
+                  context: skipify-prod
+                  requires:
+                      - build
+                  <<: *prodTagFilter
+            - run-qa-e2e-playwright:
+                  environment: prod
+                  context: skipify-prod
+                  test_name: prodTests/prodShakiraSmoke.spec.js
+                  requires:
+                      - deploy-prod
+                  <<: *prodTagFilter
+            - manage-branches:
+                  context: skipify-prod
+                  requires:
+                      - deploy-prod
+                  <<: *prodTagFilter

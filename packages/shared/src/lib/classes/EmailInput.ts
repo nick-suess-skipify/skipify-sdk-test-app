@@ -1,6 +1,6 @@
-import { hideLoader, isEmailValid, showLoader } from "../utils";
-import { SkipifyClassNames } from "../constants";
-import debounce, { DebouncedFunction } from "debounce";
+import { hideLoader, isEmailValid, showLoader } from '../utils';
+import { SkipifyClassNames } from '../constants';
+import debounce, { DebouncedFunction } from 'debounce';
 
 type EmailInputOptions = {
     mode?: 'onBlur' | 'onChange';
@@ -46,7 +46,7 @@ export class EmailInput {
     private setEventListener(
         node: HTMLInputElement,
         handler: EmailInputEventHandler,
-        options: EmailInputOptions
+        options: EmailInputOptions,
     ): DebouncedFunction<EmailInputEventHandler> | undefined {
         const boundHandler = handler.bind(this);
         const debounceTime = options.debounceTime || 300;
@@ -66,14 +66,9 @@ export class EmailInput {
         return debouncedHandler;
     }
 
-
     start() {
         this.node.classList.add(SkipifyClassNames.emailInput);
-        this._debounceController = this.setEventListener(
-            this.node,
-            this.handleInput,
-            this.options
-        );
+        this._debounceController = this.setEventListener(this.node, this.handleInput, this.options);
     }
 
     handleInput(e: Event) {

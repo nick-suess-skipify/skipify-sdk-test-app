@@ -3,36 +3,36 @@ import { persist } from 'zustand/middleware';
 import { ShippingAddressType } from '../shared.types';
 
 export type State = {
-  enrollmentCheckboxValue: boolean;
-  userEmail: string;
-  eligible: boolean;
-  testMode: boolean;
-  emailWhitelisted: boolean;
-  flags?: Record<string, unknown>;
-  userShippingAddress?: ShippingAddressType;
-  userPhone?: string;
+    enrollmentCheckboxValue: boolean;
+    userEmail: string;
+    eligible: boolean;
+    testMode: boolean;
+    emailWhitelisted: boolean;
+    flags?: Record<string, unknown>;
+    userShippingAddress?: ShippingAddressType;
+    userPhone?: string;
 };
 
 export const defaultState: State = {
-  enrollmentCheckboxValue: true,
-  userEmail: '',
-  eligible: false,
-  testMode: true,
-  emailWhitelisted: false,
-  flags: undefined,
-  userShippingAddress: undefined,
-  userPhone: undefined,
+    enrollmentCheckboxValue: true,
+    userEmail: '',
+    eligible: false,
+    testMode: true,
+    emailWhitelisted: false,
+    flags: undefined,
+    userShippingAddress: undefined,
+    userPhone: undefined,
 };
 
 export const store = createStore(
-  persist(
-    () => ({
-      /**
-       * These values are persisted on page changes,
-       * so we can carry data from the checkout to the order confirmation page
-       */
-      ...defaultState,
-    }),
-    { name: 'skipify_checkout' }
-  )
+    persist(
+        () => ({
+            /**
+             * These values are persisted on page changes,
+             * so we can carry data from the checkout to the order confirmation page
+             */
+            ...defaultState,
+        }),
+        { name: 'skipify_checkout' },
+    ),
 );

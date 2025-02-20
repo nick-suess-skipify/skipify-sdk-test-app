@@ -1,5 +1,5 @@
 {
-  "name": "@checkout-sdk/magento",
-  "version": "0.0.1",
-  "type": "commonjs"
+    "name": "@checkout-sdk/magento",
+    "version": "0.0.1",
+    "type": "commonjs"
 }

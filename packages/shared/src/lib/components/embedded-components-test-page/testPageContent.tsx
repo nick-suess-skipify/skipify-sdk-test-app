@@ -17,8 +17,8 @@ import {
     Button,
     Badge,
     Switch,
-    Select
-} from '@chakra-ui/react' // Import Chakra UI components and VStack
+    Select,
+} from '@chakra-ui/react'; // Import Chakra UI components and VStack
 
 // Be careful with cyclic dependencies here
 
@@ -33,13 +33,13 @@ export const TestPageContent: React.FC = () => {
     const [deviceId, setDeviceId] = useState(queryParams.get('deviceId') || '');
 
     // Inputs
-    const [email, setEmail] = useState('')
-    const [phone, setPhone] = useState('')
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
 
     // Responses
-    const [lookupRes, setLookupRes] = useState<any>({})
-    const [lookupResponseTime, setLookupResponseTime] = useState<string>('')
-    const [lookupLoading, setLookupLoading] = useState(false)
+    const [lookupRes, setLookupRes] = useState<any>({});
+    const [lookupResponseTime, setLookupResponseTime] = useState<string>('');
+    const [lookupLoading, setLookupLoading] = useState(false);
     const [authRes, setAuthRes] = useState<any>({});
     const [authPhone, setAuthPhone] = useState('');
     const authContainerRef = useRef<HTMLDivElement>(null);
@@ -95,76 +95,81 @@ export const TestPageContent: React.FC = () => {
 
     const handleLookup = async () => {
         try {
-            setLookupLoading(true)
+            setLookupLoading(true);
 
             const startTime = Date.now();
-            const res = await skipifyClient?.lookup({ email, phone })
+            const res = await skipifyClient?.lookup({ email, phone });
             const endTime = Date.now();
 
-            setLookupResponseTime(`${endTime - startTime} ms`)
-            setLookupLoading(false)
+            setLookupResponseTime(`${endTime - startTime} ms`);
+            setLookupLoading(false);
 
-            setLookupRes(res)
+            setLookupRes(res);
         } catch (e) {
             setLookupLoading(false);
-            setLookupRes(e)
+            setLookupRes(e);
         }
-    }
+    };
 
-    const lookupResProps: any = {}
+    const lookupResProps: any = {};
     let lookupResStatus = '';
     if (lookupRes.challengeId) {
-        lookupResProps.colorScheme = 'teal' // success
-        lookupResStatus = 'OK'
+        lookupResProps.colorScheme = 'teal'; // success
+        lookupResStatus = 'OK';
     } else if (lookupRes.error) {
-        lookupResProps.colorScheme = 'red' // error
-        lookupResStatus = 'ERROR'
+        lookupResProps.colorScheme = 'red'; // error
+        lookupResStatus = 'ERROR';
     }
 
-    const handleAuthentication = async (
-        targetId: string,
-        displayMode: 'embedded' | 'overlay'
-    ) => {
+    const handleAuthentication = async (targetId: string, displayMode: 'embedded' | 'overlay') => {
         if (!lookupRes.challengeId) return;
         const element = document.getElementById(targetId);
 
-        skipifyClient?.authentication(lookupRes, {
-            onSuccess: (results: any) => {
-                setAuthRes(results);
-            },
-            onError: (error: any) => {
-                setAuthRes({ error });
-            },
-            phone: authPhone,
-            sendOtp,
-            displayMode,
-            config: {
-                theme: authTheme,
-                fontFamily: authFontFamily,
-                fontSize: authFontSize
-            }
-        }).render(element);
+        skipifyClient
+            ?.authentication(lookupRes, {
+                onSuccess: (results: any) => {
+                    setAuthRes(results);
+                },
+                onError: (error: any) => {
+                    setAuthRes({ error });
+                },
+                phone: authPhone,
+                sendOtp,
+                displayMode,
+                config: {
+                    theme: authTheme,
+                    fontFamily: authFontFamily,
+                    fontSize: authFontSize,
+                },
+            })
+            .render(element);
     };
 
-    const handleCarousel = async (targetId: string, useLookupResponse = false, displayMode: 'embedded' | 'overlay' = 'embedded') => {
+    const handleCarousel = async (
+        targetId: string,
+        useLookupResponse = false,
+        displayMode: 'embedded' | 'overlay' = 'embedded',
+    ) => {
         const element = document.getElementById(targetId);
-        skipifyClient?.carousel(useLookupResponse ? lookupRes : authRes, {
-            onSelect: (results: any) => {
-                setCarouselRes(results);
-            },
-            onError: (error: any) => {
-                setCarouselRes({ error });
-            },
-            phone: carouselPhone,
-            orderTotal: Number(orderTotal),
-            sendOtp: carouselSendOtp,
-            displayMode,
-            config: {
-                theme: carouselTheme,
-                fontFamily: carouselFontFamily,
-                fontSize: carouselFontSize
-            }
-        }).render(element);
+        skipifyClient
+            ?.carousel(useLookupResponse ? lookupRes : authRes, {
+                onSelect: (results: any) => {
+                    setCarouselRes(results);
+                },
+                onError: (error: any) => {
+                    setCarouselRes({ error });
+                },
+                phone: carouselPhone,
+                orderTotal: Number(orderTotal),
+                sendOtp: carouselSendOtp,
+                displayMode,
+                config: {
+                    theme: carouselTheme,
+                    fontFamily: carouselFontFamily,
+                    fontSize: carouselFontSize,
+                },
+            })
+            .render(element);
     };
 
     const handleSavePlaygroundSettings = () => {
@@ -181,30 +186,30 @@ export const TestPageContent: React.FC = () => {
 
     return (
         <Container>
-            <Heading mt="24px" mb="40px" as='h2'>
+            <Heading mt="24px" mb="40px" as="h2">
                 Embedded Components Playground
             </Heading>
-            <VStack align="left" spacing='48px' divider={<StackDivider borderColor='gray.200' />}>
+            <VStack align="left" spacing="48px" divider={<StackDivider borderColor="gray.200" />}>
                 <Box>
-                    <Box mb="32px" position='relative'>
+                    <Box mb="32px" position="relative">
                         <Divider />
-                        <AbsoluteCenter bg='white' px='4'>
+                        <AbsoluteCenter bg="white" px="4">
                             <b>Playground Settings</b>
                         </AbsoluteCenter>
                     </Box>
                     <FormControl mb="16px">
                         <FormLabel>MID</FormLabel>
-                        <Input type='text' value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
+                        <Input type="text" value={merchantId} onChange={(e) => setMerchantId(e.target.value)} />
                     </FormControl>
                     <FormControl mb="16px">
                         <FormLabel>Device ID</FormLabel>
-                        <Input type='text' value={deviceId} onChange={(e) => setDeviceId(e.target.value)} />
+                        <Input type="text" value={deviceId} onChange={(e) => setDeviceId(e.target.value)} />
                     </FormControl>
-                    <Stack mb="16px" spacing={4} direction='row' align='center'>
+                    <Stack mb="16px" spacing={4} direction="row" align="center">
                         <Button
                             mt={4}
-                            colorScheme='teal'
-                            type='button'
+                            colorScheme="teal"
+                            type="button"
                             onClick={() => handleSavePlaygroundSettings()}
                             data-testid="mid-button"
                         >
@@ -213,31 +218,26 @@ export const TestPageContent: React.FC = () => {
                     </Stack>
                 </Box>
                 <Box>
-                    <Box mb="32px" position='relative'>
+                    <Box mb="32px" position="relative">
                         <Divider />
-                        <AbsoluteCenter bg='white' px='4'>
+                        <AbsoluteCenter bg="white" px="4">
                             <b>Lookup</b>
                         </AbsoluteCenter>
                     </Box>
                     <FormControl mb="16px">
                         <FormLabel>Email</FormLabel>
-                        <Input
-                            id="email-input"
-                            type='text'
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                        <Input id="email-input" type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </FormControl>
                     <FormControl mb="16px">
                         <FormLabel>Phone</FormLabel>
-                        <Input type='text' value={phone} onChange={(e) => setPhone(e.target.value)} />
+                        <Input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
                     </FormControl>
 
-                    <Stack mb="16px" spacing={4} direction='row' align='center'>
+                    <Stack mb="16px" spacing={4} direction="row" align="center">
                         <Button
                             mt={4}
-                            colorScheme='teal'
-                            type='button'
+                            colorScheme="teal"
+                            type="button"
                             onClick={() => handleLookup()}
                             isLoading={lookupLoading}
                             data-testid="lookup-button"
@@ -246,14 +246,19 @@ export const TestPageContent: React.FC = () => {
                         </Button>
                     </Stack>
 
-                    <Text fontSize='md'>Response: <Badge {...lookupResProps}>{lookupResStatus}</Badge><Badge>{lookupResponseTime}</Badge></Text>
-                    <Code><JSONPretty id="json-pretty" data={lookupRes}></JSONPretty></Code>
+                    <Text fontSize="md">
+                        Response: <Badge {...lookupResProps}>{lookupResStatus}</Badge>
+                        <Badge>{lookupResponseTime}</Badge>
+                    </Text>
+                    <Code>
+                        <JSONPretty id="json-pretty" data={lookupRes}></JSONPretty>
+                    </Code>
                 </Box>
 
-                <VStack spacing='24px' align='left'>
-                    <Box mb="32px" position='relative'>
+                <VStack spacing="24px" align="left">
+                    <Box mb="32px" position="relative">
                         <Divider />
-                        <AbsoluteCenter bg='white' px='4'>
+                        <AbsoluteCenter bg="white" px="4">
                             <b>Authentication</b>
                         </AbsoluteCenter>
                     </Box>
@@ -261,7 +266,7 @@ export const TestPageContent: React.FC = () => {
                     <FormControl mb="16px">
                         <FormLabel>Authentication Phone Number (Optional)</FormLabel>
                         <Input
-                            type='text'
+                            type="text"
                             value={authPhone}
                             onChange={(e) => setAuthPhone(e.target.value)}
                             placeholder="Optional phone number"
@@ -272,11 +277,7 @@ export const TestPageContent: React.FC = () => {
                         <FormLabel htmlFor="send-otp-switch" mb="0">
                             Send OTP
                         </FormLabel>
-                        <Switch
-                            id="send-otp-switch"
-                            isChecked={sendOtp}
-                            onChange={() => setSendOtp(!sendOtp)}
-                        />
+                        <Switch id="send-otp-switch" isChecked={sendOtp} onChange={() => setSendOtp(!sendOtp)} />
                     </FormControl>
 
                     <Stack direction="row" spacing={4} mb="16px">
@@ -292,7 +293,10 @@ export const TestPageContent: React.FC = () => {
 
                         <FormControl>
                             <FormLabel>Font Family</FormLabel>
-                            <Select value={authFontFamily || ''} onChange={(e) => setAuthFontFamily(e.target.value || undefined)}>
+                            <Select
+                                value={authFontFamily || ''}
+                                onChange={(e) => setAuthFontFamily(e.target.value || undefined)}
+                            >
                                 <option value="">not set</option>
                                 <option value="serif">serif</option>
                                 <option value="sans-serif">sans-serif</option>
@@ -303,7 +307,10 @@ export const TestPageContent: React.FC = () => {
 
                         <FormControl>
                             <FormLabel>Font Size</FormLabel>
-                            <Select value={authFontSize || ''} onChange={(e) => setAuthFontSize(e.target.value || undefined)}>
+                            <Select
+                                value={authFontSize || ''}
+                                onChange={(e) => setAuthFontSize(e.target.value || undefined)}
+                            >
                                 <option value="">not set</option>
                                 <option value="small">small</option>
                                 <option value="medium">medium</option>
@@ -315,8 +322,8 @@ export const TestPageContent: React.FC = () => {
 
                     <Button
                         mt={4}
-                        colorScheme='teal'
-                        type='button'
+                        colorScheme="teal"
+                        type="button"
                         onClick={() => handleAuthentication('merchant-auth-container', 'embedded')}
                         isDisabled={!lookupRes.challengeId}
                         data-testid="render-authenticate-button"
@@ -324,12 +331,10 @@ export const TestPageContent: React.FC = () => {
                         Render Authenticate
                     </Button>
 
-
-
                     <Button
                         mt={4}
-                        colorScheme='blue'
-                        type='button'
+                        colorScheme="blue"
+                        type="button"
                         onClick={() => handleAuthentication('email-input', 'overlay')}
                         isDisabled={!lookupRes.challengeId}
                         data-testid="render-authenticate-overlay-button"
@@ -346,24 +351,25 @@ export const TestPageContent: React.FC = () => {
                             padding: '16px',
                             marginTop: '16px',
                             minHeight: '100px',
-                            backgroundColor: 'rgba(0, 0, 255, 0.1)'
+                            backgroundColor: 'rgba(0, 0, 255, 0.1)',
                         }}
                         data-testid="merchant-auth-container"
                     >
                         Target for authentication iframe (#merchant-auth-container)
                     </div>
 
+                    <Text fontSize="md">Response: </Text>
 
-                    <Text fontSize='md'>Response: </Text>
-
-                    <Code><JSONPretty id="json-pretty-auth" data={authRes}></JSONPretty></Code>
+                    <Code>
+                        <JSONPretty id="json-pretty-auth" data={authRes}></JSONPretty>
+                    </Code>
                 </VStack>
 
                 {/* Add new Carousel section */}
-                <VStack spacing='24px' align='left'>
-                    <Box mb="32px" position='relative'>
+                <VStack spacing="24px" align="left">
+                    <Box mb="32px" position="relative">
                         <Divider />
-                        <AbsoluteCenter bg='white' px='4'>
+                        <AbsoluteCenter bg="white" px="4">
                             <b>Carousel</b>
                         </AbsoluteCenter>
                     </Box>
@@ -371,7 +377,7 @@ export const TestPageContent: React.FC = () => {
                     <FormControl mb="16px">
                         <FormLabel>Carousel Phone Number (Optional)</FormLabel>
                         <Input
-                            type='text'
+                            type="text"
                             value={carouselPhone}
                             onChange={(e) => setCarouselPhone(e.target.value)}
                             placeholder="Optional phone number (only works when using lookup response)"
@@ -382,7 +388,7 @@ export const TestPageContent: React.FC = () => {
                     <FormControl mb="16px">
                         <FormLabel>Order Total</FormLabel>
                         <Input
-                            type='number'
+                            type="number"
                             value={orderTotal}
                             onChange={(e) => setOrderTotal(e.target.value)}
                             placeholder="Enter order total"
@@ -403,7 +409,10 @@ export const TestPageContent: React.FC = () => {
                     <Stack direction="row" spacing={4} mb="16px">
                         <FormControl>
                             <FormLabel>Theme</FormLabel>
-                            <Select value={carouselTheme || ''} onChange={(e) => setCarouselTheme(e.target.value || undefined)}>
+                            <Select
+                                value={carouselTheme || ''}
+                                onChange={(e) => setCarouselTheme(e.target.value || undefined)}
+                            >
                                 <option value="">not set</option>
                                 <option value="light">light</option>
                                 <option value="dark">dark</option>
@@ -413,7 +422,10 @@ export const TestPageContent: React.FC = () => {
 
                         <FormControl>
                             <FormLabel>Font Family</FormLabel>
-                            <Select value={carouselFontFamily || ''} onChange={(e) => setCarouselFontFamily(e.target.value || undefined)}>
+                            <Select
+                                value={carouselFontFamily || ''}
+                                onChange={(e) => setCarouselFontFamily(e.target.value || undefined)}
+                            >
                                 <option value="">not set</option>
                                 <option value="serif">serif</option>
                                 <option value="sans-serif">sans-serif</option>
@@ -424,7 +436,10 @@ export const TestPageContent: React.FC = () => {
 
                         <FormControl>
                             <FormLabel>Font Size</FormLabel>
-                            <Select value={carouselFontSize || ''} onChange={(e) => setCarouselFontSize(e.target.value || undefined)}>
+                            <Select
+                                value={carouselFontSize || ''}
+                                onChange={(e) => setCarouselFontSize(e.target.value || undefined)}
+                            >
                                 <option value="">not set</option>
                                 <option value="small">small</option>
                                 <option value="medium">medium</option>
@@ -436,8 +451,8 @@ export const TestPageContent: React.FC = () => {
 
                     <Button
                         mt={4}
-                        colorScheme='teal'
-                        type='button'
+                        colorScheme="teal"
+                        type="button"
                         onClick={() => handleCarousel('merchant-carousel-container')}
                         isDisabled={!authRes.shopperId || !authRes.sessionId}
                         data-testid="render-carousel-button"
@@ -450,8 +465,8 @@ export const TestPageContent: React.FC = () => {
 
                     <Button
                         mt={4}
-                        colorScheme='blue'
-                        type='button'
+                        colorScheme="blue"
+                        type="button"
                         onClick={() => handleCarousel('merchant-carousel-container', true)}
                         isDisabled={!lookupRes.challengeId || !!authRes.shopperId}
                         data-testid="render-carousel-lookup-button"
@@ -461,8 +476,8 @@ export const TestPageContent: React.FC = () => {
 
                     <Button
                         mt={4}
-                        colorScheme='purple'
-                        type='button'
+                        colorScheme="purple"
+                        type="button"
                         onClick={() => handleCarousel('email-input', true, 'overlay')}
                         isDisabled={!lookupRes.challengeId || !!authRes.shopperId}
                         data-testid="render-carousel-lookup-overlay-button"
@@ -483,28 +498,33 @@ export const TestPageContent: React.FC = () => {
                             padding: '16px',
                             marginTop: '16px',
                             minHeight: '100px',
-                            backgroundColor: 'rgba(0, 128, 0, 0.1)'
+                            backgroundColor: 'rgba(0, 128, 0, 0.1)',
                         }}
                         data-testid="merchant-carousel-container"
                     >
                         Target for carousel iframe (#merchant-carousel-container)
                     </div>
 
-                    <Text fontSize='md'>Response: </Text>
-                    <Code><JSONPretty id="json-pretty-carousel" data={carouselRes}></JSONPretty></Code>
+                    <Text fontSize="md">Response: </Text>
+                    <Code>
+                        <JSONPretty id="json-pretty-carousel" data={carouselRes}></JSONPretty>
+                    </Code>
                 </VStack>
 
-                <VStack spacing='24px' align='left'>
-                    <Box mb="32px" position='relative'>
+                <VStack spacing="24px" align="left">
+                    <Box mb="32px" position="relative">
                         <Divider />
-                        <AbsoluteCenter bg='white' px='4'>
+                        <AbsoluteCenter bg="white" px="4">
                             <b>config</b>
                         </AbsoluteCenter>
                     </Box>
 
                     <FormControl mb="16px">
                         <FormLabel>Theme</FormLabel>
-                        <Select value={carouselTheme || ''} onChange={(e) => setCarouselTheme(e.target.value || undefined)}>
+                        <Select
+                            value={carouselTheme || ''}
+                            onChange={(e) => setCarouselTheme(e.target.value || undefined)}
+                        >
                             <option value="">not set</option>
                             <option value="light">light</option>
                             <option value="dark">dark</option>
@@ -514,7 +534,10 @@ export const TestPageContent: React.FC = () => {
 
                     <FormControl mb="16px">
                         <FormLabel>Font Family</FormLabel>
-                        <Select value={carouselFontFamily || ''} onChange={(e) => setCarouselFontFamily(e.target.value || undefined)}>
+                        <Select
+                            value={carouselFontFamily || ''}
+                            onChange={(e) => setCarouselFontFamily(e.target.value || undefined)}
+                        >
                             <option value="">not set</option>
                             <option value="serif">serif</option>
                             <option value="sans-serif">sans-serif</option>
@@ -525,7 +548,10 @@ export const TestPageContent: React.FC = () => {
 
                     <FormControl mb="16px">
                         <FormLabel>Font Size</FormLabel>
-                        <Select value={carouselFontSize || ''} onChange={(e) => setCarouselFontSize(e.target.value || undefined)}>
+                        <Select
+                            value={carouselFontSize || ''}
+                            onChange={(e) => setCarouselFontSize(e.target.value || undefined)}
+                        >
                             <option value="">not set</option>
                             <option value="small">small</option>
                             <option value="medium">medium</option>

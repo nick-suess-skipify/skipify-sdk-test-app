@@ -1,27 +1,27 @@
 {
-  "quoteProps": "as-needed",
-  "requirePragma": false,
-  "printWidth": 120,
-  "tabWidth": 4,
-  "useTabs": false,
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "all",
-  "bracketSpacing": true,
-  "arrowParens": "always",
-  "endOfLine": "lf",
-  "overrides": [
-    {
-      "files": "*.json",
-      "options": {
-        "printWidth": 80
-      }
-    },
-    {
-      "files": "*.md",
-      "options": {
-        "proseWrap": "preserve"
-      }
-    }
-  ]
+    "quoteProps": "as-needed",
+    "requirePragma": false,
+    "printWidth": 120,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "endOfLine": "lf",
+    "overrides": [
+        {
+            "files": "*.json",
+            "options": {
+                "printWidth": 80
+            }
+        },
+        {
+            "files": "*.md",
+            "options": {
+                "proseWrap": "preserve"
+            }
+        }
+    ]
 }

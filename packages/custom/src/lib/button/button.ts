@@ -1,5 +1,5 @@
 import { SdkUrl } from '@checkout-sdk/shared/lib/constants';
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 import { Config, AdditionalOptions, MerchantOptions } from '../config';
 
 function isValidHexColor(colorHex: string): boolean {
@@ -14,12 +14,15 @@ function isValidButtonLabel(label: string): boolean {
     return label === 'Buy Now' || label === 'Pay Now';
 }
 
-
-
 export class Button {
     id: string;
     frame: HTMLIFrameElement | null = null;
-    constructor(private config: Config, public merchantRef: string, public options?: AdditionalOptions, public merchantOptions?: MerchantOptions) {
+    constructor(
+        private config: Config,
+        public merchantRef: string,
+        public options?: AdditionalOptions,
+        public merchantOptions?: MerchantOptions,
+    ) {
         this.id = nanoid();
     }
 
@@ -31,14 +34,14 @@ export class Button {
         checkoutButtonFrame.style.maxWidth = '100%';
         checkoutButtonFrame.style.width = '100%';
 
-        const paramsObj: any = { id: this.id, date: new Date().getTime().toString() }
+        const paramsObj: any = { id: this.id, date: new Date().getTime().toString() };
 
         if (this.merchantOptions?.cobrandedLogo) {
-            paramsObj.cobrandedLogo = this.merchantOptions?.cobrandedLogo
+            paramsObj.cobrandedLogo = this.merchantOptions?.cobrandedLogo;
         }
 
         if (this.options?.textColor && isValidHexColor(this.options.textColor)) {
-            paramsObj.textColor = this.options.textColor
+            paramsObj.textColor = this.options.textColor;
         }
 
         if (this.options?.bgColor && isValidHexColor(this.options.bgColor)) {

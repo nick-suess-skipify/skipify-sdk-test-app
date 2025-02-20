@@ -1,16 +1,16 @@
 type Props = {
-  launchEnrollmentIframe: () => void;
+    launchEnrollmentIframe: () => void;
 };
 
 export class CheckoutCompleted {
-  launchEnrollmentIframe: () => void;
+    launchEnrollmentIframe: () => void;
 
-  constructor({ launchEnrollmentIframe }: Props) {
-    this.launchEnrollmentIframe = launchEnrollmentIframe;
-    this.start();
-  }
+    constructor({ launchEnrollmentIframe }: Props) {
+        this.launchEnrollmentIframe = launchEnrollmentIframe;
+        this.start();
+    }
 
-  start() {
-    this.launchEnrollmentIframe();
-  }
+    start() {
+        this.launchEnrollmentIframe();
+    }
 }

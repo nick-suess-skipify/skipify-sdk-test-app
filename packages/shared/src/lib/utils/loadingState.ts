@@ -1,21 +1,28 @@
-import { SdkUrl, SkipifyElementIds } from "../constants";
+import { SdkUrl, SkipifyElementIds } from '../constants';
 
 const loadingImageHTML = `<img src="${SdkUrl}/shared/assets/sk-loader.gif" alt="loading">`;
 
 function createLoadingParallelogramHTML(emailInputElem: HTMLElement) {
     const styles = window.getComputedStyle(emailInputElem);
     const height = emailInputElem.getBoundingClientRect().height - 4; // Consistent with button styling
-    const borderRadiusProps = ['border-top-right-radius', 'border-top-left-radius', 'border-bottom-right-radius', 'border-bottom-left-radius'];
+    const borderRadiusProps = [
+        'border-top-right-radius',
+        'border-top-left-radius',
+        'border-bottom-right-radius',
+        'border-bottom-left-radius',
+    ];
 
     // Calculating border-radius values based on the button's approach
-    const borderRadiusStyle = borderRadiusProps.map(prop => {
-        const borderRadius = styles.getPropertyValue(prop);
-        if (borderRadius) {
-            const borderRadiusValue = parseFloat(borderRadius.replace(/px|em|rem|%/, ''));
-            return `${height / borderRadiusValue}%`; // Consistent with button styling adaptation
-        }
-        return '0'; // Default to 0 if no borderRadius is found
-    }).join(' ');
+    const borderRadiusStyle = borderRadiusProps
+        .map((prop) => {
+            const borderRadius = styles.getPropertyValue(prop);
+            if (borderRadius) {
+                const borderRadiusValue = parseFloat(borderRadius.replace(/px|em|rem|%/, ''));
+                return `${height / borderRadiusValue}%`; // Consistent with button styling adaptation
+            }
+            return '0'; // Default to 0 if no borderRadius is found
+        })
+        .join(' ');
 
     const loaderElement = document.createElement('span');
     loaderElement.id = 'loaderContainer';
@@ -35,7 +42,7 @@ function createLoadingParallelogramHTML(emailInputElem: HTMLElement) {
         borderRadius: `${borderRadiusStyle}`, // Dynamically set based on emailInput
         textAlign: 'center',
         fontSize: `${height * 0.6}px`, // Adjust checkmark size
-        cursor: 'pointer'
+        cursor: 'pointer',
     });
 
     loaderElement.innerHTML = loadingImageHTML;
@@ -43,8 +50,15 @@ function createLoadingParallelogramHTML(emailInputElem: HTMLElement) {
     return loaderElement;
 }
 
-export function insertLoadingStateElement(emailInputElem: HTMLElement, overrideStyles: Record<string, string | number> = {}) {
-    if (!document.getElementById('loaderContainer') && (!document.getElementById(SkipifyElementIds.loadingParallelogram) || document.getElementById(SkipifyElementIds.loadingParallelogram)?.style.display === "none")) {
+export function insertLoadingStateElement(
+    emailInputElem: HTMLElement,
+    overrideStyles: Record<string, string | number> = {},
+) {
+    if (
+        !document.getElementById('loaderContainer') &&
+        (!document.getElementById(SkipifyElementIds.loadingParallelogram) ||
+            document.getElementById(SkipifyElementIds.loadingParallelogram)?.style.display === 'none')
+    ) {
         const loaderElement = createLoadingParallelogramHTML(emailInputElem);
 
         if (emailInputElem) {
@@ -60,7 +74,7 @@ export function insertLoadingStateElement(emailInputElem: HTMLElement, overrideS
                 emailInputElem.insertAdjacentElement('afterend', loaderElement);
             }
         } else {
-            console.log("Email input element not found.");
+            console.log('Email input element not found.');
         }
     }
 }

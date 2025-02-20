@@ -12,6 +12,7 @@ what caused the defect and how it was fixed. For a Feature, it should describe h
 ## Resolves:
 
 <!-- [PD-1] - Enter your ticket value within the brackets -->
+
 []
 
 ## Impact:

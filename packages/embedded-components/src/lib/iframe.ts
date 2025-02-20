@@ -1,4 +1,4 @@
-import { SkipifyElementIds, SkipifyClassNames } from "@checkout-sdk/shared/lib/constants";
+import { SkipifyElementIds, SkipifyClassNames } from '@checkout-sdk/shared/lib/constants';
 
 export function launchHiddenIframe(iframeSrc: string) {
     const iframeEl = document.createElement('iframe');
@@ -81,7 +81,6 @@ function displayOverlay(overlayEl: HTMLElement) {
     positionIframeInOverlay(true);
 }
 
-
 /**
  * Create a wrapper element for the email input and inject checkmark button
  * @param emailInput - Email input element
@@ -112,13 +111,8 @@ function createWrapper(emailInput: HTMLElement): HTMLElement {
     for (const property of stylePropertiesToCopy) {
         const borderRadius = emailStyles.getPropertyValue(property);
         if (borderRadius) {
-            const borderRadiusValue = parseFloat(
-                borderRadius.replace(/px|em|rem|%/, '')
-            );
-            button.style.setProperty(
-                property,
-                `${buttonSize / borderRadiusValue}%`
-            );
+            const borderRadiusValue = parseFloat(borderRadius.replace(/px|em|rem|%/, ''));
+            button.style.setProperty(property, `${buttonSize / borderRadiusValue}%`);
         }
     }
 
@@ -130,11 +124,10 @@ function createWrapper(emailInput: HTMLElement): HTMLElement {
 }
 
 /**
- * Update position the iframe and arrow in the overlay 
+ * Update position the iframe and arrow in the overlay
  * @param shouldScroll - Whether to scroll to input
  */
 export function positionIframeInOverlay(shouldScroll = false) {
-
     const iframe = document.querySelector(`.${SkipifyClassNames.componentOverlayIframe}`) as HTMLElement;
     const button = document.querySelector(`#${SkipifyElementIds.checkButton}`);
 
@@ -144,10 +137,7 @@ export function positionIframeInOverlay(shouldScroll = false) {
 
     const buttonPosition = button.getBoundingClientRect();
 
-    if (
-        !buttonPosition ||
-        !document.body.classList.contains(SkipifyClassNames.body)
-    ) {
+    if (!buttonPosition || !document.body.classList.contains(SkipifyClassNames.body)) {
         return;
     }
 
@@ -178,11 +168,9 @@ export function positionIframeInOverlay(shouldScroll = false) {
         totalWidth > 490
             ? Math.max(roundByDPR(buttonPosition.right - iframeWidth), 36)
             : totalWidth > iframeWidth
-                ? roundByDPR((totalWidth - iframeWidth) / 2)
-                : 0;
-    const translateY = shouldDisplayOnTop
-        ? 0
-        : roundByDPR(buttonPosition.bottom + 16);
+              ? roundByDPR((totalWidth - iframeWidth) / 2)
+              : 0;
+    const translateY = shouldDisplayOnTop ? 0 : roundByDPR(buttonPosition.bottom + 16);
     const remainingSpace = shouldDisplayOnTop
         ? buttonPosition.top
         : roundByDPR(window.innerHeight - buttonPosition.bottom);
@@ -195,9 +183,7 @@ export function positionIframeInOverlay(shouldScroll = false) {
 
     const arrowIframe = document.getElementById(SkipifyElementIds.iframeArrow);
     const arrowPositionX = roundByDPR(buttonPosition.right - 33);
-    const arrowPositionY = shouldDisplayOnTop
-        ? roundByDPR(buttonPosition.top - 36)
-        : roundByDPR(translateY - 5);
+    const arrowPositionY = shouldDisplayOnTop ? roundByDPR(buttonPosition.top - 36) : roundByDPR(translateY - 5);
     if (arrowIframe) {
         arrowIframe.style.opacity = '1';
         arrowIframe.style.transform = `translate(${arrowPositionX}px, ${arrowPositionY}px)`;
@@ -221,7 +207,7 @@ export function removeUI() {
     }
 
     const overlayIframeEls = document.querySelectorAll(`.${SkipifyClassNames.componentOverlayIframe}`);
-    overlayIframeEls.forEach(overlayIframeEl => {
+    overlayIframeEls.forEach((overlayIframeEl) => {
         overlayIframeEl.remove();
     });
 
@@ -230,4 +216,3 @@ export function removeUI() {
         checkButtonEl.remove();
     }
 }
-

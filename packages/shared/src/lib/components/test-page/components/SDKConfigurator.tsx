@@ -1,6 +1,6 @@
 /**
  * SDKConfigurator Component
- * 
+ *
  * This component provides a user interface for configuring optional SDK parameters
  *
  * Add any new SDK configs here so developers can test it
@@ -32,46 +32,35 @@ interface ColorInputProps {
     placeholder: string;
 }
 
-const ColorInput: React.FC<ColorInputProps> = ({
-  label,
-  value,
-  onChange,
-  placeholder,
-}) => (
-  <FormControl>
-    <FormLabel>{label}</FormLabel>
-    <InputGroup>
-      <InputLeftAddon children="#" />
-      <Input
-        type="text"
-        value={value ? value.replace('#', '') : ''}
-        onChange={(e) =>
-          onChange(e.target.value ? `#${e.target.value}` : undefined)
-        }
-        placeholder={placeholder}
-      />
-      <InputRightElement paddingRight="2">
-        <input
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </InputRightElement>
-    </InputGroup>
-  </FormControl>
+const ColorInput: React.FC<ColorInputProps> = ({ label, value, onChange, placeholder }) => (
+    <FormControl>
+        <FormLabel>{label}</FormLabel>
+        <InputGroup>
+            <InputLeftAddon children="#" />
+            <Input
+                type="text"
+                value={value ? value.replace('#', '') : ''}
+                onChange={(e) => onChange(e.target.value ? `#${e.target.value}` : undefined)}
+                placeholder={placeholder}
+            />
+            <InputRightElement paddingRight="2">
+                <input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
+            </InputRightElement>
+        </InputGroup>
+    </FormControl>
 );
 
 interface SDKConfigUIProps {
-  buttonTextColor: string | undefined;
-  buttonBgColor: string | undefined;
-  buttonBgHoverColor: string | undefined;
-  logoPlacement: 'inside' | 'below' | undefined;
-  buttonLabel: 'Buy Now' | 'Pay Now' | undefined;
-  setButtonTextColor: (value: string | undefined) => void;
-  setButtonBgColor: (value: string | undefined) => void;
-  setButtonBgHoverColor: (value: string | undefined) => void;
-  setLogoPlacement: (value: 'inside' | 'below' | undefined) => void;
-  setButtonLabel: (value: 'Buy Now' | 'Pay Now' | undefined) => void;
+    buttonTextColor: string | undefined;
+    buttonBgColor: string | undefined;
+    buttonBgHoverColor: string | undefined;
+    logoPlacement: 'inside' | 'below' | undefined;
+    buttonLabel: 'Buy Now' | 'Pay Now' | undefined;
+    setButtonTextColor: (value: string | undefined) => void;
+    setButtonBgColor: (value: string | undefined) => void;
+    setButtonBgHoverColor: (value: string | undefined) => void;
+    setLogoPlacement: (value: 'inside' | 'below' | undefined) => void;
+    setButtonLabel: (value: 'Buy Now' | 'Pay Now' | undefined) => void;
 }
 
 export const SDKConfigurator: React.FC<SDKConfigUIProps> = ({
@@ -95,7 +84,9 @@ export const SDKConfigurator: React.FC<SDKConfigUIProps> = ({
                 </AccordionButton>
                 <AccordionPanel pb={4}>
                     <VStack spacing={4} align="stretch">
-                    <Text size="sm" mb={4}>skipifyClient.button() Options</Text>
+                        <Text size="sm" mb={4}>
+                            skipifyClient.button() Options
+                        </Text>
                         <ColorInput
                             label="Button Text Color (textColor, default #FEFEFE)"
                             value={buttonTextColor}
@@ -116,7 +107,7 @@ export const SDKConfigurator: React.FC<SDKConfigUIProps> = ({
                         />
                         <FormControl>
                             <FormLabel>Logo Placement</FormLabel>
-                            <Select 
+                            <Select
                                 value={logoPlacement || ''}
                                 onChange={(e) => setLogoPlacement(e.target.value as 'inside' | 'below' | undefined)}
                             >
@@ -128,7 +119,7 @@ export const SDKConfigurator: React.FC<SDKConfigUIProps> = ({
                         </FormControl>
                         <FormControl>
                             <FormLabel>Button Label</FormLabel>
-                            <Select 
+                            <Select
                                 value={buttonLabel || ''}
                                 onChange={(e) => setButtonLabel(e.target.value as 'Buy Now' | 'Pay Now' | undefined)}
                             >

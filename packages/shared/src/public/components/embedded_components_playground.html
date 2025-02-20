@@ -1,35 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Embedded Components Playground</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: auto;
+            }
+        </style>
+        <script type="text/javascript">
+            const sdkScript = document.createElement('script');
+            sdkScript.type = 'module';
+            sdkScript.src = `../../components-sdk.js?date=${new Date().getTime()}`;
+            document.head.appendChild(sdkScript);
+        </script>
+    </head>
 
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Embedded Components Playground</title>
-    <style>
-      body {
-        margin: 0;
-        overflow: auto;
-      }
-    </style>
+    <body>
+        <div id="root"></div>
+    </body>
     <script type="text/javascript">
-      const sdkScript = document.createElement("script");
-      sdkScript.type = "module";
-      sdkScript.src =
-        `../../components-sdk.js?date=${new Date().getTime()}`;
-      document.head.appendChild(sdkScript);
+        const reactScript = document.createElement('script');
+        reactScript.type = 'module';
+        reactScript.src = `./embedded_components_test_page.js?date=${new Date().getTime()}`;
+        document.head.appendChild(reactScript);
     </script>
-  </head>
-
-  <body>
-    <div id="root"></div>
-  </body>
-  <script type="text/javascript">
-    const reactScript = document.createElement('script');
-    reactScript.type = "module";
-    reactScript.src =
-      `./embedded_components_test_page.js?date=${new Date().getTime()}`;
-    document.head.appendChild(reactScript);
-  </script>
-
-
 </html>

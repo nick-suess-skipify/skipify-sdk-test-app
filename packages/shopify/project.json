@@ -6,9 +6,7 @@
     "targets": {
         "build": {
             "executor": "@nx/vite:build",
-            "outputs": [
-                "{options.outputPath}"
-            ],
+            "outputs": ["{options.outputPath}"],
             "options": {
                 "outputPath": "dist/shopify"
             },
@@ -58,20 +56,14 @@
         },
         "lint": {
             "executor": "@nx/linter:eslint",
-            "outputs": [
-                "{options.outputFile}"
-            ],
+            "outputs": ["{options.outputFile}"],
             "options": {
-                "lintFilePatterns": [
-                    "packages/shopify/**/*.ts"
-                ]
+                "lintFilePatterns": ["packages/shopify/**/*.ts"]
             }
         },
         "test": {
             "executor": "@nx/jest:jest",
-            "outputs": [
-                "{workspaceRoot}/coverage/{projectRoot}"
-            ],
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
             "options": {
                 "jestConfig": "packages/shopify/jest.config.ts",
                 "passWithNoTests": true

@@ -2,122 +2,115 @@ import { hideLoader, showExpandIcon, showSkipifyCheck } from '..';
 import { SkipifyElementIds, SkipifyClassNames } from '../constants';
 
 export function getContainer(wrapperElement?: HTMLElement): HTMLElement {
-  const overlayEl = document.createElement('div');
-  overlayEl.id = SkipifyElementIds.overlay;
+    const overlayEl = document.createElement('div');
+    overlayEl.id = SkipifyElementIds.overlay;
 
-  const arrowEl = document.createElement('div');
-  arrowEl.id = SkipifyElementIds.iframeArrow;
+    const arrowEl = document.createElement('div');
+    arrowEl.id = SkipifyElementIds.iframeArrow;
 
-  overlayEl.appendChild(arrowEl);
-  if (wrapperElement) {
-    overlayEl.classList.add(SkipifyClassNames.embedOverlay)
-    wrapperElement.appendChild(overlayEl)
-  } else {
-    document.body.appendChild(overlayEl);
-  }
+    overlayEl.appendChild(arrowEl);
+    if (wrapperElement) {
+        overlayEl.classList.add(SkipifyClassNames.embedOverlay);
+        wrapperElement.appendChild(overlayEl);
+    } else {
+        document.body.appendChild(overlayEl);
+    }
 
-  return overlayEl;
+    return overlayEl;
 }
 
 export function getBaseIframe() {
-  return document.getElementById(SkipifyElementIds.iframe) as HTMLIFrameElement;
+    return document.getElementById(SkipifyElementIds.iframe) as HTMLIFrameElement;
 }
 
-export function launchHiddenIframe(
-  iframeSrc: string,
-  hasInitializedIframe: boolean,
-  embedContainer?: HTMLElement
-) {
-  // SP-2455 : Retrieve forced device id if any, this will replace fingerprint js device id
-  // todo: re-evaluate after fingerprint js issue resolved (mark)
-  const forceDeviceId = localStorage.getItem('skipify_force_device_id');
+export function launchHiddenIframe(iframeSrc: string, hasInitializedIframe: boolean, embedContainer?: HTMLElement) {
+    // SP-2455 : Retrieve forced device id if any, this will replace fingerprint js device id
+    // todo: re-evaluate after fingerprint js issue resolved (mark)
+    const forceDeviceId = localStorage.getItem('skipify_force_device_id');
 
-  if (forceDeviceId) {
-    const url = new URL(iframeSrc);
-    url.searchParams.set('forceDeviceId', forceDeviceId);
-    iframeSrc = url.toString();
-  }
-
-  const existingIframe = document.getElementById(
-    SkipifyElementIds.iframe
-  ) as HTMLIFrameElement;
-
-  if (existingIframe) {
-    if (!hasInitializedIframe) {
-      existingIframe.src = iframeSrc;
+    if (forceDeviceId) {
+        const url = new URL(iframeSrc);
+        url.searchParams.set('forceDeviceId', forceDeviceId);
+        iframeSrc = url.toString();
     }
-    return existingIframe;
-  }
 
-  const containerEl =
-    document.getElementById(SkipifyElementIds.overlay) ?? getContainer(embedContainer);
+    const existingIframe = document.getElementById(SkipifyElementIds.iframe) as HTMLIFrameElement;
 
-  const iframeEl = document.createElement('iframe');
-  iframeEl.allow = 'publickey-credentials-get *';
-  iframeEl.style.border = 'none';
+    if (existingIframe) {
+        if (!hasInitializedIframe) {
+            existingIframe.src = iframeSrc;
+        }
+        return existingIframe;
+    }
 
-  iframeEl.id = SkipifyElementIds.iframe;
-  iframeEl.src = iframeSrc;
+    const containerEl = document.getElementById(SkipifyElementIds.overlay) ?? getContainer(embedContainer);
 
-  if (embedContainer) {
-    iframeEl.classList.add(SkipifyClassNames.skipifyEmbed)
-    embedContainer.classList.add(SkipifyClassNames.embedOverlayWrapper)
-  }
+    const iframeEl = document.createElement('iframe');
+    iframeEl.allow = 'publickey-credentials-get *';
+    iframeEl.style.border = 'none';
 
-  containerEl?.appendChild(iframeEl);
+    iframeEl.id = SkipifyElementIds.iframe;
+    iframeEl.src = iframeSrc;
 
-  return iframeEl;
+    if (embedContainer) {
+        iframeEl.classList.add(SkipifyClassNames.skipifyEmbed);
+        embedContainer.classList.add(SkipifyClassNames.embedOverlayWrapper);
+    }
+
+    containerEl?.appendChild(iframeEl);
+
+    return iframeEl;
 }
 
 export function displayIframe() {
-  // Parallelogram Logic
-  // When we display the iframe we want to show the loader and change it to the check
-  hideLoader();
-  showSkipifyCheck();
-  showExpandIcon();
-  const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
+    // Parallelogram Logic
+    // When we display the iframe we want to show the loader and change it to the check
+    hideLoader();
+    showSkipifyCheck();
+    showExpandIcon();
+    const existingOverlay = document.getElementById(SkipifyElementIds.overlay);
 
-  if (existingOverlay) {
-    document.body.classList.add(SkipifyClassNames.body);
+    if (existingOverlay) {
+        document.body.classList.add(SkipifyClassNames.body);
 
-    if (existingOverlay.classList.contains(SkipifyClassNames.embedOverlay)) {
-      document.body.classList.add(SkipifyClassNames.embedBody);
+        if (existingOverlay.classList.contains(SkipifyClassNames.embedOverlay)) {
+            document.body.classList.add(SkipifyClassNames.embedBody);
+        }
+
+        // Added a setTimeout here to ensure that the opacity transition is applied
+        setTimeout(() => {
+            existingOverlay.style.opacity = '1';
+        }, 10);
     }
-
-    // Added a setTimeout here to ensure that the opacity transition is applied
-    setTimeout(() => {
-      existingOverlay.style.opacity = '1';
-    }, 10);
-  }
 }
 
 export async function hideIframe() {
-  document.body.classList.add(SkipifyClassNames.hiding);
-  // Added a setTimeout here to ensure that the hiding animation is visible
-  setTimeout(() => {
-    document.body.classList.remove(SkipifyClassNames.body);
-    document.body.classList.remove(SkipifyClassNames.hiding);
-    Promise.resolve();
-  }, 400);
+    document.body.classList.add(SkipifyClassNames.hiding);
+    // Added a setTimeout here to ensure that the hiding animation is visible
+    setTimeout(() => {
+        document.body.classList.remove(SkipifyClassNames.body);
+        document.body.classList.remove(SkipifyClassNames.hiding);
+        Promise.resolve();
+    }, 400);
 }
 
 // Used to display iframe after closing for button flow
 export function showIframe() {
-  document.body.classList.remove(SkipifyClassNames.hiding);
-  document.body.classList.add(SkipifyClassNames.body);
-  document.body.classList.add(SkipifyClassNames.hiding);
-  const iframeEl = document.getElementById(SkipifyElementIds.iframe);
-  iframeEl?.style.height
+    document.body.classList.remove(SkipifyClassNames.hiding);
+    document.body.classList.add(SkipifyClassNames.body);
+    document.body.classList.add(SkipifyClassNames.hiding);
+    const iframeEl = document.getElementById(SkipifyElementIds.iframe);
+    iframeEl?.style.height;
 }
 
 export function changeIframeHeight(height: number) {
-  const iframeEl = document.getElementById(SkipifyElementIds.iframe);
+    const iframeEl = document.getElementById(SkipifyElementIds.iframe);
 
-  if (!iframeEl) {
-    return;
-  }
-  // Added a setTimeout here to ensure that the height transition is applied
-  setTimeout(() => {
-    iframeEl.style.height = `${height}px`;
-  }, 10);
+    if (!iframeEl) {
+        return;
+    }
+    // Added a setTimeout here to ensure that the height transition is applied
+    setTimeout(() => {
+        iframeEl.style.height = `${height}px`;
+    }, 10);
 }

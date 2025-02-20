@@ -1,1 +1,1 @@
-export * from "./lib/shopify";
+export * from './lib/shopify';

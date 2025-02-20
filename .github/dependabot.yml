@@ -1,21 +1,21 @@
 version: 2
 registries:
-  npm-jfrog:
-    type: npm-registry
-    url: https://skipify.jfrog.io/artifactory/api/npm/npm/
-    token: ${{secrets.JFROG_AUTH_TOKEN}}
+    npm-jfrog:
+        type: npm-registry
+        url: https://skipify.jfrog.io/artifactory/api/npm/npm/
+        token: ${{secrets.JFROG_AUTH_TOKEN}}
 updates:
-  - package-ecosystem: npm
-    directory: /
-    registries:
-      - npm-jfrog
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 0
-    target-branch: dev
-    ignore:
-      - dependency-name: '*'
-        update-types:
-          - version-update:semver-major
-    pull-request-branch-name:
-      separator: "-"
+    - package-ecosystem: npm
+      directory: /
+      registries:
+          - npm-jfrog
+      schedule:
+          interval: weekly
+      open-pull-requests-limit: 0
+      target-branch: dev
+      ignore:
+          - dependency-name: '*'
+            update-types:
+                - version-update:semver-major
+      pull-request-branch-name:
+          separator: '-'
