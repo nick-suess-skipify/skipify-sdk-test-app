@@ -328,16 +328,17 @@ export class Base {
         });
     }
 
-    async setUserLookupData(email: string, phone?: string, force = false) {
+    async setUserLookupData(email: string, phone?: string) {
         if (!email) {
             return;
         }
 
         email = email.trim().toLowerCase();
 
-        const { testMode, userEmail } = this.store.getState();
-        if (email === userEmail && !force) {
-            log('User email is the same as what stored in store, aborting setUserLookupData');
+        const { testMode } = this.store.getState();
+
+        if (this.messenger.hasEmailBeenLookedUp(email)) {
+            log('Email has already been looked up in this session, aborting lookup');
             return;
         }
 

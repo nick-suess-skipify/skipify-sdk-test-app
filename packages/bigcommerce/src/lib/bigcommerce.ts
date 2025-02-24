@@ -100,7 +100,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
 
         this.emailInput = new EmailInput({
             node: emailInputElem,
-            setUserEmail: (email) => this.setUserLookupData(email, undefined, true),
+            setUserEmail: (email) => this.setUserLookupData(email, undefined),
             resetIframe: () => {
                 this.messenger.closeIframe(true);
             },
@@ -266,7 +266,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
             console.error('Error fetching user checkout:', e);
         }
 
-        this.setUserLookupData(userCart.email, phone, true);
+        this.setUserLookupData(userCart.email, phone);
     }
 
     override getEmbedContainer() {

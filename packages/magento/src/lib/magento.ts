@@ -93,12 +93,12 @@ export class MagentoSDK extends Base implements AbstractSDK {
         this.insertButton(emailInputElem, buttonCustomStyles);
 
         if (emailInputElem?.value && isEmailValid(emailInputElem?.value)) {
-            this.setUserLookupData(emailInputElem?.value, undefined, true);
+            this.setUserLookupData(emailInputElem?.value, undefined);
         }
 
         this.emailInput = new EmailInput({
             node: emailInputElem,
-            setUserEmail: (email) => this.setUserLookupData(email, undefined, true),
+            setUserEmail: (email) => this.setUserLookupData(email, undefined),
             resetIframe: () => {
                 this.messenger.closeIframe(true);
             },

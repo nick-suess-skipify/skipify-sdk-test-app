@@ -89,12 +89,9 @@ export function insertResumableBtn(emailInputElem: HTMLElement, messenger: Messe
                     const checkmarkElem = document.getElementById('checkmarkContainer');
                     if (checkmarkElem) {
                         checkmarkElem.onclick = () =>
-                            messenger.lookupUser(
-                                orderData?.EMAIL as string,
-                                undefined,
-                                { items: orderData?.CART_DATA },
-                                true,
-                            );
+                            messenger.lookupUser(orderData?.EMAIL as string, undefined, {
+                                items: orderData?.CART_DATA,
+                            });
                     }
                 }
             } else {

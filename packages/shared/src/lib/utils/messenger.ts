@@ -164,11 +164,15 @@ export class Messenger {
         }
     }
 
-    lookupUser(email: string, phone?: string, cart?: PlatformCartType, forceLookup = false) {
+    hasEmailBeenLookedUp(email: string): boolean {
+        return email === this.prevUserEmail;
+    }
+
+    lookupUser(email: string, phone?: string, cart?: PlatformCartType) {
         if (!cart) {
             return;
         }
-        if (email === this.prevUserEmail && !forceLookup) {
+        if (this.hasEmailBeenLookedUp(email)) {
             // Prevent lookup racing condition and sending multiple lookup requests on input blur
             return;
         }
