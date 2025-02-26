@@ -60,9 +60,14 @@ export class Messenger {
 
     handleListenerReady(event: MessageEvent) {
         this.listenerReady = true;
+        this.setButtonVisibility(true);
+    }
+
+    setButtonVisibility(isVisible: boolean) {
+        const opacity = isVisible ? '1' : '0.5';
         Object.values(this.sdk.buttons).forEach((button) => {
             if (button.frame) {
-                button.frame.style.opacity = '1';
+                button.frame.style.opacity = opacity;
             }
         });
     }
@@ -183,11 +188,16 @@ export class Messenger {
         this.activeCheckoutSuccess = false;
         await hideIframe();
 
-        const canResumeIframe = activeCheckout instanceof Button && Object.keys(this.sdk.buttons).length === 1;
+        const isButtonCheckout = activeCheckout instanceof Button;
+        // const canResumeIframe =
+        //     isButtonCheckout && activeCheckout?.options?.resumable && Object.keys(this.sdk.buttons).length === 1;
+        const canResumeIframe = false; // Disable resumable iframe for now
 
         // Set resumableIframeHidden for specific button flow
         if (canResumeIframe) {
             this.resumableIframeHidden = true;
+        } else if (isButtonCheckout) {
+            this.setButtonVisibility(false); // Mute buttons again while SDK is reinitializing
         }
 
         // We only want to hide for button flow - otherwise reset

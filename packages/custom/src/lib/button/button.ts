@@ -22,12 +22,12 @@ export class Button {
     constructor(
         private sdk: CustomSDK,
         public merchantRef: string,
-        public options?: AdditionalOptions,
+        public options: AdditionalOptions = {},
         public merchantOptions?: MerchantOptions,
     ) {
         this.id = nanoid();
 
-        if (this.options?.phone) {
+        if (this.options.phone) {
             const sanitizedPhone = sanitizePhoneNumber(this.options.phone);
             this.options.phone = sanitizedPhone;
         }
@@ -84,10 +84,6 @@ export class Button {
     }
 
     public setOptions(options: AdditionalOptions & { merchantReference: string }) {
-        if (!this.options) {
-            this.options = {};
-        }
-
         // Merge new options while ensuring validity
         if (options.textColor && isValidHexColor(options.textColor)) {
             this.options.textColor = options.textColor;
