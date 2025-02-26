@@ -27,7 +27,7 @@ const MERCHANT_ID = '59958510-0316-4d68-9b03-ff189d0fb3e3';
 const MERCHANT_REF = 'my-ref-test';
 const ERROR_MERCHANT_REF = 'my-error-ref-test';
 const EMAIL = 'email@skipify.com';
-const PHONE = '1234567890';
+const PHONE = '(123)4567890';
 const ORDER_TOTAL = '51.73';
 const parse = (val) => val.replace(/^\$/, '');
 const format = (val) => `$` + val;
@@ -44,6 +44,7 @@ export const TestPageContent: React.FC = (props) => {
     const [skipifyClient, setSkipifyClient] = useState<any>(null);
     const buttonRef = useRef<HTMLDivElement | null>(null);
     const errorButtonRef = useRef<HTMLDivElement | null>(null);
+    const skipifyButton = useRef<any>(null);
     const inputRef1 = useRef(null);
     const inputRef2 = useRef(null);
     const [buttonTextColor, setButtonTextColor] = useState<string | undefined>(
@@ -102,9 +103,8 @@ export const TestPageContent: React.FC = (props) => {
             };
 
             // Render Skipify buttons
-            skipifyClient
-                .button(merchantRef, { ...options, total: Number(orderTotal.replace('.', '')) })
-                .render(buttonRef.current);
+            skipifyButton.current = skipifyClient.button(merchantRef, { ...options, total: Number(orderTotal.replace('.', '')) })
+            skipifyButton.current.render(buttonRef.current);
         }
     }, [buttonRef, skipifyClient]);
 
@@ -119,13 +119,8 @@ export const TestPageContent: React.FC = (props) => {
     }, [isEmailListenerEnabled, skipifyClient]);
 
     useEffect(() => {
-        if (buttonRef?.current && skipifyClient) {
-            for (const [key] of Object.entries(skipifyClient.buttons)) {
-                if (skipifyClient.buttons[key].options) {
-                    skipifyClient.buttons[key].options.email = email;
-                    skipifyClient.buttons[key].options.phone = phone;
-                }
-            }
+        if (skipifyButton.current) {
+            skipifyButton.current.setOptions({ email, phone, merchantReference: 'my-updated-order-ref' })
         }
     }, [email, phone]);
 

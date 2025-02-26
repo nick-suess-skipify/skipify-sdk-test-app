@@ -19,10 +19,10 @@ export function getIsDarkColor(color: string) {
 
 export const phoneRegex = new RegExp(/^\d{10}$/);
 
-export function cleanPhoneNumber(phoneNumber = '') {
-    const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
-    if (phoneRegex.test(cleanedPhoneNumber)) {
-        return cleanedPhoneNumber;
+export function sanitizePhoneNumber(phoneNumber = '') {
+    const sanitizedPhoneNumber = phoneNumber.replace(/\D/g, '');
+    if (phoneRegex.test(sanitizedPhoneNumber)) {
+        return sanitizedPhoneNumber;
     } else {
         return '';
     }

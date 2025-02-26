@@ -195,7 +195,7 @@ class CustomSDK {
             merchantOptions.cobrandedLogo = this.merchant?.cobranding?.logoSrc;
         }
 
-        const createdButton = new Button(this.config, merchantRef, buttonOptions, merchantOptions);
+        const createdButton = new Button(this, merchantRef, buttonOptions, merchantOptions);
         this.buttons[createdButton.id] = createdButton;
         return createdButton;
     }

@@ -1,7 +1,7 @@
 import {
     AbstractSDK,
     Base,
-    cleanPhoneNumber,
+    sanitizePhoneNumber,
     SkipifyClassNames,
     SkipifyElementIds,
     UserEnrollmentInformationType,
@@ -271,7 +271,7 @@ class ShopifySDK extends Base implements AbstractSDK {
 
         const address = shippingAddress || billingAddress;
 
-        const phone = cleanPhoneNumber(shippingAddress?.phone || billingAddress?.phone);
+        const phone = sanitizePhoneNumber(shippingAddress?.phone || billingAddress?.phone);
 
         if (!userEmail) {
             log('User email [require] not found, skip');

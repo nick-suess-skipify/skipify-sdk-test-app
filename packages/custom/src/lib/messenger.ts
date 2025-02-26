@@ -20,6 +20,7 @@ import { Button } from './button/button';
 
 export class Messenger {
     iframe: HTMLIFrameElement | null = null;
+    listenerReady = false;
     activeCheckoutId: string | null = null;
     activeCheckoutSuccess = false;
     resumableIframeHidden = false;
@@ -35,8 +36,9 @@ export class Messenger {
         if (![SDKOrigin, SkipifyCheckoutUrl, SimpleCheckoutUrl].includes(origin) || !data?.name) {
             return;
         }
-
         switch (data.name) {
+            case MESSAGE_NAMES.LISTENER_READY:
+                return this.handleListenerReady(event);
             case MESSAGE_NAMES.CLOSE_IFRAME:
                 return this.listenerCloseIframe(event);
             case MESSAGE_NAMES.RESIZE_CONTAINER:
@@ -54,6 +56,15 @@ export class Messenger {
             default:
                 return;
         }
+    }
+
+    handleListenerReady(event: MessageEvent) {
+        this.listenerReady = true;
+        Object.values(this.sdk.buttons).forEach((button) => {
+            if (button.frame) {
+                button.frame.style.opacity = '1';
+            }
+        });
     }
 
     lookupUser(email: string, listenerId: string) {

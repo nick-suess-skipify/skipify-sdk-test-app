@@ -3,7 +3,7 @@ import {
     Base,
     SkipifyClassNames,
     SkipifyElementIds,
-    cleanPhoneNumber,
+    sanitizePhoneNumber,
     insertLoadingStateElement,
     UserEnrollmentInformationType,
     PlatformCartType,
@@ -312,7 +312,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
         if (completedOrderId) {
             const completedOrder = await this.storeFrontApi.getOrder(completedOrderId);
             if (completedOrder?.billingAddress?.phone) {
-                const cleanedPhoneNumber = cleanPhoneNumber(completedOrder.billingAddress.phone);
+                const cleanedPhoneNumber = sanitizePhoneNumber(completedOrder.billingAddress.phone);
                 if (cleanedPhoneNumber) {
                     enrollmentData.phone = cleanedPhoneNumber;
                 }
