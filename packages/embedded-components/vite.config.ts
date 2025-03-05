@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
-import viteTsConfigPaths from 'vite-tsconfig-paths';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import { resolve } from 'path';
 
@@ -13,10 +13,7 @@ export default defineConfig(({ mode }) => {
         },
 
         plugins: [
-            viteTsConfigPaths({
-                // Enable tsconfig paths resolution
-                root: '../../',
-            }),
+            nxViteTsPaths(),
 
             cssInjectedByJsPlugin(), // Inject CSS from JS
         ],

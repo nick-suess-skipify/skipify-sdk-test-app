@@ -28,18 +28,18 @@
             "@checkout-sdk/checkout-button": [
                 "packages/checkout-button/src/index.ts"
             ],
-            "@checkout-sdk/enrollment-checkbox": [
-                "packages/enrollment-checkbox/src/index.ts"
-            ],
-            "@checkout-sdk/shared/classes": [
-                "packages/shared/src/lib/classes/index.ts"
-            ],
-            "@checkout-sdk/shared": ["packages/shared/src/index.ts"],
-            "@checkout-sdk/shared/*": ["packages/shared/src/*"],
             "@checkout-sdk/embedded-components": [
                 "packages/embedded-components/src/index.ts"
             ],
-            "@checkout-sdk/magento": ["packages/magento/src/index.ts"]
+            "@checkout-sdk/enrollment-checkbox": [
+                "packages/enrollment-checkbox/src/index.ts"
+            ],
+            "@checkout-sdk/magento": ["packages/magento/src/index.ts"],
+            "@checkout-sdk/shared": ["packages/shared/src/index.ts"],
+            "@checkout-sdk/shared/*": ["packages/shared/src/*"],
+            "@checkout-sdk/shared/classes": [
+                "packages/shared/src/lib/classes/index.ts"
+            ]
         },
         "types": ["vite/client", "node", "jest", "vite-plugin-svgr/client"]
     },

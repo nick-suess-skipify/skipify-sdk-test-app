@@ -7,3 +7,4 @@ node_modules
 jest.config.ts
 build
 .cache
+/.nx/cache

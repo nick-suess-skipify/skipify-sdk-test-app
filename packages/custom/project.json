@@ -6,11 +6,17 @@
     "targets": {
         "build": {
             "executor": "@nx/vite:build",
-            "outputs": ["{options.outputPath}"],
+            "outputs": [
+                "{options.outputPath}"
+            ],
             "options": {
                 "outputPath": "dist/custom"
             },
-            "dependsOn": ["^build", "shared:build", "checkout-button:build"],
+            "dependsOn": [
+                "^build",
+                "shared:build",
+                "checkout-button:build"
+            ],
             "configurations": {
                 "local": {
                     "mode": "development",
@@ -51,15 +57,21 @@
             }
         },
         "lint": {
-            "executor": "@nx/linter:eslint",
-            "outputs": ["{options.outputFile}"],
+            "executor": "@nx/eslint:lint",
+            "outputs": [
+                "{options.outputFile}"
+            ],
             "options": {
-                "lintFilePatterns": ["packages/custom/**/*.ts"]
+                "lintFilePatterns": [
+                    "packages/custom/**/*.ts"
+                ]
             }
         },
         "test": {
             "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+            ],
             "options": {
                 "jestConfig": "packages/custom/jest.config.ts",
                 "passWithNoTests": true

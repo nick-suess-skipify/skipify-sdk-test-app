@@ -31,10 +31,15 @@ commands:
 
 jobs:
     code-quality:
-        executor: node/default
+        executor:
+            name: node/default
+            tag: '22.14.0'
         resource_class: medium
         steps:
             - checkout
+            - run:
+                  name: Verify Node.js Version
+                  command: node -v
             - run:
                   name: Configure npm for JFrog Artifactory
                   command: |
@@ -50,10 +55,15 @@ jobs:
             environment:
                 description: The environment we are building. Accepted values - dev, stage, or prod
                 type: string
-        executor: node/default
+        executor:
+            name: node/default
+            tag: '22.14.0'
         resource_class: medium
         steps:
             - checkout
+            - run:
+                  name: Verify Node.js Version
+                  command: node -v
             - run:
                   name: Configure npm for JFrog Artifactory
                   command: |
@@ -98,8 +108,11 @@ jobs:
             SKIPIFYENV: << parameters.environment >>
         executor:
             name: node/default
-            tag: '16.7'
+            tag: '22.14.0'
         steps:
+            - run:
+                  name: Verify Node.js Version
+                  command: node -v
             - run: |
                   git clone https://$GITHUB_TOKEN@github.com/SkipifyCheckout/qa-e2e-playwright.git ~/qa-e2e-playwright
             - run: |
@@ -109,7 +122,7 @@ jobs:
                   git checkout stage
                   fi
             - run: |
-                  npm i
+                  npm ci
                   npx playwright install
                   npx playwright install-deps
             - run:
