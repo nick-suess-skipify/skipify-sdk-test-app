@@ -38,7 +38,6 @@ class CustomSDK {
     emailListeners: Record<string, EmailListener> = {};
     //  Internal
     skipifyLightFlag = false;
-    routerV2Flag = false;
     skipifyLightActive = false;
     checkoutUrl: string;
     simpleCheckoutUrl: string;
@@ -138,21 +137,12 @@ class CustomSDK {
     }
 
     async launchBaseIframe() {
-        this.handleRouterFlag();
         this.messenger.launchBaseIframe(this.checkoutUrl);
     }
 
     async enableSkipifyLight() {
         this.skipifyLightActive = true;
         this.messenger.launchLightBaseIframe(this.simpleCheckoutUrl);
-    }
-
-    enableRouterV2() {
-        this.checkoutUrl = `${SkipifyCheckoutUrl}/v2/embed/${this.config.merchantId}/lookup?asid=${this.analyticsSessionId}`;
-    }
-
-    disableRouterV2() {
-        this.checkoutUrl = `${SkipifyCheckoutUrl}/embed/${this.config.merchantId}/lookup?asid=${this.analyticsSessionId}`;
     }
 
     async getMerchant() {
@@ -168,13 +158,6 @@ class CustomSDK {
 
         // Process any pending buttons that has not received merchant info
         this.processPendingButtons();
-    }
-
-    async handleRouterFlag() {
-        const routerV2Flag = this.flags[FeatureFlags.routerV2];
-        if (routerV2Flag) {
-            this.enableRouterV2();
-        }
     }
 
     async handleSkipifyLightFlag() {

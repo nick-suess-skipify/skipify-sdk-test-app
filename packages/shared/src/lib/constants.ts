@@ -6,15 +6,12 @@ export const Environment = environment.ENV;
 
 export enum FeatureFlags {
     skipifyLight = 'UseSkipifyLight',
-    routerV2 = 'useCheckoutAppRouter',
 }
 export type FeatureFlagsType = {
     [FeatureFlags.skipifyLight]: boolean;
-    [FeatureFlags.routerV2]: boolean;
 };
 export const DefaultFeatureFlags = {
     [FeatureFlags.skipifyLight]: false,
-    [FeatureFlags.routerV2]: false,
 };
 
 export const MerchantServiceUrl = environment.MERCHANT_SERVICE_URL;

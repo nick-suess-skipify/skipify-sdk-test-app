@@ -10,7 +10,6 @@ import {
     FormControl,
     FormLabel,
     Input,
-    FormHelperText,
     Button,
     NumberInput,
     NumberInputField,
@@ -25,7 +24,6 @@ import { SDKConfigurator } from './components/SDKConfigurator';
 
 const MERCHANT_ID = '59958510-0316-4d68-9b03-ff189d0fb3e3';
 const MERCHANT_REF = 'my-ref-test';
-const ERROR_MERCHANT_REF = 'my-error-ref-test';
 const EMAIL = 'email@skipify.com';
 const PHONE = '(123)4567890';
 const ORDER_TOTAL = '51.73';
@@ -232,21 +230,6 @@ export const TestPageContent: React.FC = (props) => {
                             id="email-listener-switch"
                             isChecked={isEmailListenerEnabled}
                             onChange={(e) => setIsEmailListenerEnabled(e.target.checked)}
-                        />
-                    </FormControl>
-                    <FormControl display="flex" alignItems="center">
-                        <FormLabel htmlFor="app-router-switch" mb="0">
-                            Enable app router
-                        </FormLabel>
-                        <Switch
-                            id="app-router-switch"
-                            onChange={(e) => {
-                                if (e.target.checked) {
-                                    skipifyClient.enableRouterV2();
-                                } else {
-                                    skipifyClient.disableRouterV2();
-                                }
-                            }}
                         />
                     </FormControl>
                     <FormControl>
