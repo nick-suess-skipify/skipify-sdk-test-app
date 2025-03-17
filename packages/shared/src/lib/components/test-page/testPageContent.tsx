@@ -91,6 +91,9 @@ export const TestPageContent: React.FC = (props) => {
                     console.log('On approve UI callback triggered');
                     console.log(data);
                 },
+                onClick: (myRef: string) => {
+                    console.log(`On click UI callback triggered: ${myRef}`);
+                },
                 textColor: buttonTextColor,
                 bgColor: buttonBgColor,
                 bgHoverColor: buttonBgHoverColor,

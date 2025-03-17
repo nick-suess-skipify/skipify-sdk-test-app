@@ -17,6 +17,7 @@ export class Config {
 export type AdditionalOptions = {
     onClose?: (merchantRef: string, success: boolean) => void;
     onApprove?: (merchantRef: string, data?: any) => void;
+    onClick?: (merchantRef: string) => void;
     total?: number;
     textColor?: string;
     bgColor?: string;

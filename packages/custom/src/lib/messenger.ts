@@ -130,7 +130,7 @@ export class Messenger {
             const iframe = getBaseIframe();
             const clickedButton = this.sdk.buttons[data.id];
 
-            if (!iframe || !clickedButton) {
+            if (!iframe || !clickedButton || !this.listenerReady) {
                 return;
             }
 
@@ -169,6 +169,10 @@ export class Messenger {
                     },
                     SkipifyCheckoutUrl,
                 );
+            }
+
+            if (clickedButton.options?.onClick) {
+                clickedButton.options.onClick(clickedButton.merchantRef);
             }
         }
     }
