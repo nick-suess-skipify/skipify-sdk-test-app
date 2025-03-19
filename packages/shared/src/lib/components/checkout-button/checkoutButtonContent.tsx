@@ -14,6 +14,7 @@ export const SkipifyButtonContent: React.FC = (props) => {
     const [visible, setVisible] = useState(false);
     const [textColor, setTextColor] = useState(params.get('textColor') || '#FEFEFE');
     const [bgColor, setBgColor] = useState(params.get('bgColor') || '#1E1E1E');
+    const [cobrandedLogoSrc, setCobrandedLogoSrc] = useState('')
 
     // if user forgot to set hover color, it should fallback to custom bgColor first, as #444444 could be not compatible with custom bgColor
     const [bgHoverColor, setBgHoverColor] = useState(params.get('bgHoverColor') || params.get('bgColor') || '#444444');
@@ -40,6 +41,10 @@ export const SkipifyButtonContent: React.FC = (props) => {
         if (data.name === '@skipify/merchant-public-info-fetched' && data.merchant?.cobranding) {
             //load any merchant config here if any
             setVisible(true);
+
+            if (data.merchant.cobranding?.logoSrc) {
+                setCobrandedLogoSrc(data.merchant.cobranding?.logoSrc)
+            }
         }
     };
 
@@ -94,6 +99,12 @@ export const SkipifyButtonContent: React.FC = (props) => {
                 ) : (
                     <PayNow data-testid="pay-now" fill={textColor} />
                 )}
+                {cobrandedLogoSrc && (
+                    <>
+                        <StyledDivider color={textColor}>|</StyledDivider>
+                        <StyledCobrandedLogo src={cobrandedLogoSrc} alt="Cobranded Logo" />
+                    </>
+                )}
             </V2Button>
             {logoPlacement === 'below' && <PoweredBySkipify data-testid="skipify-logo-below" />}
         </V2Container>
@@ -119,4 +130,13 @@ const V2Button = styled.div<{ bgColor: string; hoverColor: string }>`
     &:hover {
         background-color: ${(props) => props.hoverColor};
     }
+`;
+
+const StyledCobrandedLogo = styled.img`
+    width: 42px;
+`;
+
+const StyledDivider = styled.span<{ color: string }>`
+    color: ${(props) => props.color};
+    font-size: 16px;
 `;
