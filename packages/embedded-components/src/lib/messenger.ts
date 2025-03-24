@@ -178,8 +178,8 @@ export class Messenger {
         }
 
         const payload = shopper.email
-            ? { email: shopper.email, phone: shopper.phone, skipifySessionId: options?.skipifySessionId }
-            : { skipifySessionId: options?.skipifySessionId };
+            ? { email: shopper.email, phone: shopper.phone, skipifySessionId: options?.skipifySessionId, deviceId: this.sdk.deviceId }
+            : { skipifySessionId: options?.skipifySessionId, deviceId: this.sdk.deviceId };
 
         const message = {
             name: shopper.email ? MESSAGE_NAMES.REQUEST_LOOKUP_DATA : MESSAGE_NAMES.LOOKUP_BY_FINGERPRINT,
@@ -241,7 +241,7 @@ export class Messenger {
         if (this.authIframe && this.authData) {
             const message = {
                 name: MESSAGE_NAMES.RECEIVE_COMPONENT_LOOKUP_DATA,
-                payload: this.authData,
+                payload: { ...this.authData, deviceId: this.sdk.deviceId },
             };
             log('Sending message:', message);
             this.authIframe.contentWindow?.postMessage(message, SkipifyCheckoutUrl);
@@ -321,7 +321,7 @@ export class Messenger {
         if (this.carouselIframe && this.carouselData) {
             const message = {
                 name: MESSAGE_NAMES.RECEIVE_COMPONENT_CAROUSEL_DATA,
-                payload: this.carouselData,
+                payload: { ...this.carouselData, deviceId: this.sdk.deviceId },
             };
             log('Sending message:', message);
             this.carouselIframe.contentWindow?.postMessage(message, SkipifyCheckoutUrl);
