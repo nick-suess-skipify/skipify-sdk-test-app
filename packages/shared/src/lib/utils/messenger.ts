@@ -9,7 +9,6 @@ import {
 } from '../constants';
 import { getContainer, launchHiddenIframe, displayIframe, hideIframe, changeIframeHeight } from './iframe';
 import { UserEnrollmentInformationType, PlatformCartType } from '../shared.types';
-import isEqual from 'lodash.isequal';
 import {
     hideLoader,
     log,
@@ -72,10 +71,6 @@ export class Messenger {
                 return this.listenerOrderCompleted(event);
             case MESSAGE_NAMES.DEVICE_ID:
                 return this.listenerDeviceId(event);
-            case MESSAGE_NAMES.RESUMABLE_ORDER_ID:
-                return this.listenerOid(event);
-            case MESSAGE_NAMES.ASK_FOR_ORDER_ID:
-                return this.listenerSendOid(event);
             case MESSAGE_NAMES.CLEAR_ORDER:
                 return this.clearOid();
             case MESSAGE_NAMES.SEND_LD_FLAGS:
@@ -419,29 +414,6 @@ export class Messenger {
         localStorage.removeItem('ORDER_DATA');
         //Remove button if present
         removeCheckmarkButton();
-    }
-
-    async listenerOid(event: MessageEvent) {
-        // received order id from iframe, save it to local storage along with cart data
-        const orderData = {
-            OID: event.data.payload?.orderId,
-            OID_TTL: Date.now() + 25 * 60 * 1000, // Current time + 25 minutes in milliseconds
-            CART: await this.base.getCartData(),
-            EMAIL: this.prevUserEmail,
-        };
-        localStorage.setItem('ORDER_DATA', JSON.stringify(orderData));
-    }
-
-    async listenerSendOid(event: MessageEvent) {
-        const cartData = await this.base.getCartData();
-        //Did cart change from when we saved it?
-        //If so - send "" oid which will discard order on shakira but not fail the transactional message
-        const savedOrderData = JSON.parse(localStorage.getItem('ORDER_DATA') || '{}');
-        const cartsEqual = isEqual(cartData, savedOrderData.CART);
-        event.ports[0]?.postMessage({
-            payload: cartsEqual ? savedOrderData.OID : '',
-            name: MESSAGE_NAMES.RECEIVE_ORDER_ID,
-        });
     }
 
     /**
