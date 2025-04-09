@@ -134,21 +134,29 @@ export class Messenger {
                 return;
             }
 
-            if (this.resumableIframeHidden) {
-                // Display the iframe if we have one hidden from closing resumable button flow
-                showIframe();
-                this.resumableIframeHidden = false;
-                return;
-            }
-
-            this.activeCheckoutId = data.id;
-
             const orderData: any = {
                 cart: { merchantReference: clickedButton.merchantRef },
                 email: clickedButton.options?.email,
                 phone: clickedButton.options?.phone,
                 skipifySessionId: this.sdk.skipifyEvents.getSessionId(), // override iframe's skipify session id
             };
+
+            if (this.resumableIframeHidden) {
+                // Display the iframe if we have one hidden from closing resumable button flow
+                showIframe();
+                this.resumableIframeHidden = false;
+
+                iframe.contentWindow?.postMessage(
+                    {
+                        name: MESSAGE_NAMES.RESUME_ORDER,
+                        payload: orderData,
+                    },
+                    SkipifyCheckoutUrl,
+                );
+                return;
+            }
+
+            this.activeCheckoutId = data.id;
 
             // Skipify simple flow
             if (this.sdk.skipifyLightActive && clickedButton.options?.total) {
@@ -193,9 +201,8 @@ export class Messenger {
         await hideIframe();
 
         const isButtonCheckout = activeCheckout instanceof Button;
-        // const canResumeIframe =
-        //     isButtonCheckout && activeCheckout?.options?.resumable && Object.keys(this.sdk.buttons).length === 1;
-        const canResumeIframe = false; // Disable resumable iframe for now
+        const canResumeIframe =
+            isButtonCheckout && Object.keys(this.sdk.buttons).length === 1;
 
         // Set resumableIframeHidden for specific button flow
         if (canResumeIframe) {

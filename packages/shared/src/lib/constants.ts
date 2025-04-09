@@ -98,6 +98,7 @@ export const MESSAGE_NAMES = {
     REQUEST_DEVICE_ID: `${MESSAGE_NAME_PREFIX}/request-device-id`,
     RECEIVE_ORDER_ID: `${MESSAGE_NAME_PREFIX}/receive-order-id`,
     LOOKUP_BY_FINGERPRINT: `${MESSAGE_NAME_PREFIX}/lookup-by-fingerprint`,
+    RESUME_ORDER: `${MESSAGE_NAME_PREFIX}/resume-order`,
 
     RECEIVE_COMPONENT_LOOKUP_DATA: `${MESSAGE_NAME_PREFIX}/receive-auth-component-data`, // auth component
     RECEIVE_COMPONENT_CAROUSEL_DATA: `${MESSAGE_NAME_PREFIX}/receive-carousel-component-data`, // carousel component
