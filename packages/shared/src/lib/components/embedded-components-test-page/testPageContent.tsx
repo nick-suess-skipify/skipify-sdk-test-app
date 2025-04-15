@@ -48,7 +48,7 @@ export const TestPageContent: React.FC = () => {
     const [sendOtp, setSendOtp] = useState(false);
 
     const [carouselPhone, setCarouselPhone] = useState('');
-    const [orderTotal, setOrderTotal] = useState('80');
+    const [amount, setamount] = useState('80');
     const carouselContainerRef = useRef<HTMLDivElement>(null);
     const [carouselRes, setCarouselRes] = useState<any>({});
 
@@ -160,7 +160,7 @@ export const TestPageContent: React.FC = () => {
                     setCarouselRes({ error });
                 },
                 phone: carouselPhone,
-                orderTotal: Number(orderTotal),
+                amount: Number(amount),
                 sendOtp: carouselSendOtp,
                 displayMode,
                 config: {
@@ -386,11 +386,11 @@ export const TestPageContent: React.FC = () => {
                     </FormControl>
 
                     <FormControl mb="16px">
-                        <FormLabel>Order Total</FormLabel>
+                        <FormLabel>Amount</FormLabel>
                         <Input
                             type="number"
-                            value={orderTotal}
-                            onChange={(e) => setOrderTotal(e.target.value)}
+                            value={amount}
+                            onChange={(e) => setamount(e.target.value)}
                             placeholder="Enter order total"
                         />
                     </FormControl>

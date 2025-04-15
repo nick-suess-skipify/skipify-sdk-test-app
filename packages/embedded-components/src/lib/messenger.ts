@@ -45,7 +45,7 @@ export class Messenger {
         authenticationResult?: AuthenticationResponseType;
         options?: {
             phone?: string;
-            orderTotal: number;
+            amount: number;
             sendOtp?: boolean;
             displayMode?: string;
             config?: {

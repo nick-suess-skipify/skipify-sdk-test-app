@@ -69,7 +69,7 @@ export type CarouselErrorResponseType = {
 export type CarouselOptionsType = {
     onSelect: (results: CarouselResponseType) => void;
     onError: (error: CarouselErrorResponseType) => void;
-    orderTotal: number;
+    amount: number;
     phone?: string;
     sendOtp?: boolean;
     displayMode?: 'embedded' | 'overlay';

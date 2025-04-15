@@ -274,7 +274,7 @@ class EmbeddedComponentsSDK {
                     lookupData: 'sessionId' in data ? undefined : data,
                     authenticationResult: 'sessionId' in data ? data : undefined,
                     options: {
-                        orderTotal: options.orderTotal,
+                        amount: options.amount,
                         phone: options.phone,
                         sendOtp: options.sendOtp ?? false,
                         displayMode: options.displayMode ?? 'embedded',
