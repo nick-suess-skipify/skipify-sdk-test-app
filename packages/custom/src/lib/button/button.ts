@@ -72,7 +72,7 @@ export class Button {
         const checkoutButtonUrl = `${SdkUrl}/shared/components/iframe_checkoutButton.html?${params.toString()}`;
         checkoutButtonFrame.src = checkoutButtonUrl;
 
-        if (!this.sdk.messenger.listenerReady) {
+        if (!this.sdk.messenger.listenerReady && !this.sdk.skipifyLightActive) {
             checkoutButtonFrame.style.opacity = '0.5';
         }
 

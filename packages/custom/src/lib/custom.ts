@@ -143,6 +143,7 @@ class CustomSDK {
     async enableSkipifyLight() {
         this.skipifyLightActive = true;
         this.messenger.launchLightBaseIframe(this.simpleCheckoutUrl);
+        this.messenger.setButtonVisibility(true); // Activate buttons
     }
 
     async getMerchant() {

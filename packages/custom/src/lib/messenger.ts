@@ -130,7 +130,7 @@ export class Messenger {
             const iframe = getBaseIframe();
             const clickedButton = this.sdk.buttons[data.id];
 
-            if (!iframe || !clickedButton || !this.listenerReady) {
+            if (!iframe || !clickedButton || (!this.listenerReady && !this.sdk.skipifyLightActive)) {
                 return;
             }
 
@@ -187,13 +187,14 @@ export class Messenger {
 
     async listenerCloseIframe(event: MessageEvent) {
         let activeCheckout = null;
+        const orderCompleted = this.activeCheckoutSuccess;
 
         if (this.activeCheckoutId) {
             activeCheckout = this.getCurrentCheckout(this.activeCheckoutId);
 
             // Trigger onClose UI callback if defined
             if (activeCheckout?.options?.onClose) {
-                activeCheckout.options.onClose(activeCheckout.merchantRef, this.activeCheckoutSuccess);
+                activeCheckout.options.onClose(activeCheckout.merchantRef, orderCompleted);
             }
         }
 
@@ -202,17 +203,20 @@ export class Messenger {
 
         const isButtonCheckout = activeCheckout instanceof Button;
         const canResumeIframe =
-            isButtonCheckout && Object.keys(this.sdk.buttons).length === 1;
+            isButtonCheckout &&
+            !orderCompleted &&
+            Object.keys(this.sdk.buttons).length === 1 &&
+            !this.sdk.skipifyLightActive;
 
         // Set resumableIframeHidden for specific button flow
         if (canResumeIframe) {
             this.resumableIframeHidden = true;
-        } else if (isButtonCheckout) {
+        } else if (isButtonCheckout && !this.sdk.skipifyLightActive) {
             this.setButtonVisibility(false); // Mute buttons again while SDK is reinitializing
         }
 
         // We only want to hide for button flow - otherwise reset
-        if (event.data.payload.reload || !canResumeIframe) {
+        if (event.data.payload?.reload || !canResumeIframe) {
             this.resumableIframeHidden = false;
             this.activeCheckoutId = null;
 
