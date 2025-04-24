@@ -34,6 +34,7 @@ export const AuthenticationOptionsSchema = z.object({
             theme: z.enum(['light', 'dark']).optional(),
             fontFamily: z.enum(['serif', 'sans-serif', 'default']).optional(),
             fontSize: z.enum(['small', 'medium', 'large']).optional(),
+            inputFieldSize: z.enum(['small', 'medium']).default('medium').optional(),
         })
         .optional(),
 });
@@ -83,6 +84,7 @@ export const CarouselOptionsSchema = z.object({
             theme: z.enum(['light', 'dark']).optional(),
             fontFamily: z.enum(['serif', 'sans-serif', 'default']).optional(),
             fontSize: z.enum(['small', 'medium', 'large']).optional(),
+            inputFieldSize: z.enum(['small', 'medium']).default('medium').optional(),
         })
         .optional(),
 });

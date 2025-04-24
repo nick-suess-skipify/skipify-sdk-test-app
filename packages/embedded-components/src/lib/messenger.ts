@@ -52,6 +52,7 @@ export class Messenger {
                 theme?: string;
                 fontFamily?: string;
                 fontSize?: string;
+                inputFieldSize?: string;
             };
         };
     } | null = null;
@@ -221,7 +222,7 @@ export class Messenger {
                 phone?: string;
                 sendOtp?: boolean;
                 displayMode?: string;
-                config?: { theme?: string; fontFamily?: string; fontSize?: string };
+                config?: { theme?: string; fontFamily?: string; fontSize?: string; inputFieldSize?: string };
             };
         },
     ) {

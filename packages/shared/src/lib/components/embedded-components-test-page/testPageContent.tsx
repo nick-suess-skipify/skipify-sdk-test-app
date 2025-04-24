@@ -58,12 +58,12 @@ export const TestPageContent: React.FC = () => {
     const [authTheme, setAuthTheme] = useState<string | undefined>(undefined);
     const [authFontFamily, setAuthFontFamily] = useState<string | undefined>(undefined);
     const [authFontSize, setAuthFontSize] = useState<string | undefined>(undefined);
-
+    const [authInputFieldSize, setAuthInputFieldSize] = useState<string | undefined>(undefined);
     // Carousel config states
     const [carouselTheme, setCarouselTheme] = useState<string | undefined>(undefined);
     const [carouselFontFamily, setCarouselFontFamily] = useState<string | undefined>(undefined);
     const [carouselFontSize, setCarouselFontSize] = useState<string | undefined>(undefined);
-
+    const [carouselInputFieldSize, setCarouselInputFieldSize] = useState<string | undefined>(undefined);
     useEffect(() => {
         // Check for Skipify client in the window
         const checkClient = () => {
@@ -140,6 +140,7 @@ export const TestPageContent: React.FC = () => {
                     theme: authTheme,
                     fontFamily: authFontFamily,
                     fontSize: authFontSize,
+                    inputFieldSize: authInputFieldSize,
                 },
             })
             .render(element);
@@ -167,6 +168,7 @@ export const TestPageContent: React.FC = () => {
                     theme: carouselTheme,
                     fontFamily: carouselFontFamily,
                     fontSize: carouselFontSize,
+                    inputFieldSize: carouselInputFieldSize,
                 },
             })
             .render(element);
@@ -320,6 +322,18 @@ export const TestPageContent: React.FC = () => {
                         </FormControl>
                     </Stack>
 
+                    <FormControl>
+                        <FormLabel>Input Field Size</FormLabel>
+                        <Select
+                            value={authInputFieldSize || ''}
+                            onChange={(e) => setAuthInputFieldSize(e.target.value || undefined)}
+                        >
+                            <option value="">not set</option>
+                            <option value="small">small</option>
+                            <option value="medium">medium</option>
+                        </Select>
+                    </FormControl>
+
                     <Button
                         mt={4}
                         colorScheme="teal"
@@ -448,6 +462,18 @@ export const TestPageContent: React.FC = () => {
                             </Select>
                         </FormControl>
                     </Stack>
+
+                    <FormControl>
+                        <FormLabel>Input Field Size</FormLabel>
+                        <Select
+                            value={carouselInputFieldSize || ''}
+                            onChange={(e) => setCarouselInputFieldSize(e.target.value || undefined)}
+                        >
+                            <option value="">not set</option>
+                            <option value="small">small</option>
+                            <option value="medium">medium</option>
+                        </Select>
+                    </FormControl>
 
                     <Button
                         mt={4}

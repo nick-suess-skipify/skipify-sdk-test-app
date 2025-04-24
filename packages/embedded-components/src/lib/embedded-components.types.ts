@@ -42,6 +42,7 @@ export type AuthenticationOptionsType = {
         theme?: 'light' | 'dark';
         fontFamily?: 'serif' | 'sans-serif' | 'default';
         fontSize?: 'small' | 'medium' | 'large';
+        inputFieldSize?: 'small' | 'medium';
     };
 };
 
@@ -77,6 +78,7 @@ export type CarouselOptionsType = {
         theme?: 'light' | 'dark';
         fontFamily?: 'serif' | 'sans-serif' | 'default';
         fontSize?: 'small' | 'medium' | 'large';
+        inputFieldSize?: 'small' | 'medium';
     };
 };
 

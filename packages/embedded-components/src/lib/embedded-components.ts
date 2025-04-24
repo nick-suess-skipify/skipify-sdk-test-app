@@ -211,6 +211,7 @@ class EmbeddedComponentsSDK {
                             theme: options.config?.theme ?? 'light',
                             fontFamily: options.config?.fontFamily ?? 'default',
                             fontSize: options.config?.fontSize ?? 'medium',
+                            inputFieldSize: options.config?.inputFieldSize ?? 'medium',
                         },
                     },
                 });
@@ -282,6 +283,7 @@ class EmbeddedComponentsSDK {
                             theme: options.config?.theme ?? 'light',
                             fontFamily: options.config?.fontFamily ?? 'default',
                             fontSize: options.config?.fontSize ?? 'medium',
+                            inputFieldSize: options.config?.inputFieldSize ?? 'medium',
                         },
                     },
                 });
