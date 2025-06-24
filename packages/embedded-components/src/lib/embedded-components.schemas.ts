@@ -70,7 +70,7 @@ export const AuthenticationResponseSchema = z.object({
 export const CarouselOptionsSchema = z.object({
     onSelect: z.function().args(z.any()),
     onError: z.function().args(z.any()),
-    amount: z.number(),
+    amount: z.number().int(),
     phone: z
         .string()
         .optional()
