@@ -165,46 +165,46 @@ workflows:
                           value: << pipeline.git.branch >>
         jobs:
             - code-quality:
-                  context: skipify-dev
+                  context: skipify-new-dev
             - build:
                   environment: dev
-                  context: skipify-dev
+                  context: skipify-new-dev
                   requires:
                       - code-quality
             - deploy-dev-approval:
-                  context: skipify-dev
+                  context: skipify-new-dev
                   type: approval
                   requires:
                       - build
             - deploy:
                   name: deploy-dev
                   bucket: checkout-sdk-dev/sdk
-                  context: skipify-dev
+                  context: skipify-new-dev
                   requires:
                       - deploy-dev-approval
             - deploy:
                   name: deploy-dev-legacy-bucket
                   bucket: checkout-sdk-dev
-                  context: skipify-dev
+                  context: skipify-new-dev
                   requires:
                       - deploy-dev-approval
             - run-qa-e2e-playwright:
                   environment: dev
-                  context: skipify-dev
+                  context: skipify-new-dev
                   test_name: shakira/shakiraCheckout.spec.js
                   requires:
                       - deploy-dev
     dev:
         jobs:
             - code-quality:
-                  context: skipify-dev
+                  context: skipify-new-dev
                   filters:
                       branches:
                           only:
                               - dev
             - build:
                   environment: dev
-                  context: skipify-dev
+                  context: skipify-new-dev
                   requires:
                       - code-quality
                   filters:
@@ -214,7 +214,7 @@ workflows:
             - deploy:
                   name: deploy-dev
                   bucket: checkout-sdk-dev/sdk
-                  context: skipify-dev
+                  context: skipify-new-dev
                   requires:
                       - build
                   filters:
@@ -224,7 +224,7 @@ workflows:
             - deploy:
                   name: deploy-dev-legacy-bucket
                   bucket: checkout-sdk-dev
-                  context: skipify-dev
+                  context: skipify-new-dev
                   requires:
                       - build
                   filters:
@@ -233,23 +233,23 @@ workflows:
                               - dev
             - run-qa-e2e-playwright:
                   environment: dev
-                  context: skipify-dev
+                  context: skipify-new-dev
                   test_name: shakira/shakiraCheckout.spec.js
                   requires:
                       - deploy-dev
             - stage-release-approval:
-                  context: skipify-dev
+                  context: skipify-new-dev
                   type: approval
                   requires:
                       - run-qa-e2e-playwright
             - run-script:
                   name: stage-release
-                  context: skipify-dev
+                  context: skipify-new-dev
                   script: stage-release.sh
                   requires:
                       - stage-release-approval
             - hotfix-release-approval:
-                  context: skipify-dev
+                  context: skipify-new-dev
                   type: approval
                   requires:
                       - build
@@ -258,7 +258,7 @@ workflows:
                           only: /^release\/.*/
             - run-script:
                   name: hotfix-stage-release
-                  context: skipify-dev
+                  context: skipify-new-dev
                   script: stage-release.sh --hotfix
                   requires:
                       - hotfix-release-approval
@@ -268,27 +268,27 @@ workflows:
                   type: approval
                   <<: *stageTagFilter
             - code-quality:
-                  context: skipify-stage
+                  context: skipify-new-stage
                   requires:
                       - build-approval
                   <<: *stageTagFilter
             - run-qa-e2e-playwright:
                   environment: dev
-                  context: skipify-dev
+                  context: skipify-new-dev
                   test_name: shakira/shakiraCheckout.spec.js
                   requires:
                       - build-approval
                   <<: *stageTagFilter
             - build:
                   environment: stage
-                  context: skipify-stage
+                  context: skipify-new-stage
                   requires:
                       - code-quality
                   <<: *stageTagFilter
             - deploy:
                   name: deploy-stage
                   bucket: skipifystagecdn/sdk
-                  context: skipify-stage
+                  context: skipify-new-stage
                   requires:
                       - build
                       - run-qa-e2e-playwright
@@ -296,33 +296,33 @@ workflows:
             - deploy:
                   name: deploy-stage-legacy-bucket
                   bucket: checkout-sdk-stage
-                  context: skipify-stage
+                  context: skipify-new-stage
                   requires:
                       - build
                       - run-qa-e2e-playwright
                   <<: *stageTagFilter
             - prod-release-approval:
-                  context: skipify-stage
+                  context: skipify-new-stage
                   type: approval
                   requires:
                       - deploy-stage
                   <<: *stageTagFilter
             - run-script:
                   name: prod-release
-                  context: skipify-stage
+                  context: skipify-new-stage
                   script: prod-release.sh
                   requires:
                       - prod-release-approval
                   <<: *stageTagFilter
             - create-hotfix-branch-approval:
-                  context: skipify-stage
+                  context: skipify-new-stage
                   type: approval
                   requires:
                       - build
                   <<: *stageTagFilter
             - run-script:
                   name: create-hotfix-branch
-                  context: skipify-stage
+                  context: skipify-new-stage
                   script: create-hotfix-branch.sh
                   requires:
                       - create-hotfix-branch-approval
@@ -333,39 +333,39 @@ workflows:
                   type: approval
                   <<: *prodTagFilter
             - code-quality:
-                  context: skipify-prod
+                  context: skipify-new-prod
                   requires:
                       - build-approval
                   <<: *prodTagFilter
             - build:
                   environment: prod
-                  context: skipify-prod
+                  context: skipify-new-prod
                   requires:
                       - code-quality
                   <<: *prodTagFilter
             - deploy:
                   name: deploy-prod
                   bucket: skipifycdn/sdk
-                  context: skipify-prod
+                  context: skipify-new-prod
                   requires:
                       - build
                   <<: *prodTagFilter
             - deploy:
                   name: deploy-prod-legacy-bucket
                   bucket: checkout-sdk
-                  context: skipify-prod
+                  context: skipify-new-prod
                   requires:
                       - build
                   <<: *prodTagFilter
             - run-qa-e2e-playwright:
                   environment: prod
-                  context: skipify-prod
+                  context: skipify-new-prod
                   test_name: prodTests/prodShakiraSmoke.spec.js
                   requires:
                       - deploy-prod
                   <<: *prodTagFilter
             - manage-branches:
-                  context: skipify-prod
+                  context: skipify-new-prod
                   requires:
                       - deploy-prod
                   <<: *prodTagFilter
