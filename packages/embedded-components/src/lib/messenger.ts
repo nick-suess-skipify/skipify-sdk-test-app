@@ -25,6 +25,7 @@ interface Props {
 export class Messenger {
     iframe: HTMLIFrameElement | null = null;
     authIframe: HTMLIFrameElement | null = null;
+    clickToPayIframe: HTMLIFrameElement | null = null;
     listenerReady = false;
     authData: { lookupData: any; options?: { phone?: string; displayMode?: string; sendOtp?: boolean } } | null = null;
     sdk: EmbeddedComponentsSDK;
@@ -75,8 +76,6 @@ export class Messenger {
             return;
         }
 
-        log('Received message:', data);
-
         switch (data.name) {
             case MESSAGE_NAMES.LISTENER_READY:
                 return this.handleListenerReady(event);
@@ -100,14 +99,127 @@ export class Messenger {
                 return this.handleCarouselError(event);
             case MESSAGE_NAMES.RESET_ANALYTICS_TTL:
                 return this.listenerResetAnalyticsTtl();
+            case MESSAGE_NAMES.CTP_ACTION:
+                return this.handleCtpAction(event);
+            case MESSAGE_NAMES.CTP_ACTION_RESPONSE:
+                return this.handleCtpActionResponse(event);
+            case MESSAGE_NAMES.CTP_STATE_UPDATE:
+                return this.handleCtpStateUpdate(event);
+            case MESSAGE_NAMES.CTP_INITIAL_STATE:
+                return this.handleCtpInitialState(event);
+            case MESSAGE_NAMES.CTP_CHECKOUT_DIALOG:
+                return this.handleCtpCheckoutDialog(event);
             default:
                 return;
         }
     }
 
+    // CTP Message Handlers
+
+    /**
+     * Forwards a message to the Click-to-Pay iframe
+     */
+    private forwardToClickToPayIframe(event: MessageEvent, logMessage?: string) {
+        if (logMessage) {
+            log(logMessage, event);
+        }
+
+        if (!this.clickToPayIframe?.contentWindow) {
+            return;
+        }
+
+        this.clickToPayIframe.contentWindow.postMessage(event.data, SkipifyCheckoutUrl);
+    }
+
+    /**
+     * Forwards a message to all local iframes (lookup, auth, carousel)
+     */
+    private forwardToAllLocalIframes(event: MessageEvent, logMessage?: string) {
+        if (logMessage) {
+            log(logMessage, event);
+        }
+
+        const localIframes = [
+            { iframe: this.iframe, name: 'lookup' },
+            { iframe: this.authIframe, name: 'auth' },
+            { iframe: this.carouselIframe, name: 'carousel' }
+        ];
+
+        localIframes.forEach(({ iframe }) => {
+            if (iframe?.contentWindow) {
+                iframe.contentWindow.postMessage(event.data, SkipifyCheckoutUrl);
+            }
+        });
+    }
+
+    /**
+     * Sets iframe styles for dialog open/close states
+     */
+    private setClickToPayDialogStyles(isOpen: boolean) {
+        if (!this.clickToPayIframe) {
+            return;
+        }
+
+        const styles = isOpen ? {
+            display: 'block',
+            height: '100vh',
+            width: '100vw',
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            zIndex: '9999',
+            border: 'none',
+            backgroundColor: 'transparent'
+        } : {
+            display: 'none',
+            height: '0',
+            width: '0',
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            zIndex: '0',
+            border: 'none',
+            backgroundColor: 'transparent'
+        };
+
+        Object.assign(this.clickToPayIframe.style, styles);
+    }
+
+    handleCtpAction(event: MessageEvent) {
+        this.forwardToClickToPayIframe(event);
+    }
+
+    handleCtpActionResponse(event: MessageEvent) {
+        this.forwardToAllLocalIframes(event);
+    }
+
+    handleCtpStateUpdate(event: MessageEvent) {
+        this.forwardToAllLocalIframes(event);
+    }
+
+    handleCtpInitialState(event: MessageEvent) {
+        this.forwardToClickToPayIframe(event);
+    }
+
+    handleCtpCheckoutDialog(event: MessageEvent) {
+        const { dialogOpen } = event.data;
+
+        if (typeof dialogOpen !== 'boolean') {
+            log('Invalid dialog state received:', event.data);
+            return;
+        }
+
+        this.setClickToPayDialogStyles(dialogOpen);
+    }
+
     launchBaseIframe(iframeSrc: string) {
         const baseIframe = launchHiddenIframe(iframeSrc);
         this.iframe = baseIframe;
+    }
+
+    launchClickToPayIframe(iframeSrc: string) {
+        const clickToPayIframe = launchHiddenIframe(iframeSrc, SkipifyElementIds.clickToPayIframe);
+        this.clickToPayIframe = clickToPayIframe;
     }
 
     handleListenerReady(event: MessageEvent) {

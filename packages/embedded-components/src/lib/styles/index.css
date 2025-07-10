@@ -71,6 +71,10 @@
     height: 100%;
 }
 
+#_SKIPIFY_click_to_pay_iframe {
+   display: none;
+}
+
 ._SKIPIFY_component_overlay_iframe {
     position: fixed;
     z-index: 9999;

@@ -59,6 +59,7 @@ export const SkipifyElementIds = {
     // ids for components sdk
     authIframe: '_SKIPIFY_auth_iframe',
     carouselIframe: '_SKIPIFY_carousel_iframe',
+    clickToPayIframe: '_SKIPIFY_click_to_pay_iframe',
 };
 
 /**
@@ -108,6 +109,13 @@ export const MESSAGE_NAMES = {
     CHECKOUT_BUTTON_TRIGGERED: `${MESSAGE_NAME_PREFIX}/checkout-button-triggered`,
     CHECKOUT_BUTTON_READY: `${MESSAGE_NAME_PREFIX}/checkout-button-ready`,
     MERCHANT_PUBLIC_INFO_FETCHED: `${MESSAGE_NAME_PREFIX}/merchant-public-info-fetched`,
+
+    // CTP
+    CTP_ACTION: `${MESSAGE_NAME_PREFIX}/ctp-action`,
+    CTP_ACTION_RESPONSE: `${MESSAGE_NAME_PREFIX}/ctp-action-response`,
+    CTP_STATE_UPDATE: `${MESSAGE_NAME_PREFIX}/ctp-state-update`,
+    CTP_INITIAL_STATE: `${MESSAGE_NAME_PREFIX}/ctp-initial-state`,
+    CTP_CHECKOUT_DIALOG: `${MESSAGE_NAME_PREFIX}/ctp-checkout-dialog`,
 } as const;
 
 export const COMPONENT_LISTENER_IDS = {

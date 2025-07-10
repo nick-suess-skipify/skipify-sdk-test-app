@@ -1,11 +1,12 @@
 import { SkipifyElementIds, SkipifyClassNames } from '@checkout-sdk/shared/lib/constants';
 
-export function launchHiddenIframe(iframeSrc: string) {
+export function launchHiddenIframe(iframeSrc: string, id?: string) {
     const iframeEl = document.createElement('iframe');
     iframeEl.allow = 'publickey-credentials-get *';
     iframeEl.style.border = 'none';
 
-    iframeEl.id = SkipifyElementIds.iframe;
+    iframeEl.id = id || SkipifyElementIds.iframe;
+
     iframeEl.src = iframeSrc;
 
     document.body.appendChild(iframeEl);
@@ -168,8 +169,8 @@ export function positionIframeInOverlay(shouldScroll = false) {
         totalWidth > 490
             ? Math.max(roundByDPR(buttonPosition.right - iframeWidth), 36)
             : totalWidth > iframeWidth
-              ? roundByDPR((totalWidth - iframeWidth) / 2)
-              : 0;
+                ? roundByDPR((totalWidth - iframeWidth) / 2)
+                : 0;
     const translateY = shouldDisplayOnTop ? 0 : roundByDPR(buttonPosition.bottom + 16);
     const remainingSpace = shouldDisplayOnTop
         ? buttonPosition.top

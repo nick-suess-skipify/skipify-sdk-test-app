@@ -42,6 +42,7 @@ class EmbeddedComponentsSDK {
 
     //  Internal
     componentsUrl: string;
+    clickToPayUrl: string;
 
     // Analytics session ID
     private readonly analyticsSessionId: string;
@@ -64,6 +65,7 @@ class EmbeddedComponentsSDK {
 
         // Checkout Urls
         this.componentsUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/lookup`;
+        this.clickToPayUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/click-to-pay`;
 
         // Initial setup
         this.messenger = new Messenger({ sdk: this });
@@ -101,6 +103,7 @@ class EmbeddedComponentsSDK {
 
     launchBaseIframe() {
         this.messenger.launchBaseIframe(this.componentsUrl);
+        this.messenger.launchClickToPayIframe(this.clickToPayUrl);
     }
 
     async lookup(shopper: ShopperType = {}) {
@@ -200,7 +203,7 @@ class EmbeddedComponentsSDK {
                 });
 
                 // Launch authentication iframe
-                this.messenger.launchAuthIframe(authUrl, element, {
+                this.messenger.launchAuthIframe(`${authUrl}?challengeId=${lookupResult.challengeId}`, element, {
                     skipifySessionId: this.analyticsSessionId,
                     lookupData: lookupResult,
                     options: {
@@ -242,7 +245,8 @@ class EmbeddedComponentsSDK {
             return EmbeddedComponentsSDK.VALIDATION_FAILED_RESPONSE;
         }
 
-        const carouselUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/carousel`;
+        const carouselSessionId = 'challengeId' in data ? data.challengeId : data.sessionId;
+        const carouselUrl = `${SkipifyCheckoutUrl}/components/${this.config.merchantId}/carousel?sessionId=${carouselSessionId}`;
 
         return {
             render: (container: HTMLElement) => {
