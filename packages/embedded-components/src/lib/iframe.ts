@@ -4,6 +4,11 @@ export function launchHiddenIframe(iframeSrc: string, id?: string) {
     const iframeEl = document.createElement('iframe');
     iframeEl.allow = 'publickey-credentials-get *';
     iframeEl.style.border = 'none';
+    iframeEl.style.visibility = 'hidden';
+    iframeEl.style.position = 'absolute';
+    iframeEl.style.width = '1px';
+    iframeEl.style.height = '1px';
+    iframeEl.style.pointerEvents = 'none';
 
     iframeEl.id = id || SkipifyElementIds.iframe;
 
