@@ -1,5 +1,9 @@
 import { SkipifyElementIds, SkipifyClassNames } from '@checkout-sdk/shared/lib/constants';
 
+interface HTMLElementWithObserver extends HTMLElement {
+    _resizeObserver?: ResizeObserver | null;
+}
+
 export function launchHiddenIframe(iframeSrc: string, id?: string) {
     const iframeEl = document.createElement('iframe');
     iframeEl.allow = 'publickey-credentials-get *';
@@ -31,6 +35,11 @@ export function launchIframe(iframeSrc: string, customId: string, container?: HT
         const overlayEl = createOverlay(container);
         overlayEl.appendChild(iframeEl);
         displayOverlay(overlayEl);
+        
+        const arrowEl = document.getElementById(SkipifyElementIds.iframeArrow);
+        if (arrowEl) {
+            showArrowWhenIframeShown(iframeEl, arrowEl);
+        }
     } else {
         iframeEl.style.height = '0px';
         iframeEl.style.width = '100%';
@@ -84,7 +93,10 @@ function displayOverlay(overlayEl: HTMLElement) {
         overlayEl.style.opacity = '1';
     }, 10);
 
-    positionIframeInOverlay(true);
+    // If the page is too short to scroll, we don't need the scroll animation
+    const isScrollable = document.documentElement.scrollHeight > window.innerHeight;
+
+    positionIframeInOverlay(isScrollable);
 }
 
 /**
@@ -106,6 +118,20 @@ function createWrapper(emailInput: HTMLElement): HTMLElement {
     button.style.display = 'flex';
 
     const emailStyles = window.getComputedStyle(emailInput);
+
+    wrapper.style.display = emailStyles.display;
+
+
+    // This is a workaround for inline-* elements that also has 100% width set
+    // We cannot read 100% applied with javascript
+    if (emailInput.parentElement) {
+        const parentWidth = emailInput.parentElement.getBoundingClientRect().width;
+        const emailWidth = emailInput.getBoundingClientRect().width;
+
+        if (parentWidth === emailWidth) {
+            wrapper.style.width = '100%';
+        }
+    }
 
     const stylePropertiesToCopy = [
         'border-top-right-radius',
@@ -134,7 +160,7 @@ function createWrapper(emailInput: HTMLElement): HTMLElement {
  * @param shouldScroll - Whether to scroll to input
  */
 export function positionIframeInOverlay(shouldScroll = false) {
-    const iframe = document.querySelector(`.${SkipifyClassNames.componentOverlayIframe}`) as HTMLElement;
+    const iframe = document.querySelector(`.${SkipifyClassNames.componentOverlayIframe}`) as HTMLElementWithObserver;
     const button = document.querySelector(`#${SkipifyElementIds.checkButton}`);
 
     if (!iframe || !button) {
@@ -191,9 +217,34 @@ export function positionIframeInOverlay(shouldScroll = false) {
     const arrowPositionX = roundByDPR(buttonPosition.right - 33);
     const arrowPositionY = shouldDisplayOnTop ? roundByDPR(buttonPosition.top - 36) : roundByDPR(translateY - 5);
     if (arrowIframe) {
-        arrowIframe.style.opacity = '1';
         arrowIframe.style.transform = `translate(${arrowPositionX}px, ${arrowPositionY}px)`;
     }
+}
+
+/**
+ * Show arrow icon only if iframe has some height
+ * This is to deal with the problem when iframe takes longer to load, arrow will pop up first
+ */
+function showArrowWhenIframeShown(iframe: HTMLElementWithObserver, arrowElement: HTMLElement) {
+    arrowElement.style.opacity = '0';
+    
+    if (iframe._resizeObserver) {
+        iframe._resizeObserver.disconnect();
+    }
+    
+    const resizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+            const height = entry.contentRect.height;
+            if (height > 20) {
+                arrowElement.style.opacity = '1';
+                resizeObserver.disconnect();
+                iframe._resizeObserver = null;
+            }
+        }
+    });
+    
+    iframe._resizeObserver = resizeObserver;
+    resizeObserver.observe(iframe);
 }
 
 /**

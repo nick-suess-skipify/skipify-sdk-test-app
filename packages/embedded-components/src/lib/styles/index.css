@@ -32,7 +32,7 @@
 
 #_SKIPIFY_iframe_arrow {
     opacity: 0;
-    transition: opacity 300ms ease-in 1000ms;
+    transition: opacity 300ms ease-in;
 }
 
 #_SKIPIFY_iframe_arrow::before {
@@ -50,14 +50,14 @@
 
 #_SKIPIFY_email_wrapper {
     box-sizing: border-box;
-    display: flex;
     flex-direction: row;
-    height: 100%;
+    position: relative;
+
 }
 
 #_SKIPIFY_check_button {
     background-color: black;
-    padding: 10px;
+    
     display: none;
     align-items: center;
     justify-content: center;
@@ -69,6 +69,8 @@
 #_SKIPIFY_check_icon {
     fill: white;
     height: 100%;
+    max-width: 17px;
+    max-height: 17px;
 }
 
 #_SKIPIFY_click_to_pay_iframe {
