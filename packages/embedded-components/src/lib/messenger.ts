@@ -162,6 +162,8 @@ export class Messenger {
 
         const styles = isOpen ? {
             display: 'block',
+            visibility: 'visible',
+            pointerEvents: 'auto',
             height: '100vh',
             width: '100vw',
             position: 'fixed',
@@ -171,7 +173,8 @@ export class Messenger {
             border: 'none',
             backgroundColor: 'transparent'
         } : {
-            display: 'none',
+            visibility: 'hidden',
+            pointerEvents: 'none',
             height: '0',
             width: '0',
             position: 'absolute',

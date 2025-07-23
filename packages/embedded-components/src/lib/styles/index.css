@@ -74,7 +74,7 @@
 }
 
 #_SKIPIFY_click_to_pay_iframe {
-   display: none;
+   visibility: hidden;
 }
 
 ._SKIPIFY_component_overlay_iframe {
