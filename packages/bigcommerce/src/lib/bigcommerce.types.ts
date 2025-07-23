@@ -10,8 +10,8 @@ export type BigCommerceCart = Record<string, unknown> & {
     email: string;
     customerId: number;
     lineItems: {
-        physicalItems: [BigCommerceLineItem];
-        digitalItems: [BigCommerceLineItem];
+        physicalItems: BigCommerceLineItem[];
+        digitalItems: BigCommerceLineItem[];
     };
 };
 

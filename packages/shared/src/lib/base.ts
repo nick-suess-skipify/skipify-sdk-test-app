@@ -1,4 +1,4 @@
-import { Messenger, SkipifyApi, SkipifyEvents, roundByDPR, log, showCheckIcon } from './utils';
+import { Messenger, SkipifyApi, SkipifyEvents, roundByDPR, log, showCheckIcon, hideLoader } from './utils';
 import { store, defaultState } from './state';
 import {
     SkipifyCheckoutUrl,
@@ -239,8 +239,8 @@ export class Base {
             totalWidth > 490
                 ? Math.max(roundByDPR(buttonPosition.right - iframeWidth), 36)
                 : totalWidth > iframeWidth
-                  ? roundByDPR((totalWidth - iframeWidth) / 2)
-                  : 0;
+                    ? roundByDPR((totalWidth - iframeWidth) / 2)
+                    : 0;
         const translateY = this.shouldDisplayOnTop ? 0 : roundByDPR(buttonPosition.bottom + 16);
         const remainingSpace = this.shouldDisplayOnTop
             ? buttonPosition.top
@@ -355,6 +355,8 @@ export class Base {
                 emailWhitelisted,
             });
             if (!emailWhitelisted) {
+                // If the email is not whitelisted, hide the loader
+                hideLoader();
                 return;
             }
         }

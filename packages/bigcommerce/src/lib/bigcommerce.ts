@@ -10,7 +10,6 @@ import {
 } from '@checkout-sdk/shared';
 import { EmailInput, EnrollmentCheckbox, CheckoutCompleted } from '@checkout-sdk/shared/classes';
 import { BigCommerceStoreFrontApi, LoggedInCustomer } from './utils';
-import { SamsungDemo } from './utils/samsungDemo';
 
 interface OwnProps {
     emailInputId?: string;
@@ -45,8 +44,6 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
 
     storeFrontApi: BigCommerceStoreFrontApi;
 
-    samsungDemo: SamsungDemo | null = null;
-
     constructor({ emailInputId, paymentButtonId, merchantId }: Props = {}) {
         super(merchantId);
         if (emailInputId) {
@@ -59,11 +56,6 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
         this.platform = 'bigcommerce';
         this.storeFrontApi = new BigCommerceStoreFrontApi();
         this.fetchUserEmailFromCart();
-
-        // only run samsung demo on dev and stage build
-        if (['development', 'staging'].includes(import.meta.env.MODE)) {
-            this.samsungDemo = new SamsungDemo(this.messenger);
-        }
     }
 
     override processDOM() {
@@ -72,19 +64,6 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
         this.processEnrollmentCheckbox();
         this.processLoggedInCustomer();
         this.processEmbedCheckout();
-
-        if (['development', 'staging'].includes(import.meta.env.MODE)) {
-            this.processSamsungDemo();
-        }
-    }
-
-    processSamsungDemo() {
-        // Trying to set up checkout button if LD flag for samsung demo is true
-        const { flags } = this.store.getState();
-        if (flags?.samsungDemo && this.samsungDemo?.canShowSamsungDemo() && this.samsungDemo?.checkoutButton === null) {
-            this.samsungDemo.setupButton();
-            this.useButtonCheckout = true;
-        }
     }
 
     processEmailInput() {
@@ -212,10 +191,11 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
 
         const { physicalItems, digitalItems } = userCart.lineItems;
 
-        if (digitalItems.length > 0) {
-            return null; // We aren't supporting Digital Items as of now - let the customer finish the order in the merchant website
+        if (digitalItems.length > 0 && physicalItems.length === 0) {
+            return null; // Only support mixed carts for now
         }
-        return { items: [...physicalItems.map(this.transformLineItem)] };
+
+        return { items: [...physicalItems.map(this.transformLineItem), ...digitalItems.map(this.transformLineItem)] };
     }
 
     override async getCartTotal() {
@@ -337,7 +317,7 @@ export class BigCommerceSDK extends Base implements AbstractSDK {
     }
 
     override canShowIframe(): boolean {
-        return window.location.href.includes(this.checkoutUrlMatch) || !!this.samsungDemo?.canShowSamsungDemo();
+        return window.location.href.includes(this.checkoutUrlMatch);
     }
 }
 
