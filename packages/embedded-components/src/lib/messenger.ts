@@ -40,6 +40,7 @@ export class Messenger {
 
     // Carousel component
     carouselIframe: HTMLIFrameElement | null = null;
+    carouselContainer: HTMLElement | null = null;
     carouselData: {
         skipifySessionId: string;
         lookupData?: LookupResponseType;
@@ -188,6 +189,24 @@ export class Messenger {
         Object.assign(this.clickToPayIframe.style, styles);
     }
 
+    private setOverlayStyles(isOpen: boolean) {
+        const overlay = document.getElementById(SkipifyElementIds.overlay);
+        if (!overlay) {
+            return;
+        }
+
+        // Prevent multiple overlays from being shown when the CTP dialog is opened/closed
+        // CTP dialog overlay open -> Skipify overlay hidden
+        // CTP dialog overlay closed -> Skipify overlay visible
+        const styles = isOpen ? {
+            visibility: 'hidden',
+        } : {
+            visibility: 'visible',
+        };
+
+        Object.assign(overlay.style, styles);
+    }
+
     handleCtpAction(event: MessageEvent) {
         this.forwardToClickToPayIframe(event);
     }
@@ -212,7 +231,13 @@ export class Messenger {
             return;
         }
 
+        // Sometimes CTP sdk changes the body scroll position when the dialog is opened/closed
+        if (!dialogOpen && this.carouselContainer && this.carouselData?.options?.displayMode === 'overlay') {
+            this.carouselContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         this.setClickToPayDialogStyles(dialogOpen);
+        this.setOverlayStyles(dialogOpen);
     }
 
     launchBaseIframe(iframeSrc: string) {
@@ -426,6 +451,7 @@ export class Messenger {
             carouselData?.options?.displayMode,
         );
         this.carouselData = carouselData;
+        this.carouselContainer = container;
 
         if (carouselData?.options?.displayMode === 'overlay') {
             window.addEventListener('scroll', this.handleReposition);

@@ -35,7 +35,7 @@ export function launchIframe(iframeSrc: string, customId: string, container?: HT
         const overlayEl = createOverlay(container);
         overlayEl.appendChild(iframeEl);
         displayOverlay(overlayEl);
-        
+
         const arrowEl = document.getElementById(SkipifyElementIds.iframeArrow);
         if (arrowEl) {
             showArrowWhenIframeShown(iframeEl, arrowEl);
@@ -227,11 +227,11 @@ export function positionIframeInOverlay(shouldScroll = false) {
  */
 function showArrowWhenIframeShown(iframe: HTMLElementWithObserver, arrowElement: HTMLElement) {
     arrowElement.style.opacity = '0';
-    
+
     if (iframe._resizeObserver) {
         iframe._resizeObserver.disconnect();
     }
-    
+
     const resizeObserver = new ResizeObserver(entries => {
         for (const entry of entries) {
             const height = entry.contentRect.height;
@@ -242,7 +242,7 @@ function showArrowWhenIframeShown(iframe: HTMLElementWithObserver, arrowElement:
             }
         }
     });
-    
+
     iframe._resizeObserver = resizeObserver;
     resizeObserver.observe(iframe);
 }
