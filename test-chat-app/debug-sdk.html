@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skipify SDK Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Skipify SDK Debug</h1>
+        <p>This page will help us debug the Skipify SDK loading and functionality.</p>
+        
+        <div>
+            <h3>Test Controls</h3>
+            <input type="email" id="testEmail" placeholder="test@example.com" value="test@example.com">
+            <button onclick="testSDKLoad()">Test SDK Load</button>
+            <button onclick="testLookup()">Test Lookup</button>
+            <button onclick="testAuth()">Test Authentication</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div>
+            <h3>Debug Log</h3>
+            <div id="debugLog" class="log">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Load Skipify SDK from CDN -->
+    <script src="https://stagecdn.skipify.com/sdk/components-sdk.js"></script>
+
+    <script>
+        let skipifySDK = null;
+        let debugLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            debugLog.push(logEntry);
+            updateLogDisplay();
+            console.log(logEntry);
+        }
+
+        function updateLogDisplay() {
+            const logElement = document.getElementById('debugLog');
+            logElement.textContent = debugLog.join('\n');
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            debugLog = [];
+            updateLogDisplay();
+        }
+
+        // Test SDK loading
+        function testSDKLoad() {
+            log('=== Testing SDK Load ===');
+            
+            // Check if script loaded
+            log('Checking if script loaded...');
+            if (document.querySelector('script[src*="stagecdn.skipify.com"]')) {
+                log('✅ Script tag found in DOM', 'success');
+            } else {
+                log('❌ Script tag not found in DOM', 'error');
+            }
+            
+            // Check window object
+            log('Checking window.skipify...');
+            if (window.skipify) {
+                log('✅ window.skipify exists', 'success');
+                log(`window.skipify type: ${typeof window.skipify}`);
+                log(`window.skipify constructor: ${window.skipify.constructor.name}`);
+                
+                // Try to create instance
+                try {
+                    skipifySDK = new window.skipify({
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage'
+                    });
+                    log('✅ SDK instance created successfully', 'success');
+                    log(`SDK instance type: ${typeof skipifySDK}`);
+                    log(`SDK instance constructor: ${skipifySDK.constructor.name}`);
+                    
+                    // List all properties
+                    const properties = Object.getOwnPropertyNames(skipifySDK);
+                    log(`SDK properties: ${properties.join(', ')}`);
+                    
+                    // List prototype methods
+                    const prototype = Object.getPrototypeOf(skipifySDK);
+                    const prototypeMethods = Object.getOwnPropertyNames(prototype);
+                    log(`SDK prototype methods: ${prototypeMethods.join(', ')}`);
+                    
+                } catch (error) {
+                    log(`❌ Error creating SDK instance: ${error.message}`, 'error');
+                    log(`Error stack: ${error.stack}`, 'error');
+                }
+            } else {
+                log('❌ window.skipify does not exist', 'error');
+                log('Available window properties:', 'info');
+                Object.keys(window).filter(key => key.toLowerCase().includes('skipify')).forEach(key => {
+                    log(`  - ${key}: ${typeof window[key]}`, 'info');
+                });
+            }
+        }
+
+        // Test lookup functionality
+        async function testLookup() {
+            log('=== Testing Lookup ===');
+            
+            if (!skipifySDK) {
+                log('❌ SDK not initialized. Please run "Test SDK Load" first.', 'error');
+                return;
+            }
+            
+            const email = document.getElementById('testEmail').value;
+            log(`Testing lookup with email: ${email}`);
+            
+            try {
+                // Try different method names
+                const methods = ['lookup', 'shopperLookup', 'lookupShopper', 'lookupShopper', 'findShopper'];
+                let result = null;
+                let methodUsed = null;
+                
+                for (const method of methods) {
+                    if (typeof skipifySDK[method] === 'function') {
+                        log(`Trying method: ${method}`);
+                        try {
+                            result = await skipifySDK[method]({
+                                email: email
+                            });
+                            methodUsed = method;
+                            log(`✅ Method ${method} succeeded`, 'success');
+                            break;
+                        } catch (error) {
+                            log(`❌ Method ${method} failed: ${error.message}`, 'error');
+                        }
+                    } else {
+                        log(`Method ${method} not available`);
+                    }
+                }
+                
+                if (result) {
+                    log(`✅ Lookup successful using ${methodUsed}`, 'success');
+                    log(`Result: ${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    log('❌ All lookup methods failed', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Lookup error: ${error.message}`, 'error');
+                log(`Error stack: ${error.stack}`, 'error');
+            }
+        }
+
+        // Test authentication functionality
+        async function testAuth() {
+            log('=== Testing Authentication ===');
+            
+            if (!skipifySDK) {
+                log('❌ SDK not initialized. Please run "Test SDK Load" first.', 'error');
+                return;
+            }
+            
+            const challengeId = '947bba1e-34dc-4e93-b477-adeaf4a88fda'; // Use the known challenge ID
+            log(`Testing authentication with challenge ID: ${challengeId}`);
+            
+            try {
+                // First, let's see what the authentication method expects
+                log('Checking authentication method signature...');
+                const authMethod = skipifySDK.authentication;
+                log(`Authentication method type: ${typeof authMethod}`);
+                log(`Authentication method length: ${authMethod.length}`);
+                
+                // Try different parameter structures based on method expecting 2 parameters
+                const testCases = [
+                    { name: 'Phone destination', params: [{ 
+                        challengeId: challengeId,
+                        destination: 'phone'
+                    }, {
+                        onSuccess: () => log('Success callback called'),
+                        onError: (err) => log(`Error callback called: ${JSON.stringify(err)}`),
+                        onCancel: () => log('Cancel callback called')
+                    }]},
+                    { name: 'Phone destination with phone number', params: [{ 
+                        challengeId: challengeId,
+                        destination: 'phone',
+                        phone: '1234567890'
+                    }, {
+                        onSuccess: () => log('Success callback called'),
+                        onError: (err) => log(`Error callback called: ${JSON.stringify(err)}`),
+                        onCancel: () => log('Cancel callback called')
+                    }]},
+                    { name: 'WebAuthn destination (original)', params: [{ 
+                        challengeId: challengeId,
+                        destination: 'webauthn'
+                    }, {
+                        onSuccess: () => log('Success callback called'),
+                        onError: (err) => log(`Error callback called: ${JSON.stringify(err)}`),
+                        onCancel: () => log('Cancel callback called')
+                    }]},
+                    { name: 'Minimal with just challengeId', params: [{ 
+                        challengeId: challengeId
+                    }, {
+                        onSuccess: () => log('Success callback called'),
+                        onError: (err) => log(`Error callback called: ${JSON.stringify(err)}`),
+                        onCancel: () => log('Cancel callback called')
+                    }]}
+                ];
+                
+                for (const testCase of testCases) {
+                    log(`Trying ${testCase.name}...`);
+                    try {
+                        const result = await skipifySDK.authentication(...testCase.params);
+                        log(`✅ ${testCase.name} succeeded`, 'success');
+                        log(`Result: ${JSON.stringify(result, null, 2)}`, 'success');
+                        return; // Stop on first success
+                    } catch (error) {
+                        log(`❌ ${testCase.name} failed: ${error.message}`, 'error');
+                        if (error.stack) {
+                            log(`Stack: ${error.stack}`, 'error');
+                        }
+                    }
+                }
+                
+                log('❌ All authentication test cases failed', 'error');
+                
+            } catch (error) {
+                log(`❌ Authentication test error: ${error.message}`, 'error');
+                log(`Error stack: ${error.stack}`, 'error');
+            }
+        }
+
+        // Auto-run SDK load test when page loads
+        window.addEventListener('load', function() {
+            log('Page loaded, testing SDK...');
+            setTimeout(testSDKLoad, 1000); // Wait a bit for script to load
+        });
+    </script>
+</body>
+</html> 

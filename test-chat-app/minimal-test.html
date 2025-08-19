@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Skipify SDK Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Minimal Skipify SDK Test</h1>
+        <p>This page tests basic SDK functionality without complex operations.</p>
+        
+        <div class="test-section">
+            <h3>SDK Initialization</h3>
+            <button onclick="testInitialization()">Test SDK Load</button>
+            <div id="initResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>SDK Methods</h3>
+            <button onclick="testMethods()">Test Available Methods</button>
+            <div id="methodsResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Device ID Test</h3>
+            <button onclick="testDeviceId()">Get Device ID</button>
+            <div id="deviceIdResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>No-Iframe Test</h3>
+            <button onclick="testNoIframe()">Test No-Iframe Mode</button>
+            <div id="noIframeResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Headless SDK Test</h3>
+            <button onclick="testHeadlessSDK()">Test Headless Mode</button>
+            <div id="headlessResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Script Loading Test</h3>
+            <button onclick="testScriptLoading()">Test Script Loading</button>
+            <div id="scriptResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Alternative SDK Test</h3>
+            <button onclick="testAlternativeSDK()">Test Alternative SDK Config</button>
+            <div id="alternativeResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>SDK Connectivity Test</h3>
+            <button onclick="testConnectivity()">Test SDK Connectivity</button>
+            <div id="connectivityResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Simple Lookup Test</h3>
+            <input type="email" id="testEmail" placeholder="Enter email for lookup test" style="width: 300px; padding: 8px; margin-right: 10px;">
+            <button onclick="testSimpleLookup()">Test Simple Lookup</button>
+            <div id="lookupResult" class="result"></div>
+        </div>
+    </div>
+
+    <!-- Load Skipify SDK from CDN -->
+    <script src="https://stagecdn.skipify.com/sdk/components-sdk.js"></script>
+
+    <script>
+        let skipifySDK = null;
+
+        // Initialize Skipify SDK when page loads
+        window.addEventListener('load', function() {
+            console.log('Page loaded, checking for Skipify SDK...');
+            console.log('Window.skipify:', window.skipify);
+            console.log('Window object keys:', Object.keys(window));
+            
+            if (window.skipify) {
+                try {
+                    const config = {
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage',
+                        disableIframe: true,
+                        iframe: false,
+                        useIframe: false,
+                        iframeEnabled: false,
+                        mode: 'api',
+                        api: true,
+                        popup: false,
+                        redirect: false,
+                        noIframe: true,
+                        direct: true
+                    };
+                    
+                    console.log('Initializing SDK with config:', config);
+                    skipifySDK = new window.skipify(config);
+                    
+                    console.log('SDK initialized:', skipifySDK);
+                    console.log('SDK constructor name:', skipifySDK.constructor.name);
+                    console.log('SDK prototype methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(skipifySDK)));
+                    console.log('SDK instance properties:', Object.keys(skipifySDK));
+                    
+                    // Check for specific methods
+                    const methodsToCheck = ['start', 'lookup', 'getDeviceId', 'authentication', 'carousel'];
+                    methodsToCheck.forEach(method => {
+                        console.log(`SDK.${method}:`, typeof skipifySDK[method]);
+                    });
+                    
+                    showResult('initResult', '✅ SDK loaded successfully', 'success');
+                    
+                } catch (error) {
+                    console.error('SDK initialization error:', error);
+                    console.error('Error stack:', error.stack);
+                    showResult('initResult', `❌ SDK initialization failed: ${error.message}`, 'error');
+                }
+            } else {
+                console.error('Skipify SDK not found on window object');
+                console.log('Available window properties:', Object.keys(window).filter(key => key.toLowerCase().includes('skipify')));
+                showResult('initResult', '❌ Skipify SDK not found on window object', 'error');
+            }
+        });
+
+        function testInitialization() {
+            if (skipifySDK) {
+                showResult('initResult', '✅ SDK is initialized and ready', 'success');
+            } else {
+                showResult('initResult', '❌ SDK is not initialized', 'error');
+            }
+        }
+
+        function testMethods() {
+            if (!skipifySDK) {
+                showResult('methodsResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(skipifySDK));
+            const properties = Object.keys(skipifySDK);
+            
+            const result = `
+                <strong>Available Methods:</strong><br>
+                ${methods.join(', ')}<br><br>
+                <strong>Instance Properties:</strong><br>
+                ${properties.join(', ')}<br><br>
+                <strong>Key Methods Check:</strong><br>
+                • start(): ${typeof skipifySDK.start === 'function' ? '✅' : '❌'}<br>
+                • lookup(): ${typeof skipifySDK.lookup === 'function' ? '✅' : '❌'}<br>
+                • getDeviceId(): ${typeof skipifySDK.getDeviceId === 'function' ? '✅' : '❌'}<br>
+                • authentication(): ${typeof skipifySDK.authentication === 'function' ? '✅' : '❌'}<br>
+                • carousel(): ${typeof skipifySDK.carousel === 'function' ? '✅' : '❌'}
+            `;
+            
+            showResult('methodsResult', result, 'success');
+        }
+
+        async function testDeviceId() {
+            if (!skipifySDK) {
+                showResult('deviceIdResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            try {
+                showResult('deviceIdResult', '🔄 Getting device ID...', 'success');
+                
+                // Start SDK if needed
+                if (typeof skipifySDK.start === 'function') {
+                    skipifySDK.start();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                const deviceId = await skipifySDK.getDeviceId();
+                showResult('deviceIdResult', `✅ Device ID: ${deviceId}`, 'success');
+                
+            } catch (error) {
+                console.error('Device ID error:', error);
+                showResult('deviceIdResult', `❌ Device ID failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testConnectivity() {
+            if (!skipifySDK) {
+                showResult('connectivityResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            try {
+                showResult('connectivityResult', '🔄 Testing SDK connectivity...', 'success');
+                
+                // Attempt to call a simple method to check if SDK is responsive
+                if (typeof skipifySDK.getDeviceId === 'function') {
+                    await skipifySDK.getDeviceId();
+                    showResult('connectivityResult', '✅ SDK connectivity successful (basic method call)', 'success');
+                } else {
+                    showResult('connectivityResult', '❌ SDK connectivity failed (basic method not available)', 'error');
+                }
+                
+            } catch (error) {
+                console.error('SDK Connectivity Test Error:', error);
+                showResult('connectivityResult', `❌ SDK Connectivity failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testScriptLoading() {
+            try {
+                showResult('scriptResult', '🔄 Testing script loading...', 'success');
+                
+                // Check if the script tag exists
+                const scriptTags = document.querySelectorAll('script[src*="skipify"]');
+                console.log('Skipify script tags found:', scriptTags.length);
+                
+                if (scriptTags.length === 0) {
+                    showResult('scriptResult', '❌ No Skipify script tags found', 'error');
+                    return;
+                }
+                
+                // Check if window.skipify exists
+                if (typeof window.skipify === 'undefined') {
+                    showResult('scriptResult', '❌ window.skipify is undefined - script may not have loaded', 'error');
+                    return;
+                }
+                
+                // Check if window.skipify is a function
+                if (typeof window.skipify !== 'function') {
+                    showResult('scriptResult', `❌ window.skipify is not a function (type: ${typeof window.skipify})`, 'error');
+                    return;
+                }
+                
+                // Try to create a minimal instance
+                try {
+                    const testInstance = new window.skipify({
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage'
+                    });
+                    
+                    showResult('scriptResult', '✅ Script loaded successfully and SDK constructor works', 'success');
+                    
+                } catch (error) {
+                    showResult('scriptResult', `❌ Script loaded but SDK constructor failed: ${error.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Script Loading Test Error:', error);
+                showResult('scriptResult', `❌ Script loading test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testHeadlessSDK() {
+            try {
+                showResult('headlessResult', '🔄 Testing headless SDK mode...', 'success');
+                
+                // Try different headless configurations
+                const headlessConfigs = [
+                    {
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage',
+                        headless: true,
+                        silent: true,
+                        quiet: true
+                    },
+                    {
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage',
+                        mode: 'headless',
+                        headless: true
+                    },
+                    {
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage',
+                        mode: 'silent',
+                        silent: true
+                    }
+                ];
+                
+                for (let i = 0; i < headlessConfigs.length; i++) {
+                    const config = headlessConfigs[i];
+                    console.log(`Trying headless config ${i + 1}:`, config);
+                    
+                    try {
+                        const headlessSDK = new window.skipify(config);
+                        console.log(`Headless config ${i + 1} succeeded:`, headlessSDK);
+                        
+                        // Try to call a method without starting the SDK
+                        if (typeof headlessSDK.getDeviceId === 'function') {
+                            try {
+                                const deviceId = await headlessSDK.getDeviceId();
+                                showResult('headlessResult', `✅ Headless config ${i + 1} works! Device ID: ${deviceId}`, 'success');
+                                return;
+                            } catch (error) {
+                                console.log(`Headless config ${i + 1} getDeviceId failed:`, error.message);
+                            }
+                        }
+                        
+                        // Try to call lookup without starting
+                        if (typeof headlessSDK.lookup === 'function') {
+                            try {
+                                const result = await headlessSDK.lookup({ email: 'test@example.com' });
+                                showResult('headlessResult', `✅ Headless config ${i + 1} lookup works!`, 'success');
+                                return;
+                            } catch (error) {
+                                console.log(`Headless config ${i + 1} lookup failed:`, error.message);
+                            }
+                        }
+                        
+                    } catch (error) {
+                        console.log(`Headless config ${i + 1} failed:`, error.message);
+                    }
+                }
+                
+                showResult('headlessResult', '❌ All headless configurations failed', 'error');
+                
+            } catch (error) {
+                console.error('Headless SDK Test Error:', error);
+                showResult('headlessResult', `❌ Headless SDK test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNoIframe() {
+            try {
+                showResult('noIframeResult', '🔄 Testing no-iframe mode...', 'success');
+                
+                // Try to prevent iframe creation by overriding iframe-related methods
+                const originalCreateElement = document.createElement;
+                let iframeCreated = false;
+                
+                // Override createElement to prevent iframe creation
+                document.createElement = function(tagName) {
+                    if (tagName.toLowerCase() === 'iframe') {
+                        console.log('Preventing iframe creation');
+                        iframeCreated = true;
+                        // Return a dummy iframe that won't cause postMessage issues
+                        const dummyIframe = originalCreateElement.call(document, 'div');
+                        dummyIframe.style.display = 'none';
+                        dummyIframe.contentWindow = {
+                            postMessage: function() {
+                                console.log('Dummy iframe postMessage called');
+                            }
+                        };
+                        return dummyIframe;
+                    }
+                    return originalCreateElement.call(document, tagName);
+                };
+                
+                // Try to create SDK with no-iframe configuration
+                const noIframeConfig = {
+                    merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                    environment: 'stage',
+                    disableIframe: true,
+                    iframe: false,
+                    useIframe: false,
+                    iframeEnabled: false,
+                    noIframe: true,
+                    mode: 'api'
+                };
+                
+                console.log('Creating SDK with no-iframe config:', noIframeConfig);
+                const noIframeSDK = new window.skipify(noIframeConfig);
+                console.log('No-iframe SDK created:', noIframeSDK);
+                
+                // Try to call a method
+                if (typeof noIframeSDK.getDeviceId === 'function') {
+                    try {
+                        const deviceId = await noIframeSDK.getDeviceId();
+                        showResult('noIframeResult', `✅ No-iframe mode works! Device ID: ${deviceId}`, 'success');
+                    } catch (error) {
+                        showResult('noIframeResult', `❌ No-iframe getDeviceId failed: ${error.message}`, 'error');
+                    }
+                } else {
+                    showResult('noIframeResult', '❌ No-iframe SDK created but getDeviceId not available', 'error');
+                }
+                
+                // Restore original createElement
+                document.createElement = originalCreateElement;
+                
+            } catch (error) {
+                console.error('No-Iframe Test Error:', error);
+                showResult('noIframeResult', `❌ No-iframe test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAlternativeSDK() {
+            try {
+                showResult('alternativeResult', '🔄 Testing alternative SDK configuration...', 'success');
+                
+                // Try different configuration options
+                const alternativeConfigs = [
+                    {
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage',
+                        mode: 'api'
+                    },
+                    {
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage',
+                        mode: 'direct'
+                    },
+                    {
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                        environment: 'stage',
+                        iframe: false,
+                        popup: false,
+                        redirect: true
+                    }
+                ];
+                
+                for (let i = 0; i < alternativeConfigs.length; i++) {
+                    const config = alternativeConfigs[i];
+                    console.log(`Trying alternative config ${i + 1}:`, config);
+                    
+                    try {
+                        const altSDK = new window.skipify(config);
+                        console.log(`Alternative config ${i + 1} succeeded:`, altSDK);
+                        
+                        // Try a simple operation
+                        if (typeof altSDK.getDeviceId === 'function') {
+                            const deviceId = await altSDK.getDeviceId();
+                            showResult('alternativeResult', `✅ Alternative config ${i + 1} works! Device ID: ${deviceId}`, 'success');
+                            return;
+                        }
+                    } catch (error) {
+                        console.log(`Alternative config ${i + 1} failed:`, error.message);
+                    }
+                }
+                
+                showResult('alternativeResult', '❌ All alternative configurations failed', 'error');
+                
+            } catch (error) {
+                console.error('Alternative SDK Test Error:', error);
+                showResult('alternativeResult', `❌ Alternative SDK test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSimpleLookup() {
+            if (!skipifySDK) {
+                showResult('lookupResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            const email = document.getElementById('testEmail').value;
+            if (!email) {
+                showResult('lookupResult', '❌ Please enter an email address', 'error');
+                return;
+            }
+
+            try {
+                showResult('lookupResult', '🔄 Performing simple lookup...', 'success');
+                
+                console.log('Starting lookup process...');
+                console.log('SDK state before lookup:', skipifySDK);
+                
+                // Start SDK if needed
+                if (typeof skipifySDK.start === 'function') {
+                    console.log('Calling SDK.start()...');
+                    skipifySDK.start();
+                    console.log('SDK.start() completed');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } else {
+                    console.log('SDK.start() method not available');
+                }
+                
+                console.log('Calling SDK.lookup() with email:', email);
+                const result = await skipifySDK.lookup({ email: email });
+                console.log('Lookup completed successfully:', result);
+                showResult('lookupResult', `✅ Lookup successful: ${JSON.stringify(result, null, 2)}`, 'success');
+                
+            } catch (error) {
+                console.error('Lookup error:', error);
+                console.error('Error type:', typeof error);
+                console.error('Error constructor:', error.constructor.name);
+                console.error('Error message:', error.message);
+                console.error('Error stack:', error.stack);
+                
+                if (error.error) {
+                    console.error('Nested error:', error.error);
+                }
+                
+                let errorMessage = error.message || 'Unknown error occurred';
+                if (error.error && error.error.message) {
+                    errorMessage = error.error.message;
+                }
+                
+                showResult('lookupResult', `❌ Lookup failed: ${errorMessage}`, 'error');
+            }
+        }
+
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `result ${type}`;
+        }
+    </script>
+</body>
+</html> 

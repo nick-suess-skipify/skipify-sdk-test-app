@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Skipify SDK Working Playground Replica</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: auto;
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .test-section {
+                margin: 20px 0;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            button {
+                padding: 10px 20px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                margin: 5px;
+            }
+            button:hover {
+                background: #0056b3;
+            }
+            .result {
+                margin: 10px 0;
+                padding: 10px;
+                border-radius: 5px;
+                background: #f8f9fa;
+                border: 1px solid #ddd;
+            }
+            .error {
+                background: #f8d7da;
+                border-color: #f5c6cb;
+                color: #721c24;
+            }
+            .success {
+                background: #d4edda;
+                border-color: #c3e6cb;
+                color: #155724;
+            }
+            input {
+                width: 300px;
+                padding: 8px;
+                margin: 5px;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+            }
+        </style>
+        <script type="text/javascript">
+            // Load the SDK using a regular script tag to avoid CORS issues
+            const sdkScript = document.createElement('script');
+            sdkScript.src = `https://stagecdn.skipify.com/sdk/components-sdk.js?date=${new Date().getTime()}`;
+            sdkScript.onload = function() {
+                console.log('SDK script loaded successfully');
+            };
+            sdkScript.onerror = function() {
+                console.error('Failed to load SDK script');
+            };
+            document.head.appendChild(sdkScript);
+        </script>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>🚀 Skipify SDK Working Playground Replica</h1>
+            <p>This page replicates the exact configuration from the working Skipify playground.</p>
+            
+            <div class="test-section">
+                <h3>SDK Initialization Test</h3>
+                <button onclick="testInitialization()">Test SDK Load</button>
+                <div id="initResult" class="result"></div>
+            </div>
+            
+            <div class="test-section">
+                <h3>SDK Methods Test</h3>
+                <button onclick="testMethods()">Test Available Methods</button>
+                <div id="methodsResult" class="result"></div>
+            </div>
+            
+            <div class="test-section">
+                <h3>Device ID Test</h3>
+                <button onclick="testDeviceId()">Get Device ID</button>
+                <div id="deviceIdResult" class="result"></div>
+            </div>
+            
+            <div class="test-section">
+                <h3>Simple Lookup Test</h3>
+                <input type="email" id="testEmail" placeholder="Enter email for lookup test">
+                <button onclick="testSimpleLookup()">Test Simple Lookup</button>
+                <div id="lookupResult" class="result"></div>
+            </div>
+            
+            <div class="test-section">
+                <h3>Authentication Test</h3>
+                <input type="email" id="authEmail" placeholder="Email for authentication">
+                <input type="tel" id="authPhone" placeholder="Phone for authentication">
+                <button onclick="testAuthentication()">Test Authentication</button>
+                <div id="authResult" class="result"></div>
+            </div>
+        </div>
+    </body>
+    
+    <script type="text/javascript">
+        let skipifySDK = null;
+
+        // Wait for the SDK to load (replicating the working playground approach)
+        function waitForSDK() {
+            return new Promise((resolve, reject) => {
+                const checkSDK = () => {
+                    if (window.skipify) {
+                        console.log('SDK loaded successfully');
+                        resolve(window.skipify);
+                    } else {
+                        console.log('SDK not yet loaded, checking again...');
+                        setTimeout(checkSDK, 100);
+                    }
+                };
+                checkSDK();
+                
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    reject(new Error('SDK failed to load within 10 seconds'));
+                }, 10000);
+            });
+        }
+
+        // Initialize SDK when page loads (replicating the working playground)
+        window.addEventListener('load', async function() {
+            console.log('Page loaded, waiting for SDK...');
+            
+            try {
+                const Skipify = await waitForSDK();
+                console.log('SDK constructor available:', Skipify);
+                
+                // Use the exact same configuration as the working playground
+                const config = {
+                    merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                    environment: 'stage'
+                };
+                
+                console.log('Initializing SDK with config:', config);
+                skipifySDK = new Skipify(config);
+                
+                console.log('SDK initialized:', skipifySDK);
+                showResult('initResult', '✅ SDK loaded and initialized successfully', 'success');
+                
+            } catch (error) {
+                console.error('SDK initialization error:', error);
+                showResult('initResult', `❌ SDK initialization failed: ${error.message}`, 'error');
+            }
+        });
+
+        function testInitialization() {
+            if (skipifySDK) {
+                showResult('initResult', '✅ SDK is initialized and ready', 'success');
+            } else {
+                showResult('initResult', '❌ SDK is not initialized', 'error');
+            }
+        }
+
+        function testMethods() {
+            if (!skipifySDK) {
+                showResult('methodsResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(skipifySDK));
+            const properties = Object.keys(skipifySDK);
+            
+            const result = `
+                <strong>Available Methods:</strong><br>
+                ${methods.join(', ')}<br><br>
+                <strong>Instance Properties:</strong><br>
+                ${properties.join(', ')}<br><br>
+                <strong>Key Methods Check:</strong><br>
+                • start(): ${typeof skipifySDK.start === 'function' ? '✅' : '❌'}<br>
+                • lookup(): ${typeof skipifySDK.lookup === 'function' ? '✅' : '❌'}<br>
+                • getDeviceId(): ${typeof skipifySDK.getDeviceId === 'function' ? '✅' : '❌'}<br>
+                • authentication(): ${typeof skipifySDK.authentication === 'function' ? '✅' : '❌'}<br>
+                • carousel(): ${typeof skipifySDK.carousel === 'function' ? '✅' : '❌'}
+            `;
+            
+            showResult('methodsResult', result, 'success');
+        }
+
+        async function testDeviceId() {
+            if (!skipifySDK) {
+                showResult('deviceIdResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            try {
+                showResult('deviceIdResult', '🔄 Getting device ID...', 'success');
+                
+                // Start SDK if needed (replicating the working playground approach)
+                if (typeof skipifySDK.start === 'function') {
+                    skipifySDK.start();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                const deviceId = await skipifySDK.getDeviceId();
+                showResult('deviceIdResult', `✅ Device ID: ${deviceId}`, 'success');
+                
+            } catch (error) {
+                console.error('Device ID error:', error);
+                showResult('deviceIdResult', `❌ Device ID failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSimpleLookup() {
+            if (!skipifySDK) {
+                showResult('lookupResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            const email = document.getElementById('testEmail').value;
+            if (!email) {
+                showResult('lookupResult', '❌ Please enter an email address', 'error');
+                return;
+            }
+
+            try {
+                showResult('lookupResult', '🔄 Performing simple lookup...', 'success');
+                
+                // Start SDK if needed (replicating the working playground approach)
+                if (typeof skipifySDK.start === 'function') {
+                    skipifySDK.start();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                const result = await skipifySDK.lookup({ email: email });
+                showResult('lookupResult', `✅ Lookup successful: ${JSON.stringify(result, null, 2)}`, 'success');
+                
+            } catch (error) {
+                console.error('Lookup error:', error);
+                showResult('lookupResult', `❌ Lookup failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAuthentication() {
+            if (!skipifySDK) {
+                showResult('authResult', '❌ SDK not initialized', 'error');
+                return;
+            }
+
+            const email = document.getElementById('authEmail').value;
+            const phone = document.getElementById('authPhone').value;
+            
+            if (!email || !phone) {
+                showResult('authResult', '❌ Please enter both email and phone', 'error');
+                return;
+            }
+
+            try {
+                showResult('authResult', '🔄 Performing authentication...', 'success');
+                
+                // Start SDK if needed (replicating the working playground approach)
+                if (typeof skipifySDK.start === 'function') {
+                    skipifySDK.start();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                // First do a lookup
+                const lookupResult = await skipifySDK.lookup({ email: email, phone: phone });
+                console.log('Lookup result:', lookupResult);
+                
+                // Then do authentication
+                const authResult = await skipifySDK.authentication(lookupResult, {
+                    onSuccess: (data) => {
+                        console.log('Authentication success:', data);
+                        showResult('authResult', `✅ Authentication successful: ${JSON.stringify(data, null, 2)}`, 'success');
+                    },
+                    onError: (error) => {
+                        console.error('Authentication error:', error);
+                        showResult('authResult', `❌ Authentication failed: ${error.message}`, 'error');
+                    },
+                    onCancel: () => {
+                        console.log('Authentication cancelled');
+                        showResult('authResult', '⚠️ Authentication was cancelled', 'error');
+                    }
+                });
+                
+                console.log('Authentication result:', authResult);
+                
+            } catch (error) {
+                console.error('Authentication error:', error);
+                showResult('authResult', `❌ Authentication failed: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `result ${type}`;
+        }
+    </script>
+</html> 

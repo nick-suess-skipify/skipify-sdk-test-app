@@ -1,131 +1,326 @@
-# Skipify Checkout SDK
+# Skipify Checkout SDK - MCP Server & Test Chat Application
 
-![skipify-logo](https://user-images.githubusercontent.com/5350362/204699214-f9b54d89-0328-4475-a83f-06dd469813fd.svg)
+This project provides a complete testing and deployment solution for the Skipify Checkout SDK with embedded components, including a Model Context Protocol (MCP) server and a modern React-based test chat application.
 
-Checkout script generation, used for enabling Skipify checkout in a merchant store
+## 🚀 Quick Start
 
-## Tooling
+### Prerequisites
 
-- NX
-- Vite
-- Rollup
-- ESBuild
+- Node.js 18+ 
+- npm or yarn
+- Skipify merchant ID (provided: `ca4d3697-4579-4dda-9c89-ee63ae5a7b41`)
 
-## Features
+### Automated Setup
 
-- Static file generation
-- Shared features across platforms
-- Platform-specific features
+Run the setup script to install all dependencies and build both applications:
 
-## Usage
-
-The project contains the following scripts:
-
-- `nx run [platform]:build:[environment]` - generates the bundles, platform can be bigcommerce | custom, environment can be dev | stage | prod
-
-Bundles get generated inside the dist folder
-
-## Developing
-
-```
-// Start development server
-`nx run bigcommerce:build:dev --watch`
+```bash
+./setup.sh
 ```
 
-Inside another terminal:
+### Manual Setup
+
+If you prefer to set up manually:
+
+1. **Setup MCP Server:**
+   ```bash
+   cd mcp-server
+   npm install
+   npm run build
+   cp env.example .env
+   ```
+
+2. **Setup Test Chat App:**
+   ```bash
+   cd test-chat-app
+   npm install
+   ```
+
+3. **Start the applications:**
+   ```bash
+   # Terminal 1 - Start MCP Server
+   cd mcp-server
+   npm start
+   
+   # Terminal 2 - Start Test Chat App
+   cd test-chat-app
+   npm run dev
+   ```
+
+## 📁 Project Structure
 
 ```
-// Start development server
-npm run host
+├── mcp-server/                 # MCP Server implementation
+│   ├── src/
+│   │   ├── index.ts           # Main MCP server
+│   │   ├── types.ts           # TypeScript types
+│   │   ├── skipify-client.ts  # Skipify SDK client
+│   │   └── chat-service.ts    # Chat functionality
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── README.md
+├── test-chat-app/             # React test chat application
+│   ├── src/
+│   │   ├── App.tsx           # Main React component
+│   │   ├── main.tsx          # React entry point
+│   │   └── index.css         # Styles
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── index.html
+├── setup.sh                   # Automated setup script
+└── README.md                  # This file
 ```
 
-Your scripts should be now live on http://localhost:4200/
+## 🌐 Application URLs
 
-BigCommerce
-Add hosted script to the store by pasting the following code snippet
-Remember to replace merchantId in the query
+Once running, access the applications at:
 
+- **MCP Server Home**: http://localhost:3000
+- **MCP Server Test Page**: http://localhost:3000/test
+- **Test Chat App**: http://localhost:3001
+- **Chat Interface**: http://localhost:3000/chat/[session-id]
+
+## 🔧 MCP Server Features
+
+### MCP Tools Available
+
+1. **`deploy_skipify_sdk`** - Deploy Skipify SDK for testing
+2. **`test_skipify_sdk`** - Test SDK functionality
+3. **`create_chat_session`** - Create new chat session
+4. **`send_chat_message`** - Send messages with Skipify operations
+5. **`get_chat_sessions`** - List active sessions
+6. **`get_chat_stats`** - Get service statistics
+
+### API Endpoints
+
+#### Chat API
+- `POST /api/chat/sessions` - Create chat session
+- `POST /api/chat/messages` - Send message
+- `GET /api/chat/sessions` - List sessions
+- `GET /api/chat/stats` - Get statistics
+
+#### Skipify API
+- `POST /api/skipify/lookup` - Shopper lookup
+- `POST /api/skipify/auth` - Authentication
+- `POST /api/skipify/carousel` - Payment carousel
+- `GET /api/skipify/device-id` - Device ID
+
+## 💬 Test Chat Application
+
+The React-based test chat application provides:
+
+- **Interactive Chat Interface** - Real-time messaging with Skipify operations
+- **SDK Controls** - Direct testing of Skipify SDK functions
+- **Result Display** - Real-time display of API responses
+- **Session Management** - Create and manage chat sessions
+
+### Features
+
+- Modern React 18 with TypeScript
+- Real-time chat with Skipify integration
+- Direct SDK operation testing
+- Beautiful, responsive UI
+- Error handling and loading states
+
+## 🎯 Skipify SDK Integration
+
+### Supported Operations
+
+1. **Shopper Lookup**
+   ```javascript
+   // Look up shopper by email or phone
+   POST /api/skipify/lookup
+   {
+     "email": "test@example.com",
+     "phone": "+1234567890"
+   }
+   ```
+
+2. **Authentication**
+   ```javascript
+   // Authenticate shopper with challenge ID
+   POST /api/skipify/auth
+   {
+     "challengeId": "challenge-123",
+     "phone": "+1234567890"
+   }
+   ```
+
+3. **Payment Carousel**
+   ```javascript
+   // Show payment methods for amount
+   POST /api/skipify/carousel
+   {
+     "amount": 1000, // $10.00 in cents
+     "phone": "+1234567890"
+   }
+   ```
+
+4. **Device ID**
+   ```javascript
+   // Get device identification
+   GET /api/skipify/device-id
+   ```
+
+### Staging Environment
+
+The server is configured for Skipify staging environment:
+
+- **Base URL**: `https://checkout.staging.skipify.com`
+- **Components URL**: `https://checkout.staging.skipify.com/components/{merchantId}`
+- **SDK URL**: `https://stagecdn.skipify.com/sdk`
+
+## 🛠️ Development
+
+### Environment Variables
+
+Create a `.env` file in the `mcp-server` directory:
+
+```env
+# Server Configuration
+PORT=3000
+ENABLE_CORS=true
+
+# Skipify Configuration
+SKIPIFY_MERCHANT_ID=ca4d3697-4579-4dda-9c89-ee63ae5a7b41
+SKIPIFY_ENVIRONMENT=stage
 ```
-var script = document.createElement("script");
-script.src = `http://localhost:4200/bigcommerce/bigcommerce.js?merchantId=ca4d3697-4579-4dda-9c89-ee63ae5a7b41&date=${new Date().getTime()}`;
-document.head.appendChild(script);
+
+### Development Commands
+
+#### MCP Server
+```bash
+cd mcp-server
+npm run dev      # Development mode with hot reload
+npm run build    # Build for production
+npm start        # Start production server
 ```
 
-Available apps:
-
-```
-nx run bigcommerce:build:dev
-nx run shopify:build:dev
-nx run custom:build:dev
-nx run shared:build:dev
-nx run embedded-components:build:dev
-nx run magento:build:dev
+#### Test Chat App
+```bash
+cd test-chat-app
+npm run dev      # Development server
+npm run build    # Build for production
+npm run preview  # Preview production build
 ```
 
-Running all apps:
+## 🧪 Testing
 
-```
-npm run all:build:dev
-```
+### Manual Testing
 
-## Custom SDK x Platform SDKs
+1. **Start both applications** (see Quick Start)
+2. **Visit the test page**: http://localhost:3000/test
+3. **Use the chat interface**: http://localhost:3001
+4. **Test Skipify operations** through the UI controls
 
-#### Platform-Related SDK (e.g., Shopify):
+### MCP Tool Testing
 
-- This SDK listens to DOM changes and automatically initializes itself in the appropriate elements.
+Use any MCP-compatible client to test the tools:
 
-#### Custom SDK
-
-- This SDK requires merchants to manually initialize it and control the experience
-
-#### Embedded Components SDK
-
-- This SDK is used for embedded components.
-
-## Custom SDK
-
-After building and hosting the custom SDK, you can test the flow on the test page available at
-http://localhost:4200/shared/components/playground.html
-
-Usage example:
-
-```
-// Initialize client
-const skipifyClient = new window.skipify({
-    merchantId,
-})
-
-// Optional options
-const options = { onClose, onApprove }
-
-// Render Skipify button
-skipifyClient.button("my-ref-test", options).render(buttonRef.current)
-
-// Enable input listener
-skipifyClient.email("my-email-ref-test").enable(inputRef.current)
-
+```json
+{
+  "name": "create_chat_session",
+  "arguments": {
+    "merchantId": "ca4d3697-4579-4dda-9c89-ee63ae5a7b41",
+    "initialMessage": "Hello! I want to test the Skipify SDK"
+  }
+}
 ```
 
-## Embedded Components SDK
+### API Testing
 
-After building and hosting the embedded components SDK, you can test the flow on the test page available at
+Test the REST API endpoints directly:
 
-http://localhost:4200/shared/components/embedded_components_playground.html
+```bash
+# Create a chat session
+curl -X POST http://localhost:3000/api/chat/sessions \
+  -H "Content-Type: application/json" \
+  -d '{"merchantId": "ca4d3697-4579-4dda-9c89-ee63ae5a7b41"}'
 
-## Integrations
-
-#### BigCommerce
-
-- [App setup guide](https://skipify.atlassian.net/wiki/x/AYDoVQ)
-- [Official documentation](https://docs.skipify.com/docs/bigcommerce)
-- [App installation doc](https://docs.google.com/document/d/1AWvVn6g5RNtpPrdQG7uIuzCIP_kHV64LzWRqymqXuis/edit?usp=sharing)
-
-## Apps and libs dependencies graph
-
-```
-nx graph
+# Test shopper lookup
+curl -X POST http://localhost:3000/api/skipify/lookup \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com"}'
 ```
 
-## Deployments, Releases, & Rollbacks
+## 🔍 Troubleshooting
 
-- Please see confluence page on [Deployments, Releases, & Rollbacks](https://skipify.atlassian.net/wiki/spaces/PE/pages/1727496537/Deployments+Releases+Rollbacks)
+### Common Issues
+
+1. **Port already in use**
+   - Change `PORT` in `.env` file
+   - Kill existing processes: `lsof -ti:3000 | xargs kill`
+
+2. **CORS errors**
+   - Ensure `ENABLE_CORS=true` in environment
+   - Check browser console for specific errors
+
+3. **Skipify API errors**
+   - Verify merchant ID is correct
+   - Check network connectivity
+   - Ensure staging environment is accessible
+
+4. **MCP connection issues**
+   - Verify MCP client configuration
+   - Check server logs for errors
+   - Ensure proper transport setup
+
+### Logs
+
+Both applications provide detailed logging:
+
+- **MCP Server**: Console output with request/response logs
+- **Test Chat App**: Browser console and network tab
+- **Skipify API**: Detailed error messages in responses
+
+## 📚 Documentation
+
+- [MCP Server README](mcp-server/README.md) - Detailed MCP server documentation
+- [Skipify SDK Documentation](https://docs.skipify.com) - Official Skipify documentation
+- [Model Context Protocol](https://modelcontextprotocol.io) - MCP specification
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+## 🆘 Support
+
+For issues related to:
+- **Skipify SDK**: Contact Skipify support
+- **MCP Server**: Open an issue in this repository
+- **Test Chat App**: Open an issue in this repository
+- **General questions**: Check the documentation or create a discussion
+
+## 🎉 Getting Started Examples
+
+### Example 1: Quick SDK Test
+
+1. Start the MCP server: `cd mcp-server && npm start`
+2. Visit: http://localhost:3000/test
+3. Enter test data and click "Test Lookup"
+4. View results in real-time
+
+### Example 2: Interactive Chat
+
+1. Start both applications
+2. Visit: http://localhost:3001
+3. Create a chat session
+4. Send messages like "lookup shopper with email test@example.com"
+5. Watch the AI respond with Skipify operations
+
+### Example 3: MCP Tool Usage
+
+1. Connect an MCP client to the server
+2. Use the `deploy_skipify_sdk` tool
+3. Use the `create_chat_session` tool
+4. Send messages with Skipify operations
+
+This project provides a complete ecosystem for testing and deploying the Skipify Checkout SDK with modern tooling and interactive interfaces.
