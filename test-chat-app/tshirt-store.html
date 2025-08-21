@@ -822,6 +822,12 @@
 
         // Show Payment Confirmation with "Pay Now" Button
         function showPaymentConfirmation(cardDetails, amount) {
+            // ✅ FIXED: Remove any existing payment confirmation dialog first
+            const existingConfirmation = document.getElementById('payment-confirmation-container');
+            if (existingConfirmation) {
+                existingConfirmation.remove();
+            }
+            
             // Create payment confirmation container
             const confirmationContainer = document.createElement('div');
             confirmationContainer.id = 'payment-confirmation-container';
@@ -890,8 +896,12 @@
                 cancelPaymentConfirmation();
             });
             
-            // Show success message in chat
-            addMessage('assistant', `🎯 **Payment method selected!**
+            // Show success message in chat (with detection for method changes)
+            const isMethodChange = existingConfirmation !== null;
+            const actionText = isMethodChange ? "Payment method updated!" : "Payment method selected!";
+            const emojiPrefix = isMethodChange ? "🔄" : "🎯";
+            
+            addMessage('assistant', `${emojiPrefix} **${actionText}**
 
 💳 **Selected:** ${cardDetails.cardType} ending in ${cardDetails.cardEnding}
 💰 **Amount:** $${amount.toFixed(2)}
