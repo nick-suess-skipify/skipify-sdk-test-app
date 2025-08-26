@@ -1,7 +1,7 @@
 name: skipify-tshirt-store-demo
 services:
 - name: backend
-  source_dir: /mcp-server
+  source_dir: /simple-backend
   github:
     repo: nick-suess-skipify/skipify-sdk-test-app
     branch: main
@@ -20,7 +20,7 @@ services:
     value: "true"
   - key: NODE_ENV
     value: "production"
-  build_command: npm install && npm run build
+  build_command: npm install
 
 - name: frontend
   source_dir: /test-chat-app
