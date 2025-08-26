@@ -486,7 +486,29 @@
         }
 
         .component-containers {
-            display: none; /* Hidden but available for Skipify rendering */
+            margin-top: 15px;
+        }
+
+        .skipify-component-container {
+            background: #ffffff;
+            border: 2px solid #e3f2fd;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 200px;
+            display: none; /* Hidden by default, shown when needed */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .skipify-component-container.active {
+            display: block;
+        }
+
+        .skipify-component-container iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            min-height: 300px;
         }
 
         /* Legacy Skipify Components (kept for compatibility) */
@@ -646,9 +668,9 @@
 
                         <!-- Component containers for proper Skipify rendering -->
                         <div class="component-containers">
-                            <div id="skipify-auth-container" style="display: none;"></div>
-                            <div id="auth-container-placeholder" style="display: none;"></div>
-                            <div id="carousel-container-placeholder" style="display: none;"></div>
+                            <div id="skipify-auth-container" class="skipify-component-container"></div>
+                            <div id="auth-container-placeholder" class="skipify-component-container"></div>
+                            <div id="carousel-container-placeholder" class="skipify-component-container"></div>
                         </div>
                     </div>
                 </div>
@@ -1394,9 +1416,10 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 // Use integrated authentication container
                 const authContainer = document.getElementById('skipify-auth-container');
                 if (authContainer) {
-                    authContainer.style.display = 'block';
-                    authContainer.innerHTML = '<h4>🔐 Authentication Required</h4><div id="ecommerce-auth-content"></div>';
+                    authContainer.classList.add('active');
+                    authContainer.innerHTML = '<h4 style="margin-bottom: 15px; color: #2c3e50;">🔐 Authentication Required</h4><div id="ecommerce-auth-content" style="min-height: 200px;"></div>';
                     addMessage('system', '📱 Authentication will appear in the integrated assistant section');
+                    console.log('📱 E-commerce authentication container prepared:', authContainer);
                 }
                 
                 // ✅ FIXED: Use proper authentication with callbacks (no await - it's interactive)
@@ -1513,9 +1536,10 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 // Use integrated carousel container
                 const carouselContainer = document.getElementById('carousel-container-placeholder');
                 if (carouselContainer) {
-                    carouselContainer.style.display = 'block';
-                    carouselContainer.innerHTML = '<h4>💳 Select Payment Method</h4><div id="ecommerce-carousel-content"></div>';
+                    carouselContainer.classList.add('active');
+                    carouselContainer.innerHTML = '<h4 style="margin-bottom: 15px; color: #2c3e50;">💳 Select Payment Method</h4><div id="ecommerce-carousel-content" style="min-height: 250px;"></div>';
                     addMessage('system', '💳 Payment carousel will appear in the integrated assistant section');
+                    console.log('💳 E-commerce carousel container prepared:', carouselContainer);
                 }
 
                 // ✅ ENHANCED: Show confirmation step before payment
@@ -1742,22 +1766,46 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 // Show auth container (now integrated in chat)
                 const container = document.getElementById('skipify-auth-container');
                 if (container) {
-                    container.style.display = 'block';
-                    addMessage('system', '📱 Authentication component will render in the chat interface');
+                    container.classList.add('active');
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">🔄 Loading authentication component...</div>';
+                    addMessage('system', '📱 Authentication component loading in the integrated interface...');
+                    console.log('📱 Authentication container prepared:', container);
                 }
                 
-                // Render the authentication component if result has render function
-                if (result && typeof result.render === 'function') {
-                    console.log('🎨 Calling render function to display authentication component in chat');
-                    
-                    try {
-                        result.render(container);
-                        console.log('✅ Authentication component rendered successfully in integrated chat');
-                    } catch (renderError) {
-                        console.error('Error rendering auth component:', renderError);
-                        addMessage('assistant', `❌ **Error displaying authentication component:** ${renderError.message}`);
+                // Add delay to ensure container is ready
+                setTimeout(() => {
+                    // Render the authentication component if result has render function
+                    if (result && typeof result.render === 'function') {
+                        console.log('🎨 Calling render function to display authentication component in chat');
+                        
+                        try {
+                            result.render(container);
+                            console.log('✅ Authentication component rendered successfully in integrated chat');
+                            addMessage('system', '✅ Authentication component loaded successfully');
+                        } catch (renderError) {
+                            console.error('Error rendering auth component:', renderError);
+                            addMessage('assistant', `❌ **Error displaying authentication component:** ${renderError.message}`);
+                            
+                            // Show fallback message
+                            if (container) {
+                                container.innerHTML = `
+                                    <div style="text-align: center; padding: 20px;">
+                                        <div style="color: #f44336; font-size: 18px; margin-bottom: 10px;">❌ Authentication Component Error</div>
+                                        <div style="color: #666; font-size: 14px;">${renderError.message}</div>
+                                        <div style="margin-top: 15px;">
+                                            <button onclick="retrySDKInitialization()" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                                                🔧 Retry Authentication
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    } else {
+                        console.warn('⚠️ Authentication result does not have render function:', result);
+                        addMessage('assistant', '⚠️ **Authentication component not available.** Please try refreshing the page.');
                     }
-                }
+                }, 500);
 
             } catch (error) {
                 console.error('SDK authentication error:', error);
@@ -1770,8 +1818,13 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             try {
                 console.log('🔐 Starting embedded authentication in chat...');
                 
-                // Clear loading message
-                container.innerHTML = '';
+                // Use the actual skipify auth container instead
+                const authContainer = document.getElementById('skipify-auth-container');
+                if (authContainer) {
+                    authContainer.classList.add('active');
+                    authContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">🔄 Loading authentication...</div>';
+                    console.log('📱 Using skipify-auth-container for embedded auth:', authContainer);
+                }
                 
                 const authParams = { ...lookupResult };
                 
@@ -1782,17 +1835,19 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                         window.authenticationResult = data;
                         
                         // Update container with success message
-                        container.innerHTML = `
-                            <div style="text-align: center; padding: 20px;">
-                                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
-                                <div style="font-size: 18px; font-weight: bold; color: #4caf50; margin-bottom: 10px;">
-                                    Authentication Successful!
+                        if (authContainer) {
+                            authContainer.innerHTML = `
+                                <div style="text-align: center; padding: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                                    <div style="font-size: 18px; font-weight: bold; color: #4caf50; margin-bottom: 10px;">
+                                        Authentication Successful!
+                                    </div>
+                                    <div style="color: #666; font-size: 14px;">
+                                        You can now proceed with payment selection
+                                    </div>
                                 </div>
-                                <div style="color: #666; font-size: 14px;">
-                                    You can now proceed with payment selection
-                                </div>
-                            </div>
-                        `;
+                            `;
+                        }
                         
                         // Add follow-up message about carousel
                         setTimeout(() => {
@@ -1804,59 +1859,65 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     },
                     onError: (error) => {
                         console.error('❌ Embedded authentication error:', error);
-                        container.innerHTML = `
-                            <div style="text-align: center; padding: 20px;">
-                                <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
-                                <div style="font-size: 18px; font-weight: bold; color: #f44336; margin-bottom: 10px;">
-                                    Authentication Failed
+                        if (authContainer) {
+                            authContainer.innerHTML = `
+                                <div style="text-align: center; padding: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                                    <div style="font-size: 18px; font-weight: bold; color: #f44336; margin-bottom: 10px;">
+                                        Authentication Failed
+                                    </div>
+                                    <div style="color: #666; font-size: 14px;">
+                                        ${error.message || 'Please try again'}
+                                    </div>
                                 </div>
-                                <div style="color: #666; font-size: 14px;">
-                                    ${error.message || 'Please try again'}
-                                </div>
-                            </div>
-                        `;
+                            `;
+                        }
                         
                         addMessage('assistant', `❌ **Authentication failed:** ${error.message || error}\n\n💡 Please try again or check your credentials.`);
                     },
                     onCancel: () => {
                         console.log('⚠️ Embedded authentication cancelled');
-                        container.innerHTML = `
-                            <div style="text-align: center; padding: 20px;">
-                                <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
-                                <div style="font-size: 18px; font-weight: bold; color: #ff9800; margin-bottom: 10px;">
-                                    Authentication Cancelled
+                        if (authContainer) {
+                            authContainer.innerHTML = `
+                                <div style="text-align: center; padding: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+                                    <div style="font-size: 18px; font-weight: bold; color: #ff9800; margin-bottom: 10px;">
+                                        Authentication Cancelled
+                                    </div>
+                                    <div style="color: #666; font-size: 14px;">
+                                        You can try again anytime
+                                    </div>
                                 </div>
-                                <div style="color: #666; font-size: 14px;">
-                                    You can try again anytime
-                                </div>
-                            </div>
-                        `;
+                            `;
+                        }
                         
                         addMessage('assistant', '⚠️ **Authentication cancelled.** Let me know when you\'re ready to try again!');
                     }
                 });
 
-                // Render the authentication component in the chat container
+                // Render the authentication component in the auth container
                 if (result && typeof result.render === 'function') {
                     console.log('🎨 Rendering embedded authentication component');
-                    result.render(container);
+                    result.render(authContainer);
                 } else {
                     console.log('🔄 Authentication started, waiting for callbacks...');
                 }
 
             } catch (error) {
                 console.error('❌ Failed to start embedded authentication:', error);
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #f44336;">
-                        <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
-                        <div style="font-size: 16px; font-weight: bold;">
-                            Failed to start authentication
+                if (authContainer) {
+                    authContainer.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #f44336;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                            <div style="font-size: 16px; font-weight: bold;">
+                                Failed to start authentication
+                            </div>
+                            <div style="font-size: 14px; margin-top: 10px;">
+                                ${error.message}
+                            </div>
                         </div>
-                        <div style="font-size: 14px; margin-top: 10px;">
-                            ${error.message}
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
             }
         }
 
