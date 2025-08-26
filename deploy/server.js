@@ -1,11 +1,7 @@
-import express from 'express';
-import cors from 'cors';
-import { v4 as uuidv4 } from 'uuid';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -149,9 +145,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({ error: 'Endpoint not found' });
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// Serve index page for root
+app.get('/', (req, res) => {
+    res.redirect('/tshirt-store.html');
 });
 
 // Start server
