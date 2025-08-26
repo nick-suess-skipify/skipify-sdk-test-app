@@ -317,6 +317,51 @@
             font-style: italic;
         }
 
+        /* Embedded Component Styling */
+        .component-message {
+            max-width: 90% !important;
+            margin: 10px 0 !important;
+        }
+
+        .embedded-component-container {
+            background: #ffffff;
+            border: 2px solid #e3f2fd;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 150px;
+            position: relative;
+        }
+
+        .component-loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 20px 0;
+        }
+
+        /* Skipify component iframe styling */
+        .embedded-component-container iframe {
+            width: 100% !important;
+            border: none !important;
+            border-radius: 8px;
+            min-height: 200px;
+        }
+
+        /* Authentication component specific styling */
+        .embedded-component-container.auth-component {
+            border-color: #4caf50;
+            background: linear-gradient(145deg, #f8fff8, #ffffff);
+        }
+
+        /* Payment carousel specific styling */
+        .embedded-component-container.carousel-component {
+            border-color: #2196f3;
+            background: linear-gradient(145deg, #f0f8ff, #ffffff);
+            min-height: 300px;
+        }
+
         .chat-input {
             padding: 20px;
             border-top: 1px solid #ecf0f1;
@@ -1154,6 +1199,31 @@ To checkout with Skipify, just tell me your email address like:
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // Add component message to chat with embedded container
+        function addComponentMessage(type, content, componentType, componentId) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type} component-message`;
+            
+            // Format content with line breaks
+            const formattedContent = content.replace(/\n/g, '<br>');
+            
+            // Create component container
+            const componentContainer = `
+                <div class="embedded-component-container" id="${componentId}">
+                    <div class="component-loading">
+                        🔄 Loading ${componentType}...
+                    </div>
+                </div>
+            `;
+            
+            messageDiv.innerHTML = formattedContent + componentContainer;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return document.getElementById(componentId);
+        }
+
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMessage();
@@ -1533,19 +1603,35 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 • nestedFlags: ${nestedFlags}
 • hasPaymentMethods: ${hasPaymentMethods}`);
 
-                let responseText = `✅ **Skipify account found!**
+                if (hasPaymentMethods && result.challengeId) {
+                    let responseText = `✅ **Skipify account found!**
 
 👤 **Account Details:**
 • Email: ${contact}
 • Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
 
-🔐 **Authentication required - please follow the prompts to authenticate on the website**`;
+🔐 **Starting authentication directly in chat...**`;
+                    
+                    // Create embedded authentication component
+                    const authContainerId = `chat-auth-${Date.now()}`;
+                    const authContainer = addComponentMessage('assistant', responseText, 'Authentication Component', authContainerId);
+                    authContainer.className += ' auth-component';
+                    
+                    // Start authentication immediately
+                    setTimeout(() => {
+                        startEmbeddedAuthentication(result, authContainer);
+                    }, 500);
+                } else {
+                    let responseText = `✅ **Skipify account found!**
 
-                if (hasPaymentMethods && result.challengeId) {
-                    responseText += `\n\n🎯 **Ready for authentication!** The shopper has payment methods available.\n💡 Say *"Authenticate"* or *"Start authentication"* to proceed.`;
+👤 **Account Details:**
+• Email: ${contact}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+
+❌ **No payment methods found.** This account may not have any cards on file.`;
+                    
+                    addMessage('assistant', responseText);
                 }
-
-                addMessage('assistant', responseText);
 
             } catch (error) {
                 console.error('SDK lookup error:', error);
@@ -1638,6 +1724,101 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             }
         }
 
+        // Start embedded authentication within chat
+        async function startEmbeddedAuthentication(lookupResult, container) {
+            try {
+                console.log('🔐 Starting embedded authentication in chat...');
+                
+                // Clear loading message
+                container.innerHTML = '';
+                
+                const authParams = { ...lookupResult };
+                
+                // Start authentication with callbacks
+                const result = await skipifySDK.authentication(authParams, {
+                    onSuccess: (data) => {
+                        console.log('🎉 Embedded authentication success:', data);
+                        window.authenticationResult = data;
+                        
+                        // Update container with success message
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                                <div style="font-size: 18px; font-weight: bold; color: #4caf50; margin-bottom: 10px;">
+                                    Authentication Successful!
+                                </div>
+                                <div style="color: #666; font-size: 14px;">
+                                    You can now proceed with payment selection
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add follow-up message about carousel
+                        setTimeout(() => {
+                            addMessage('assistant', `🎯 **Authentication completed!** 
+
+**What's next?** I can now show you available payment methods. Say something like:
+*"Show payment options for $${cartTotal.toFixed(2)}"*`);
+                        }, 1000);
+                    },
+                    onError: (error) => {
+                        console.error('❌ Embedded authentication error:', error);
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                                <div style="font-size: 18px; font-weight: bold; color: #f44336; margin-bottom: 10px;">
+                                    Authentication Failed
+                                </div>
+                                <div style="color: #666; font-size: 14px;">
+                                    ${error.message || 'Please try again'}
+                                </div>
+                            </div>
+                        `;
+                        
+                        addMessage('assistant', `❌ **Authentication failed:** ${error.message || error}\n\n💡 Please try again or check your credentials.`);
+                    },
+                    onCancel: () => {
+                        console.log('⚠️ Embedded authentication cancelled');
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+                                <div style="font-size: 18px; font-weight: bold; color: #ff9800; margin-bottom: 10px;">
+                                    Authentication Cancelled
+                                </div>
+                                <div style="color: #666; font-size: 14px;">
+                                    You can try again anytime
+                                </div>
+                            </div>
+                        `;
+                        
+                        addMessage('assistant', '⚠️ **Authentication cancelled.** Let me know when you\'re ready to try again!');
+                    }
+                });
+
+                // Render the authentication component in the chat container
+                if (result && typeof result.render === 'function') {
+                    console.log('🎨 Rendering embedded authentication component');
+                    result.render(container);
+                } else {
+                    console.log('🔄 Authentication started, waiting for callbacks...');
+                }
+
+            } catch (error) {
+                console.error('❌ Failed to start embedded authentication:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #f44336;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                        <div style="font-size: 16px; font-weight: bold;">
+                            Failed to start authentication
+                        </div>
+                        <div style="font-size: 14px; margin-top: 10px;">
+                            ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
         async function executeSDKCarousel(parameters) {
             const { amount, phone } = parameters;
             
@@ -1654,15 +1835,16 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             try {
                 const carouselAmount = amount || Math.round(cartTotal * 100); // Use cart total if no amount specified
                 
-                addMessage('system', `💳 Rendering carousel with amount: $${(carouselAmount / 100).toFixed(2)}`);
+                // Create embedded carousel component in chat
+                let responseText = `💳 **Payment Options Available**
 
-                const carouselContainer = document.createElement('div');
-                carouselContainer.id = 'carousel-container';
-                carouselContainer.innerHTML = '<h4>💳 Payment Carousel</h4><div id="carousel-content"></div>';
+**Amount:** $${(carouselAmount / 100).toFixed(2)}
 
-                const placeholder = document.getElementById('carousel-container-placeholder');
-                placeholder.innerHTML = '';
-                placeholder.appendChild(carouselContainer);
+**Select your preferred payment method below:**`;
+                
+                const carouselContainerId = `chat-carousel-${Date.now()}`;
+                const carouselContainer = addComponentMessage('assistant', responseText, 'Payment Carousel', carouselContainerId);
+                carouselContainer.className += ' carousel-component';
 
                 // ✅ ENHANCED: Show confirmation step before payment (Chat version)
                 const options = {
@@ -1705,25 +1887,19 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     }
                 };
 
-                // Use exact API from working test page: carousel(authenticationResult, options).render(container)
-                console.log('Calling skipifySDK.carousel with authenticationResult and options...');
+                // Render the carousel directly in the chat container
+                console.log('🎨 Rendering embedded carousel in chat...');
+                
+                // Clear loading message
+                carouselContainer.innerHTML = '';
+                
                 const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
-                console.log('Carousel component created:', carouselComponent);
+                console.log('✅ Carousel component created, rendering to chat container...');
                 
-                // Render the carousel
-                console.log('Rendering carousel to container...');
-                carouselComponent.render(document.getElementById('carousel-content'));
+                // Render to the embedded chat container
+                carouselComponent.render(carouselContainer);
                 
-                addMessage('system', '✅ Carousel component rendered successfully');
-
-                addMessage('assistant', `💳 **Payment carousel loaded!**
-
-**Click on your preferred payment method** in the components section above to complete your $${(carouselAmount / 100).toFixed(2)} purchase.
-
-💡 **Next step:** Select a payment method from the carousel to finalize your purchase!
-
-You can also ask me to help with card selection like:
-*"Select the Amex card ending in 0005"*`);
+                console.log('✅ Embedded carousel rendered successfully in chat!');
 
             } catch (error) {
                 console.error('SDK carousel error:', error);
