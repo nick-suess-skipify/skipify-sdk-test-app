@@ -319,18 +319,20 @@
 
         /* Embedded Component Styling */
         .component-message {
-            max-width: 90% !important;
-            margin: 10px 0 !important;
+            max-width: 95% !important;
+            margin: 15px 0 !important;
         }
 
         .embedded-component-container {
             background: #ffffff;
             border: 2px solid #e3f2fd;
             border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
+            padding: 15px;
+            margin: 10px 0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            min-height: 150px;
+            min-height: 120px;
+            max-height: 350px;
+            overflow: auto;
             position: relative;
         }
 
@@ -338,28 +340,44 @@
             text-align: center;
             color: #666;
             font-style: italic;
-            margin: 20px 0;
+            margin: 15px 0;
+            font-size: 14px;
         }
 
         /* Skipify component iframe styling */
         .embedded-component-container iframe {
             width: 100% !important;
             border: none !important;
-            border-radius: 8px;
-            min-height: 200px;
+            border-radius: 6px;
+            min-height: 180px;
+            max-height: 300px;
         }
 
         /* Authentication component specific styling */
         .embedded-component-container.auth-component {
             border-color: #4caf50;
             background: linear-gradient(145deg, #f8fff8, #ffffff);
+            max-height: 320px;
         }
 
         /* Payment carousel specific styling */
         .embedded-component-container.carousel-component {
             border-color: #2196f3;
             background: linear-gradient(145deg, #f0f8ff, #ffffff);
-            min-height: 300px;
+            max-height: 400px;
+        }
+
+        /* Compact component styling for chat flow */
+        .embedded-component-container.inline-component {
+            margin: 5px 0;
+            padding: 10px;
+            min-height: 100px;
+            max-height: 300px;
+        }
+
+        .embedded-component-container.inline-component iframe {
+            min-height: 150px;
+            max-height: 250px;
         }
 
         .chat-input {
@@ -1675,16 +1693,22 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 • Email: ${contact}
 • Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
 
-🔐 **Starting authentication directly in chat...**`;
+🔐 **Starting authentication...**`;
                     
-                    // Create embedded authentication component
+                    // Create authentication component message
                     const authContainerId = `chat-auth-${Date.now()}`;
-                    const authContainer = addComponentMessage('assistant', responseText, 'Authentication Component', authContainerId);
+                    const authContainer = addComponentMessage('assistant', responseText, 'Authentication', authContainerId);
                     authContainer.className += ' auth-component';
+                    authContainer.style.maxHeight = '400px';
+                    authContainer.style.overflow = 'hidden';
+                    
+                    // Store container ID for later replacement
+                    window.currentAuthContainer = authContainer;
+                    window.currentAuthContainerId = authContainerId;
                     
                     // Start authentication immediately
                     setTimeout(() => {
-                        startEmbeddedAuthentication(result, authContainer);
+                        startInlineAuthentication(result, authContainer);
                     }, 500);
                 } else {
                     let responseText = `✅ **Skipify account found!**
@@ -1813,111 +1837,289 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             }
         }
 
-        // Start embedded authentication within chat
-        async function startEmbeddedAuthentication(lookupResult, container) {
+        // Start inline authentication within chat message
+        async function startInlineAuthentication(lookupResult, container) {
             try {
-                console.log('🔐 Starting embedded authentication in chat...');
+                console.log('🔐 Starting inline authentication in chat message...');
                 
-                // Use the actual skipify auth container instead
-                const authContainer = document.getElementById('skipify-auth-container');
-                if (authContainer) {
-                    authContainer.classList.add('active');
-                    authContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">🔄 Loading authentication...</div>';
-                    console.log('📱 Using skipify-auth-container for embedded auth:', authContainer);
-                }
+                // Clear loading and prepare container
+                container.innerHTML = '<div class="component-loading">🔄 Loading authentication component...</div>';
+                container.classList.add('inline-component');
                 
                 const authParams = { ...lookupResult };
                 
                 // Start authentication with callbacks
                 const result = await skipifySDK.authentication(authParams, {
                     onSuccess: (data) => {
-                        console.log('🎉 Embedded authentication success:', data);
+                        console.log('🎉 Inline authentication success:', data);
                         window.authenticationResult = data;
                         
-                        // Update container with success message
-                        if (authContainer) {
-                            authContainer.innerHTML = `
-                                <div style="text-align: center; padding: 20px;">
-                                    <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
-                                    <div style="font-size: 18px; font-weight: bold; color: #4caf50; margin-bottom: 10px;">
-                                        Authentication Successful!
-                                    </div>
-                                    <div style="color: #666; font-size: 14px;">
-                                        You can now proceed with payment selection
-                                    </div>
+                        // Show success message briefly, then replace with carousel
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">✅</div>
+                                <div style="font-size: 16px; font-weight: bold; color: #4caf50; margin-bottom: 8px;">
+                                    Authentication Successful!
                                 </div>
-                            `;
-                        }
+                                <div style="color: #666; font-size: 12px;">
+                                    Loading payment options...
+                                </div>
+                            </div>
+                        `;
                         
-                        // Add follow-up message about carousel
+                        // Replace with payment carousel after brief success display
                         setTimeout(() => {
-                            addMessage('assistant', `🎯 **Authentication completed!** 
-
-**What's next?** I can now show you available payment methods. Say something like:
-*"Show payment options for $${cartTotal.toFixed(2)}"*`);
-                        }, 1000);
+                            replaceWithPaymentCarousel(container, cartTotal);
+                        }, 1500);
                     },
                     onError: (error) => {
-                        console.error('❌ Embedded authentication error:', error);
-                        if (authContainer) {
-                            authContainer.innerHTML = `
-                                <div style="text-align: center; padding: 20px;">
-                                    <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
-                                    <div style="font-size: 18px; font-weight: bold; color: #f44336; margin-bottom: 10px;">
-                                        Authentication Failed
-                                    </div>
-                                    <div style="color: #666; font-size: 14px;">
-                                        ${error.message || 'Please try again'}
-                                    </div>
+                        console.error('❌ Inline authentication error:', error);
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                                <div style="font-size: 16px; font-weight: bold; color: #f44336; margin-bottom: 8px;">
+                                    Authentication Failed
                                 </div>
-                            `;
-                        }
+                                <div style="color: #666; font-size: 12px;">
+                                    ${error.message || 'Please try again'}
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <button onclick="retrySDKInitialization()" style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                                        🔧 Retry
+                                    </button>
+                                </div>
+                            </div>
+                        `;
                         
                         addMessage('assistant', `❌ **Authentication failed:** ${error.message || error}\n\n💡 Please try again or check your credentials.`);
                     },
                     onCancel: () => {
-                        console.log('⚠️ Embedded authentication cancelled');
-                        if (authContainer) {
-                            authContainer.innerHTML = `
-                                <div style="text-align: center; padding: 20px;">
-                                    <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
-                                    <div style="font-size: 18px; font-weight: bold; color: #ff9800; margin-bottom: 10px;">
-                                        Authentication Cancelled
-                                    </div>
-                                    <div style="color: #666; font-size: 14px;">
-                                        You can try again anytime
-                                    </div>
+                        console.log('⚠️ Inline authentication cancelled');
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">⚠️</div>
+                                <div style="font-size: 16px; font-weight: bold; color: #ff9800; margin-bottom: 8px;">
+                                    Authentication Cancelled
                                 </div>
-                            `;
-                        }
+                                <div style="color: #666; font-size: 12px;">
+                                    You can try again anytime
+                                </div>
+                            </div>
+                        `;
                         
                         addMessage('assistant', '⚠️ **Authentication cancelled.** Let me know when you\'re ready to try again!');
                     }
                 });
 
-                // Render the authentication component in the auth container
+                // Render the authentication component in the chat container
                 if (result && typeof result.render === 'function') {
-                    console.log('🎨 Rendering embedded authentication component');
-                    result.render(authContainer);
+                    console.log('🎨 Rendering inline authentication component');
+                    result.render(container);
                 } else {
                     console.log('🔄 Authentication started, waiting for callbacks...');
                 }
 
             } catch (error) {
-                console.error('❌ Failed to start embedded authentication:', error);
-                if (authContainer) {
-                    authContainer.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: #f44336;">
-                            <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
-                            <div style="font-size: 16px; font-weight: bold;">
-                                Failed to start authentication
-                            </div>
-                            <div style="font-size: 14px; margin-top: 10px;">
-                                ${error.message}
-                            </div>
+                console.error('❌ Failed to start inline authentication:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 15px; color: #f44336;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                        <div style="font-size: 14px; font-weight: bold;">
+                            Failed to start authentication
                         </div>
-                    `;
-                }
+                        <div style="font-size: 12px; margin-top: 8px;">
+                            ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Replace authentication component with payment carousel
+        async function replaceWithPaymentCarousel(container, amount) {
+            try {
+                console.log('💳 Replacing authentication with payment carousel...');
+                
+                // Update container styling for carousel
+                container.classList.remove('auth-component');
+                container.classList.add('carousel-component', 'inline-component');
+                
+                // Show loading state
+                container.innerHTML = '<div class="component-loading">💳 Loading payment options...</div>';
+                
+                const carouselAmount = Math.round(amount * 100); // Convert to cents
+                
+                // Create carousel options
+                const options = {
+                    onSelect: async (result) => {
+                        console.log('Inline carousel payment selected:', result);
+                        
+                        // Store payment details for confirmation
+                        window.selectedPaymentDetails = {
+                            paymentId: result.paymentId,
+                            sessionId: result.sessionId,
+                            cardType: result.metadata?.networkType || result.networkType || result.cardType || 'Card',
+                            cardEnding: result.metadata?.lastFour || result.lastFour || result.cardEnding || 'XXXX',
+                            amount: amount,
+                            isChat: true,
+                            isInline: true
+                        };
+                        
+                        // Replace carousel with confirmation
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">💳</div>
+                                <div style="font-size: 16px; font-weight: bold; color: #2196f3; margin-bottom: 8px;">
+                                    Payment Method Selected
+                                </div>
+                                <div style="color: #666; font-size: 12px; margin-bottom: 10px;">
+                                    ${window.selectedPaymentDetails.cardType} ending in ${window.selectedPaymentDetails.cardEnding}
+                                </div>
+                                <div style="color: #666; font-size: 12px; margin-bottom: 15px;">
+                                    Amount: $${amount.toFixed(2)}
+                                </div>
+                                <button id="inline-pay-now-btn" style="
+                                    background: linear-gradient(135deg, #28a745, #20c997);
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 6px;
+                                    font-size: 14px;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                    margin-right: 8px;
+                                ">
+                                    💳 Pay $${amount.toFixed(2)}
+                                </button>
+                                <button onclick="location.reload()" style="
+                                    background: #6c757d;
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 16px;
+                                    border-radius: 6px;
+                                    font-size: 14px;
+                                    cursor: pointer;
+                                ">
+                                    Cancel
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Add event listener to pay button
+                        document.getElementById('inline-pay-now-btn').addEventListener('click', async () => {
+                            await processInlinePayment(container);
+                        });
+                        
+                        addMessage('assistant', '✅ **Payment method selected!** Click "Pay Now" above to complete your purchase.');
+                    },
+                    onError: (error) => {
+                        console.error('Inline carousel error:', error);
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 15px; color: #f44336;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                                <div style="font-size: 14px; font-weight: bold;">Payment Options Error</div>
+                                <div style="font-size: 12px; margin-top: 8px;">${error.message || error}</div>
+                            </div>
+                        `;
+                        addMessage('assistant', `❌ **Payment options error:** ${error.message || error}`);
+                    },
+                    amount: carouselAmount,
+                    config: {
+                        theme: "light",
+                        fontFamily: "default",
+                        fontSize: "small"
+                    }
+                };
+
+                // Render the carousel component
+                const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
+                console.log('💳 Rendering inline carousel component');
+                carouselComponent.render(container);
+
+            } catch (error) {
+                console.error('❌ Failed to create payment carousel:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 15px; color: #f44336;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                        <div style="font-size: 14px; font-weight: bold;">Failed to load payment options</div>
+                        <div style="font-size: 12px; margin-top: 8px;">${error.message}</div>
+                    </div>
+                `;
+                addMessage('assistant', `❌ **Failed to load payment options:** ${error.message}`);
+            }
+        }
+
+        // Process payment from inline component
+        async function processInlinePayment(container) {
+            try {
+                console.log('💳 Processing inline payment...');
+                
+                // Show processing state
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">⏳</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #ff9800; margin-bottom: 8px;">
+                            Processing Payment...
+                        </div>
+                        <div style="color: #666; font-size: 12px;">
+                            Please wait while we process your payment
+                        </div>
+                    </div>
+                `;
+                
+                const paymentData = window.selectedPaymentDetails;
+                const result = await submitSkipifyPayment(
+                    paymentData.paymentId,
+                    paymentData.sessionId,
+                    paymentData.amount
+                );
+                
+                // Show success state
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">🎉</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #28a745; margin-bottom: 8px;">
+                            Payment Successful!
+                        </div>
+                        <div style="color: #666; font-size: 12px; margin-bottom: 10px;">
+                            Transaction ID: ${result.transactionId ? result.transactionId.substring(0, 12) + '...' : 'Generated'}
+                        </div>
+                        <div style="color: #666; font-size: 12px;">
+                            Thank you for your purchase!
+                        </div>
+                    </div>
+                `;
+                
+                addMessage('assistant', '🎉 **Payment completed successfully!** Your order has been processed and you should receive a confirmation email shortly.');
+                
+            } catch (error) {
+                console.error('❌ Inline payment processing failed:', error);
+                
+                // Show error state
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #f44336; margin-bottom: 8px;">
+                            Payment Failed
+                        </div>
+                        <div style="color: #666; font-size: 12px; margin-bottom: 10px;">
+                            ${error.message}
+                        </div>
+                        <button onclick="location.reload()" style="
+                            background: #3498db;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            cursor: pointer;
+                        ">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+                
+                addMessage('assistant', `❌ **Payment failed:** ${error.message}\n\n💡 Please try again or contact support.`);
             }
         }
 
@@ -1937,7 +2139,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             try {
                 const carouselAmount = amount || Math.round(cartTotal * 100); // Use cart total if no amount specified
                 
-                // Create embedded carousel component in chat
+                // Create inline carousel component in chat
                 let responseText = `💳 **Payment Options Available**
 
 **Amount:** $${(carouselAmount / 100).toFixed(2)}
@@ -1946,20 +2148,14 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 
                 const carouselContainerId = `chat-carousel-${Date.now()}`;
                 const carouselContainer = addComponentMessage('assistant', responseText, 'Payment Carousel', carouselContainerId);
-                carouselContainer.className += ' carousel-component';
+                carouselContainer.className += ' carousel-component inline-component';
+                carouselContainer.style.maxHeight = '400px';
+                carouselContainer.style.overflow = 'auto';
 
-                // ✅ ENHANCED: Show confirmation step before payment (Chat version)
+                // ✅ ENHANCED: Inline confirmation in same container
                 const options = {
                     onSelect: async (result) => {
-                        console.log('Chat carousel payment selected:', result);
-                        console.log('🔍 Payment result properties:', {
-                            networkType: result.metadata?.networkType || result.networkType,
-                            cardType: result.cardType,
-                            lastFour: result.metadata?.lastFour || result.lastFour,
-                            cardEnding: result.cardEnding,
-                            metadata: result.metadata,
-                            allKeys: Object.keys(result)
-                        });
+                        console.log('Inline chat carousel payment selected:', result);
                         
                         // Use cart total if available, otherwise use carousel amount
                         const paymentAmount = cartTotal > 0 ? cartTotal : (carouselAmount / 100);
@@ -1971,37 +2167,91 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                             cardType: result.metadata?.networkType || result.networkType || result.cardType || 'Card',
                             cardEnding: result.metadata?.lastFour || result.lastFour || result.cardEnding || 'XXXX',
                             amount: paymentAmount,
-                            isChat: true
+                            isChat: true,
+                            isInline: true
                         };
                         
-                        // Show payment confirmation instead of immediately processing
-                        showPaymentConfirmation(window.selectedPaymentDetails, paymentAmount);
+                        // Replace carousel with inline confirmation
+                        carouselContainer.innerHTML = `
+                            <div style="text-align: center; padding: 15px;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">💳</div>
+                                <div style="font-size: 16px; font-weight: bold; color: #2196f3; margin-bottom: 8px;">
+                                    Payment Method Selected
+                                </div>
+                                <div style="color: #666; font-size: 12px; margin-bottom: 10px;">
+                                    ${window.selectedPaymentDetails.cardType} ending in ${window.selectedPaymentDetails.cardEnding}
+                                </div>
+                                <div style="color: #666; font-size: 12px; margin-bottom: 15px;">
+                                    Amount: $${paymentAmount.toFixed(2)}
+                                </div>
+                                <button id="chat-pay-now-btn" style="
+                                    background: linear-gradient(135deg, #28a745, #20c997);
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 6px;
+                                    font-size: 14px;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                    margin-right: 8px;
+                                ">
+                                    💳 Pay $${paymentAmount.toFixed(2)}
+                                </button>
+                                <button onclick="location.reload()" style="
+                                    background: #6c757d;
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 16px;
+                                    border-radius: 6px;
+                                    font-size: 14px;
+                                    cursor: pointer;
+                                ">
+                                    Cancel
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Add event listener to pay button
+                        document.getElementById('chat-pay-now-btn').addEventListener('click', async () => {
+                            await processInlinePayment(carouselContainer);
+                        });
+                        
+                        addMessage('assistant', '✅ **Payment method selected!** Click "Pay Now" above to complete your purchase.');
                     },
                     onError: (error) => {
                         console.error('Chat carousel error:', error);
+                        carouselContainer.innerHTML = `
+                            <div style="text-align: center; padding: 15px; color: #f44336;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                                <div style="font-size: 14px; font-weight: bold;">Payment Options Error</div>
+                                <div style="font-size: 12px; margin-top: 8px;">${error.message || error}</div>
+                            </div>
+                        `;
                         addMessage('assistant', `❌ **Carousel error:** ${error.message || error}\n\nPlease try again.`);
                     },
                     amount: carouselAmount, // Amount in cents
                     config: {
                         theme: "light",
                         fontFamily: "default",
-                        fontSize: "medium"
+                        fontSize: "small"
                     }
                 };
 
                 // Render the carousel directly in the chat container
-                console.log('🎨 Rendering embedded carousel in chat...');
+                console.log('🎨 Rendering inline carousel in chat...');
                 
                 // Clear loading message
-                carouselContainer.innerHTML = '';
+                carouselContainer.innerHTML = '<div class="component-loading">💳 Loading payment options...</div>';
                 
-                const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
-                console.log('✅ Carousel component created, rendering to chat container...');
-                
-                // Render to the embedded chat container
-                carouselComponent.render(carouselContainer);
-                
-                console.log('✅ Embedded carousel rendered successfully in chat!');
+                setTimeout(() => {
+                    const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
+                    console.log('✅ Carousel component created, rendering to inline chat container...');
+                    
+                    // Render to the inline chat container
+                    carouselComponent.render(carouselContainer);
+                    
+                    console.log('✅ Inline carousel rendered successfully in chat!');
+                }, 300);
 
             } catch (error) {
                 console.error('SDK carousel error:', error);
