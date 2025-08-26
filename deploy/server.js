@@ -112,16 +112,24 @@ app.get('/api/chat/sessions/:sessionId/messages', (req, res) => {
 app.post('/api/skipify/payments', (req, res) => {
     // Mock payment processing for demo
     const paymentId = uuidv4();
+    const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const pspTransactionId = `psp_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     
     res.json({
         success: true,
         paymentId,
+        transactionId,
+        pspTransactionId,
         status: 'completed',
         receipt: {
             id: `receipt_${Date.now()}`,
+            transactionId,
+            pspTransactionId,
             amount: req.body.amount || 0,
             currency: 'USD',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            paymentMethod: req.body.paymentMethod || 'Skipify Account',
+            merchantId: process.env.SKIPIFY_MERCHANT_ID || '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0'
         }
     });
 });
