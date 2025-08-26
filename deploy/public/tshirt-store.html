@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skipify T-Shirt Store | Chat-Powered Checkout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .cart-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .cart-badge {
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 0;
+            min-height: 70vh;
+        }
+
+        /* Products Section */
+        .products-section {
+            padding: 40px;
+        }
+
+        /* Receipt Section */
+        .receipt-container {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .receipt-title {
+            font-size: 24px;
+            color: #28a745;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .receipt-subtitle {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .receipt-section {
+            margin-bottom: 20px;
+        }
+
+        .receipt-section h3 {
+            color: #2c3e50;
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dotted #dee2e6;
+        }
+
+        .receipt-item:last-child {
+            border-bottom: none;
+        }
+
+        .receipt-total {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .receipt-total-amount {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .receipt-info {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .receipt-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .receipt-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .receipt-actions {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .new-order-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .new-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .section-title {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            border: 2px solid #ecf0f1;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .product-card:hover {
+            border-color: #3498db;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 24px;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .add-to-cart {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        .add-to-cart:hover {
+            background: #2980b9;
+        }
+
+        /* Chat Section */
+        .chat-section {
+            background: #f8f9fa;
+            border-left: 3px solid #3498db;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background: #3498db;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .message.system {
+            background: #f39c12;
+            color: white;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+            background: white;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ecf0f1;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .chat-input-field:focus {
+            border-color: #3498db;
+        }
+
+        .send-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: #2980b9;
+        }
+
+        /* Cart Summary */
+        .cart-summary {
+            background: #2c3e50;
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .cart-total {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .quick-checkout {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .quick-checkout:hover {
+            background: #219a52;
+        }
+
+        /* Skipify Components */
+        .skipify-components {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #3498db;
+        }
+
+        .component-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ecf0f1;
+        }
+
+        .component-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        /* Helper Styles */
+        .empty-cart {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .success-message {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-section {
+                border-left: none;
+                border-top: 3px solid #3498db;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .products-section {
+                padding: 20px;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🛍️ Skipify T-Shirt Store</div>
+            <div class="cart-info">
+                <span>Cart: $<span id="cart-total">0.00</span></span>
+                <div class="cart-badge" id="cart-count">0</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Products Section -->
+            <div class="products-section">
+                <h1 class="section-title">Premium T-Shirts Collection</h1>
+                
+                <div class="products-grid" id="products-grid">
+                    <!-- Products will be loaded here -->
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h3>🛒 Shopping Cart</h3>
+                    <div class="cart-total">Total: $<span id="display-total">0.00</span></div>
+                    
+                    <div class="cart-items" id="cart-items">
+                        <div class="empty-cart">Your cart is empty</div>
+                    </div>
+
+                    <button class="quick-checkout" onclick="startChatCheckout()">
+                        💬 Chat to Checkout
+                    </button>
+                </div>
+
+                <!-- Skipify Components Section -->
+                <div class="skipify-components">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #2c3e50;">🔐 Skipify Checkout Components</h3>
+                    
+                    <div class="component-container">
+                        <div class="component-title">🔍 Authentication Component</div>
+                        <div id="skipify-auth-container"></div>
+                        <div id="auth-container-placeholder"></div>
+                    </div>
+
+                    <div class="component-container">
+                        <div class="component-title">💳 Payment Carousel</div>
+                        <div id="carousel-container-placeholder"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    🤖 Skipify Assistant
+                </div>
+                
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message assistant">
+                            👋 **Welcome to Skipify T-Shirt Store!**
+                            
+                            I can help you checkout with our secure Skipify payment system. 
+                            
+                            **Try saying:**
+                            • *"Checkout with your-email@example.com"*
+                            • *"Process my order with my email"*
+                            • *"Pay with my Skipify account"*
+                            
+                            Add some T-shirts to your cart and I'll handle the rest! 🛍️
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="user-input" 
+                                class="chat-input-field" 
+                                placeholder="Ask me to checkout, or say 'help' for commands..."
+                                onkeypress="handleKeyPress(event)"
+                            >
+                            <button class="send-button" onclick="sendMessage()">Send</button>
+                        </div>
+                        
+                        <div style="margin-top: 10px; text-align: center;">
+                            <button onclick="createSession()" style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer; margin-right: 8px;">
+                                🔄 New Chat Session
+                            </button>
+                            <button onclick="retrySDKInitialization()" style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer;">
+                                🔧 Retry Payment System
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Script -->
+    <script src="config.js"></script>
+
+    <!-- Skipify SDK - Dynamic Loading -->
+    <script>
+        // Script loading monitor variables
+        let scriptLoaded = false;
+        let scriptFailed = false;
+
+        // Load Skipify SDK dynamically (same approach as working test page)
+        console.log('🚀 Loading Skipify SDK dynamically...');
+        const sdkScript = document.createElement('script');
+        sdkScript.src = `https://stagecdn.skipify.com/sdk/components-sdk.js?date=${new Date().getTime()}`;
+        sdkScript.onload = function() {
+            console.log('✅ Skipify SDK script loaded successfully');
+            console.log('🔍 Global skipify object available:', typeof window.skipify !== 'undefined');
+            scriptLoaded = true;
+            
+            // Additional verification that skipify is actually available  
+            setTimeout(() => {
+                if (window.skipify) {
+                    console.log('🎯 window.skipify confirmed available after script load');
+                } else {
+                    console.warn('⚠️ Script loaded but window.skipify not available - may need more time');
+                }
+            }, 500); // Give it a bit more time
+        };
+        sdkScript.onerror = function(error) {
+            console.error('❌ Failed to load Skipify SDK script:', error);
+            scriptFailed = true;
+        };
+        
+        // Add timeout for script loading
+        setTimeout(() => {
+            if (!scriptLoaded && !scriptFailed) {
+                console.error('❌ Script loading timeout - network may be slow');
+                scriptFailed = true;
+            }
+        }, 10000);
+        
+        document.head.appendChild(sdkScript);
+    </script>
+    
+    <script>
+        // T-Shirt Store Configuration
+        const PRODUCTS = [
+            {
+                id: 'classic-tee',
+                name: 'Classic Cotton Tee',
+                price: 29.99,
+                emoji: '👕',
+                description: 'Comfortable 100% cotton t-shirt'
+            },
+            {
+                id: 'premium-polo',
+                name: 'Premium Polo Shirt',
+                price: 49.99,
+                emoji: '👔',
+                description: 'Premium cotton polo with modern fit'
+            },
+            {
+                id: 'vintage-graphic',
+                name: 'Vintage Graphic Tee',
+                price: 34.99,
+                emoji: '🎨',
+                description: 'Retro-style graphic design t-shirt'
+            },
+            {
+                id: 'athletic-dryfit',
+                name: 'Athletic Dry-Fit Tee',
+                price: 39.99,
+                emoji: '🏃',
+                description: 'Moisture-wicking performance shirt'
+            },
+            {
+                id: 'organic-eco',
+                name: 'Organic Eco Tee',
+                price: 44.99,
+                emoji: '🌱',
+                description: 'Sustainable organic cotton t-shirt'
+            },
+            {
+                id: 'designer-luxury',
+                name: 'Designer Luxury Tee',
+                price: 79.99,
+                emoji: '✨',
+                description: 'Premium designer cotton blend'
+            }
+        ];
+
+        // Shopping Cart
+        let cart = [];
+        let cartTotal = 0;
+
+        // Skipify Integration
+        let currentSession = null;
+        let skipifySessionId = null;
+        let skipifySDK = null;
+        let lookupResults = null;
+        let storedChallengeId = null;
+
+        // Initialize Store
+        async function initializeStore() {
+            loadProducts();
+            
+            // Try to initialize SDK with retries
+            let attempts = 0;
+            const maxAttempts = 3;
+            
+            while (attempts < maxAttempts && !skipifySDK) {
+                attempts++;
+                console.log(`🔄 SDK initialization attempt ${attempts}/${maxAttempts}`);
+                
+                try {
+                    await initializeSkipifySDK();
+                    if (skipifySDK) {
+                        console.log('✅ SDK initialization successful');
+                        break;
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ SDK initialization attempt ${attempts} failed:`, error);
+                    if (attempts < maxAttempts) {
+                        console.log('🔄 Retrying in 2 seconds...');
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
+                }
+            }
+            
+            if (!skipifySDK) {
+                addMessage('system', '⚠️ T-Shirt store loaded but payment system needs attention. Try refreshing the page.');
+            } else {
+                addMessage('system', '🛍️ T-Shirt store loaded! Add items to cart and use chat to checkout.');
+            }
+        }
+
+        // Load Products
+        function loadProducts() {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '';
+
+            PRODUCTS.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">${product.emoji}</div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">$${product.price}</div>
+                    <button class="add-to-cart" onclick="addToCart('${product.id}')">
+                        Add to Cart
+                    </button>
+                `;
+                grid.appendChild(productCard);
+            });
+        }
+
+        // Display Receipt After Successful Payment
+        function displayReceipt(cartItems, paymentResponse, totalAmount) {
+            const productsSection = document.querySelector('.products-section');
+            
+            // Format the completion date
+            const completedDate = paymentResponse.data?.completedAt 
+                ? new Date(paymentResponse.data.completedAt).toLocaleString()
+                : new Date().toLocaleString();
+
+            // Get payment method info (extract card details if available)
+            const paymentMethod = paymentResponse.data?.paymentMethod?.details || {};
+            const cardInfo = paymentMethod.cardNumber 
+                ? `**** **** **** ${paymentMethod.cardNumber.slice(-4)}`
+                : 'Skipify Account';
+            
+            // Generate items HTML
+            const itemsHTML = cartItems.map(item => `
+                <div class="receipt-item">
+                    <span>${item.emoji} ${item.name}</span>
+                    <span>$${item.price.toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            // Create receipt HTML
+            productsSection.innerHTML = `
+                <div class="receipt-container">
+                    <div class="receipt-header">
+                        <div class="receipt-title">
+                            <span>🎉</span>
+                            <span>Order Confirmed!</span>
+                            <span>✅</span>
+                        </div>
+                        <div class="receipt-subtitle">Thank you for your purchase</div>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h3>📦 Items Purchased</h3>
+                        ${itemsHTML}
+                    </div>
+
+                    <div class="receipt-total">
+                        <div class="receipt-total-amount">
+                            <span>Total Paid:</span>
+                            <span>$${totalAmount.toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h3>💳 Payment Information</h3>
+                        <div class="receipt-info">
+                            <div class="receipt-info-item">
+                                <span>Payment Method:</span>
+                                <span>${cardInfo}</span>
+                            </div>
+                            <div class="receipt-info-item">
+                                <span>Transaction ID:</span>
+                                <span>${paymentResponse.data?.transactionId?.substring(0, 12)}...</span>
+                            </div>
+                            <div class="receipt-info-item">
+                                <span>PSP Transaction:</span>
+                                <span>#${paymentResponse.data?.pspTransactionId || 'N/A'}</span>
+                            </div>
+                            <div class="receipt-info-item">
+                                <span>Status:</span>
+                                <span style="color: #28a745; font-weight: bold;">${paymentResponse.data?.status || 'Completed'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h3>📅 Order Details</h3>
+                        <div class="receipt-info">
+                            <div class="receipt-info-item">
+                                <span>Order Date:</span>
+                                <span>${completedDate}</span>
+                            </div>
+                            <div class="receipt-info-item">
+                                <span>Order Reference:</span>
+                                <span>${paymentResponse.merchantReference || 'N/A'}</span>
+                            </div>
+                            <div class="receipt-info-item">
+                                <span>Store:</span>
+                                <span>🛍️ Premium T-Shirts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="receipt-actions">
+                        <button class="new-order-btn" onclick="startNewOrder()">
+                            🛍️ Start New Order
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Scroll to top to show the receipt
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show Payment Confirmation with "Pay Now" Button
+        function showPaymentConfirmation(cardDetails, amount) {
+            // ✅ FIXED: Remove any existing payment confirmation dialog first
+            const existingConfirmation = document.getElementById('payment-confirmation-container');
+            if (existingConfirmation) {
+                existingConfirmation.remove();
+            }
+            
+            // Create payment confirmation container
+            const confirmationContainer = document.createElement('div');
+            confirmationContainer.id = 'payment-confirmation-container';
+            confirmationContainer.innerHTML = `
+                <div style="background: #f8f9fa; border: 2px solid #28a745; border-radius: 15px; padding: 25px; margin: 20px 0; text-align: center;">
+                    <h3 style="color: #28a745; margin-bottom: 20px;">💳 Confirm Your Payment</h3>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <span style="font-weight: bold;">Payment Method:</span>
+                            <span>${cardDetails.cardType} ending in ${cardDetails.cardEnding}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: bold; color: #28a745;">
+                            <span>Total Amount:</span>
+                            <span>$${amount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button id="pay-now-btn" style="
+                            background: linear-gradient(135deg, #28a745, #20c997);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 25px;
+                            font-size: 16px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+                        ">
+                            💳 Pay Now - $${amount.toFixed(2)}
+                        </button>
+                        
+                        <button id="cancel-payment-btn" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 25px;
+                            font-size: 16px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Find the appropriate container to append to
+            const targetContainer = document.getElementById('carousel-container-placeholder') || 
+                                  document.getElementById('ecommerce-carousel-container') ||
+                                  document.querySelector('.chat-section');
+                                  
+            if (targetContainer) {
+                targetContainer.appendChild(confirmationContainer);
+            }
+            
+            // Add event listeners
+            document.getElementById('pay-now-btn').addEventListener('click', async () => {
+                await processConfirmedPayment();
+            });
+            
+            document.getElementById('cancel-payment-btn').addEventListener('click', () => {
+                cancelPaymentConfirmation();
+            });
+            
+            // Show success message in chat (with detection for method changes)
+            const isMethodChange = existingConfirmation !== null;
+            const actionText = isMethodChange ? "Payment method updated!" : "Payment method selected!";
+            const emojiPrefix = isMethodChange ? "🔄" : "🎯";
+            
+            addMessage('assistant', `${emojiPrefix} **${actionText}**
+
+💳 **Selected:** ${cardDetails.cardType} ending in ${cardDetails.cardEnding}
+💰 **Amount:** $${amount.toFixed(2)}
+
+✅ **Ready to proceed!** Click the "Pay Now" button above to complete your payment.`);
+        }
+
+        // Process the confirmed payment
+        async function processConfirmedPayment() {
+            const paymentDetails = window.selectedPaymentDetails;
+            if (!paymentDetails) {
+                addMessage('assistant', '❌ **Error:** Payment details not found. Please try again.');
+                return;
+            }
+            
+            // Update UI to show processing
+            const payNowBtn = document.getElementById('pay-now-btn');
+            if (payNowBtn) {
+                payNowBtn.textContent = '⏳ Processing...';
+                payNowBtn.disabled = true;
+            }
+            
+            addMessage('assistant', '💳 **Processing your payment...** Please wait while we complete the transaction.');
+            
+            try {
+                // Submit payment to Skipify API
+                const orderReference = paymentDetails.isChat ? 
+                    `chat_order_${Date.now()}` : 
+                    `tshirt_order_${Date.now()}`;
+                    
+                const paymentResult = await submitSkipifyPayment(
+                    paymentDetails.paymentId,
+                    paymentDetails.sessionId,
+                    Math.round(paymentDetails.amount * 100), // Convert to cents
+                    orderReference
+                );
+                
+                // Remove confirmation container on success
+                const confirmationContainer = document.getElementById('payment-confirmation-container');
+                if (confirmationContainer) {
+                    confirmationContainer.remove();
+                }
+                
+                // Payment success handled in submitSkipifyPayment function
+                console.log('✅ Payment processed successfully:', paymentResult);
+                
+            } catch (error) {
+                console.error('❌ Payment processing failed:', error);
+                addMessage('assistant', `❌ **Payment failed:** ${error.message}\n\nPlease try again or contact support.`);
+                
+                // Re-enable button on error
+                if (payNowBtn) {
+                    payNowBtn.textContent = `💳 Pay Now - $${paymentDetails.amount.toFixed(2)}`;
+                    payNowBtn.disabled = false;
+                }
+            }
+        }
+
+        // Cancel payment confirmation
+        function cancelPaymentConfirmation() {
+            const confirmationContainer = document.getElementById('payment-confirmation-container');
+            if (confirmationContainer) {
+                confirmationContainer.remove();
+            }
+            
+            addMessage('assistant', '❌ **Payment cancelled.** You can select a different payment method or start over.');
+            
+            // Clear stored payment details
+            window.selectedPaymentDetails = null;
+        }
+
+        // Reset Store for New Order - Simple Full Page Refresh
+        function startNewOrder() {
+            // ✅ SIMPLE & RELIABLE: Full page refresh ensures complete reset
+            // This will:
+            // - Clear all cart items
+            // - Reset all Skipify components and iframes
+            // - Reinitialize SDK from scratch
+            // - Create fresh chat session
+            // - Clear all global state variables
+            window.location.reload();
+        }
+
+        // Shopping Cart Functions
+        function addToCart(productId) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            if (!product) return;
+
+            cart.push(product);
+            updateCartDisplay();
+            addMessage('system', `✅ Added ${product.name} to cart ($${product.price})`);
+        }
+
+        function removeFromCart(index) {
+            const removed = cart.splice(index, 1)[0];
+            updateCartDisplay();
+            addMessage('system', `🗑️ Removed ${removed.name} from cart`);
+        }
+
+        function updateCartDisplay() {
+            cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
+            
+            // Update cart display elements (with null checks)
+            const cartTotalElement = document.getElementById('cart-total');
+            const displayTotalElement = document.getElementById('display-total');
+            const cartCountElement = document.getElementById('cart-count');
+            
+            if (cartTotalElement) cartTotalElement.textContent = cartTotal.toFixed(2);
+            if (displayTotalElement) displayTotalElement.textContent = cartTotal.toFixed(2);
+            if (cartCountElement) cartCountElement.textContent = cart.length;
+
+            const cartItems = document.getElementById('cart-items');
+            if (cartItems) {
+                if (cart.length === 0) {
+                    cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+                } else {
+                    cartItems.innerHTML = cart.map((item, index) => `
+                        <div class="cart-item">
+                            <span>${item.emoji} ${item.name}</span>
+                            <span>$${item.price} <button onclick="removeFromCart(${index})" style="background: #e74c3c; color: white; border: none; border-radius: 3px; padding: 2px 6px; margin-left: 8px; cursor: pointer;">×</button></span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        // Quick Checkout via Chat
+        function startChatCheckout() {
+            if (cart.length === 0) {
+                addMessage('assistant', '🛒 **Your cart is empty!** Please add some T-shirts to your cart first, then I can help you checkout.');
+                return;
+            }
+
+            addMessage('assistant', `🛍️ **Ready to checkout!** 
+            
+**Cart Summary:**
+${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')}
+
+**Total: $${cartTotal.toFixed(2)}**
+
+To checkout with Skipify, just tell me your email address like:
+*"Checkout with your-email@example.com"*`);
+        }
+
+        // Skipify SDK Integration (fixed to match working test page)
+        function waitForSDK() {
+            return new Promise((resolve, reject) => {
+                let attempts = 0;
+                const maxAttempts = 100; // 10 seconds max wait
+
+                const checkSDK = () => {
+                    attempts++;
+                    
+                    if (attempts === 1 || attempts % 10 === 0) {
+                        console.log(`🔍 Checking for Skipify SDK... attempt ${attempts}/${maxAttempts}`);
+                    }
+                    
+                    // ✅ FIXED: Check for window.skipify (lowercase) like working test page
+                    if (window.skipify) {
+                        console.log('✅ Skipify SDK found and loaded successfully');
+                        console.log('🔧 SDK constructor available:', window.skipify);
+                        resolve(window.skipify);
+                    } else if (attempts >= maxAttempts) {
+                        console.error('❌ Skipify SDK failed to load after 10 seconds');
+                        
+                        // Additional debugging
+                        console.log('🔍 Checking different possible global names:');
+                        console.log('- window.skipify:', typeof window.skipify);
+                        console.log('- window.Skipify:', typeof window.Skipify);
+                        console.log('- typeof Skipify:', typeof Skipify);
+                        
+                        const scriptTags = document.querySelectorAll('script[src*="skipify"]');
+                        console.log('🔍 Skipify script tags found:', scriptTags.length);
+                        scriptTags.forEach((script, index) => {
+                            console.log(`Script ${index + 1}:`, script.src, 'loaded:', script.readyState);
+                        });
+                        
+                        reject(new Error('Skipify SDK failed to load - check network connection and console for details'));
+                    } else {
+                        setTimeout(checkSDK, 100);
+                    }
+                };
+                
+                // Start checking immediately
+                checkSDK();
+            });
+        }
+
+        async function initializeSkipifySDK() {
+            try {
+                console.log('🚀 Starting Skipify SDK initialization for T-shirt store...');
+                const SkipifyConstructor = await waitForSDK();
+                
+                // ✅ FIXED: Use returned constructor and 'stage' environment like working test page
+                skipifySDK = new SkipifyConstructor({
+                    merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0',
+                    environment: 'stage'
+                });
+
+                console.log('🎯 Skipify SDK initialized for T-shirt store:', skipifySDK);
+                console.log('🔧 SDK methods available:', Object.keys(skipifySDK));
+                
+                // ✅ FIXED: Wait for SDK to be fully ready before testing
+                try {
+                    // Add small delay to ensure SDK is fully initialized
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    const deviceId = await skipifySDK.deviceId();
+                    console.log('📱 Device ID test successful:', deviceId);
+                    addMessage('system', '🔐 Skipify payment system ready and tested');
+                } catch (deviceError) {
+                    console.warn('⚠️ Device ID test failed, but SDK may still work:', deviceError);
+                    addMessage('system', '🔐 Skipify payment system loaded (device ID test skipped)');
+                }
+            } catch (error) {
+                console.error('❌ Failed to initialize Skipify SDK:', error);
+                addMessage('system', `❌ Payment system initialization failed: ${error.message}`);
+                
+                // Provide fallback message
+                addMessage('assistant', `⚠️ **Payment system not available**
+                
+**The Skipify SDK failed to load.** This might be due to:
+• Network connectivity issues
+• Browser blocking the SDK script
+• Server configuration problems
+
+**To fix this:**
+1. Check your internet connection
+2. Refresh the page
+3. Try a different browser
+4. Contact support if the issue persists`);
+            }
+        }
+
+        // Chat Functions
+        function addMessage(type, content) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            if (type === 'assistant' || type === 'system') {
+                messageDiv.innerHTML = content.replace(/\n/g, '<br>');
+            } else {
+                messageDiv.textContent = content;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage('user', message);
+            input.value = '';
+
+            // Enhanced e-commerce context handling
+            if (message.toLowerCase().includes('checkout') || message.toLowerCase().includes('buy') || message.toLowerCase().includes('purchase')) {
+                if (cart.length === 0) {
+                    addMessage('assistant', '🛒 **Cart is empty!** Please add some T-shirts to your cart first.');
+                    return;
+                }
+                
+                // Extract email for checkout
+                const emailMatch = message.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+                if (emailMatch) {
+                    const email = emailMatch[0];
+                    addMessage('assistant', `🛍️ **Starting checkout process...**
+
+**Order Summary:**
+${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')}
+
+**Total: $${cartTotal.toFixed(2)}**
+
+🔍 Looking up your Skipify account: ${email}`);
+                    
+                    // Start Skipify lookup process
+                    await executeEcommerceCheckout(email);
+                    return;
+                } else {
+                    addMessage('assistant', '📧 **Please provide your email address for checkout.**\n\nExample: *"Checkout with your-email@example.com"*');
+                    return;
+                }
+            }
+
+            // Regular chat handling
+            if (!currentSession) {
+                addMessage('assistant', '⚠️ **No chat session active.** Please click "New Chat Session" to start.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/chat/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: currentSession,
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+                addMessage('assistant', data.content);
+
+                // Execute Skipify operations if metadata present
+                if (data.metadata && data.metadata.executeSDK) {
+                    await executeSkipifyAction(data.metadata.skipifyAction, data.metadata.parameters);
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                addMessage('assistant', '❌ **Chat service error.** Please try again.');
+            }
+        }
+
+        // E-commerce Checkout Flow
+        async function executeEcommerceCheckout(email) {
+            try {
+                // Check if SDK is loaded
+                if (!skipifySDK) {
+                    addMessage('assistant', `❌ **Skipify SDK not available**
+                    
+**The payment system is not ready.** Please:
+1. **Refresh the page** and wait for the SDK to load
+2. **Check the browser console** for any errors
+3. **Try again** in a few moments
+
+**If the problem persists:**
+• Check your internet connection
+• Try a different browser
+• Contact support for assistance`);
+                    return;
+                }
+
+                // Step 1: Lookup
+                addMessage('system', '🔍 Step 1: Looking up Skipify account...');
+                const lookupResult = await Promise.race([
+                    skipifySDK.lookup({ email: email }),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Lookup timed out after 5 seconds')), 5000))
+                ]);
+                
+                if (lookupResult.error) {
+                    addMessage('assistant', `❌ **Checkout failed:** ${lookupResult.error.message}\n\nThis email may not be registered with Skipify.`);
+                    return;
+                }
+
+                lookupResults = lookupResult;
+                storedChallengeId = lookupResult.challengeId;
+                
+                // FIXED: Check payment methods using correct flags structure
+                const directFlags = lookupResult.flags?.potentialPaymentMethods;
+                const nestedFlags = lookupResult.lookupData?.flags?.potentialPaymentMethods;
+                const hasPaymentMethods = directFlags || nestedFlags || false;
+
+                // Payment method detection working correctly - debug code removed
+
+                addMessage('assistant', `✅ **Skipify account found!**
+
+👤 **Account Details:**
+• Email: ${email}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+
+🔐 **Authentication required - please follow the prompts to authenticate on the website**`);
+
+                // Step 2: Authentication  
+                addMessage('system', '🔐 Step 2: Starting authentication...');
+                
+                // Create authentication container
+                const authContainer = document.createElement('div');
+                authContainer.id = 'ecommerce-auth-container';
+                authContainer.innerHTML = '<h4>🔐 Authentication Required</h4><div id="ecommerce-auth-content"></div>';
+                
+                const authPlaceholder = document.getElementById('auth-container-placeholder');
+                authPlaceholder.innerHTML = '';
+                authPlaceholder.appendChild(authContainer);
+                
+                // ✅ FIXED: Use proper authentication with callbacks (no await - it's interactive)
+                skipifySDK.authentication(lookupResults, {
+                    onSuccess: (data) => {
+                        console.log('E-commerce authentication success:', data);
+                        window.authenticationResult = data;
+                        
+                        addMessage('assistant', `✅ **Authentication successful!**
+
+**Authentication Results:**
+• Shopper ID: ${data.shopperId || 'Retrieved'}
+• Session ID: ${data.sessionId || 'Active'}
+
+🎯 **Ready for payment selection**`);
+
+                        // ✅ FIXED: Now trigger carousel after successful authentication
+                        showEcommerceCarousel(email, data);
+                    },
+                    onError: (error) => {
+                        console.error('E-commerce authentication error:', error);
+                        addMessage('assistant', `❌ **Authentication failed:** ${error.message || error}\n\nPlease try again or contact support.`);
+                    },
+                    onCancel: () => {
+                        console.log('E-commerce authentication cancelled');
+                        addMessage('assistant', '⚠️ **Authentication cancelled** by user.');
+                    }
+                }).render(document.getElementById('ecommerce-auth-content'));
+
+            } catch (error) {
+                console.error('E-commerce checkout error:', error);
+                addMessage('assistant', `❌ **Checkout error:** ${error.message}\n\nPlease try again or contact support.`);
+            }
+        }
+
+        // Skipify Payment Submission (via backend to avoid CORS)
+        async function submitSkipifyPayment(paymentId, sessionId, amount, merchantReference = null) {
+            try {
+                const paymentData = {
+                    paymentId: paymentId,
+                    sessionId: sessionId,
+                    amount: Math.round(amount * 100), // Convert to cents
+                    merchantReference: merchantReference || `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    enableRecurring: false
+                };
+
+                console.log('🚀 Submitting payment via backend:', paymentData);
+                addMessage('system', '💳 Submitting payment to Skipify...');
+
+                // Call our backend instead of Skipify directly to avoid CORS
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/skipify/payments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    console.log('✅ Payment submission successful:', result);
+                    
+                    // Store cart items before clearing (handle both cart and non-cart scenarios)
+                    const purchasedItems = cart.length > 0 ? [...cart] : [
+                        { emoji: '🎯', name: 'Test Purchase', price: amount / 100 }
+                    ];
+                    const totalAmount = amount / 100; // Convert from cents to dollars
+                    
+                    // Display receipt with full order details
+                    displayReceipt(purchasedItems, result, totalAmount);
+                    
+                    // Show success message in chat
+                    addMessage('assistant', `🎉 **Payment Successful!**
+
+💳 **Transaction Completed:**
+• Amount: $${totalAmount.toFixed(2)}
+• Transaction ID: ${result.data?.transactionId?.substring(0, 12)}...
+• Status: ${result.data?.status || 'Completed'}
+
+✅ **Your order receipt is displayed on the left. Thank you for your purchase!**`);
+
+                    // Clear the cart after successful payment
+                    cart = [];
+                    updateCartDisplay();
+                    
+                    return result;
+                } else {
+                    console.error('❌ Payment submission failed:', result);
+                    addMessage('assistant', `❌ **Payment Failed**
+
+**Error:** ${result.error || 'Unknown error occurred'}
+
+💡 **Please try again or contact support.**`);
+                    throw new Error(result.error || 'Payment submission failed');
+                }
+
+            } catch (error) {
+                console.error('💥 Payment submission error:', error);
+                addMessage('assistant', `❌ **Payment Error**
+
+**Error:** ${error.message}
+
+💡 **Please try again or contact support if the problem persists.**`);
+                throw error;
+            }
+        }
+
+        // E-commerce Carousel Display (called after authentication succeeds)
+        async function showEcommerceCarousel(email, authData) {
+            try {
+                addMessage('system', '💳 Step 3: Loading payment options...');
+                
+                const carouselContainer = document.createElement('div');
+                carouselContainer.id = 'ecommerce-carousel-container';
+                carouselContainer.innerHTML = '<h4>💳 Select Payment Method</h4><div id="ecommerce-carousel-content"></div>';
+                
+                const placeholder = document.getElementById('carousel-container-placeholder');
+                placeholder.innerHTML = '';
+                placeholder.appendChild(carouselContainer);
+
+                // ✅ ENHANCED: Show confirmation step before payment
+                const carouselOptions = {
+                    onSelect: async (result) => {
+                        console.log('E-commerce carousel payment selected:', result);
+                        console.log('🔍 Payment result properties:', {
+                            networkType: result.metadata?.networkType || result.networkType,
+                            cardType: result.cardType,
+                            lastFour: result.metadata?.lastFour || result.lastFour,
+                            cardEnding: result.cardEnding,
+                            metadata: result.metadata,
+                            allKeys: Object.keys(result)
+                        });
+                        
+                        // Store payment details for confirmation
+                        window.selectedPaymentDetails = {
+                            paymentId: result.paymentId,
+                            sessionId: result.sessionId,
+                            cardType: result.metadata?.networkType || result.networkType || result.cardType || 'Card',
+                            cardEnding: result.metadata?.lastFour || result.lastFour || result.cardEnding || 'XXXX',
+                            amount: cartTotal
+                        };
+                        
+                        // Show payment confirmation instead of immediately processing
+                        showPaymentConfirmation(window.selectedPaymentDetails, cartTotal);
+                    },
+                    onError: (error) => {
+                        console.error('E-commerce carousel error:', error);
+                        addMessage('assistant', `❌ **Checkout error:** ${error.message || error}\n\nPlease try again or contact support.`);
+                    },
+                    amount: Math.round(cartTotal * 100), // Amount in cents
+                    config: {
+                        theme: "light",
+                        fontFamily: "default",
+                        fontSize: "medium"
+                    }
+                };
+
+                // Use exact API from working test page: carousel(authenticationResult, options).render(container)
+                console.log('Calling skipifySDK.carousel with authData and options...');
+                const carouselComponent = skipifySDK.carousel(authData, carouselOptions);
+                console.log('Carousel component created:', carouselComponent);
+                
+                // Render the carousel
+                console.log('Rendering carousel to container...');
+                carouselComponent.render(document.getElementById('ecommerce-carousel-content'));
+
+                addMessage('assistant', `🎉 **Checkout Ready!**
+
+💳 **Payment carousel loaded** - **click on your preferred payment method** above to complete your $${cartTotal.toFixed(2)} purchase.
+
+🛍️ **Your T-shirt order:**
+${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')}
+
+**Total: $${cartTotal.toFixed(2)}**
+
+💡 **Next step:** Select a payment method from the carousel above to finalize your purchase!`);
+
+            } catch (error) {
+                console.error('E-commerce carousel error:', error);
+                addMessage('assistant', `❌ **Carousel error:** ${error.message}\n\nPlease try again or contact support.`);
+            }
+        }
+
+        // Skipify Action Execution (same as test page)
+        async function executeSkipifyAction(action, parameters) {
+            addMessage('system', `🚀 Executing ${action} operation via frontend SDK...`);
+
+            switch (action) {
+                case 'lookup':
+                    await executeSDKLookup(parameters);
+                    break;
+                case 'auth':
+                    await executeSDKAuth(parameters);
+                    break;
+                case 'carousel':
+                    await executeSDKCarousel(parameters);
+                    break;
+                case 'device_id':
+                    await executeSDKDeviceId(parameters);
+                    break;
+                case 'card_selection':
+                    await executeSDKCardSelection(parameters);
+                    break;
+                default:
+                    addMessage('assistant', `❌ Unknown Skipify action: ${action}`);
+            }
+        }
+
+        // Execute SDK functions (enhanced versions for T-shirt store)
+        async function executeSDKLookup(parameters) {
+            const { email, phone } = parameters;
+            
+            if (!skipifySDK) {
+                addMessage('assistant', `❌ **Skipify SDK not available**
+                
+**The payment system is not ready.** Please refresh the page and wait for the SDK to load, then try again.`);
+                return;
+            }
+
+            try {
+                const lookupParams = {};
+                if (email) lookupParams.email = email;
+                if (phone) lookupParams.phone = phone;
+
+                const result = await Promise.race([
+                    skipifySDK.lookup(lookupParams),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Lookup timed out after 3 seconds')), 3000))
+                ]);
+
+                lookupResults = result;
+                storedChallengeId = result.challengeId;
+
+                // Check payment methods in multiple possible locations
+                const directFlags = result.flags?.potentialPaymentMethods;
+                const nestedFlags = result.lookupData?.flags?.potentialPaymentMethods;
+                const hasPaymentMethods = directFlags || nestedFlags || false;
+                const contact = email || phone;
+
+                // Debug message to see what's happening (UPDATED VERSION)
+                addMessage('system', `🔍 **UPDATED DEBUG (${new Date().toLocaleTimeString()}):**
+• result.flags: ${JSON.stringify(result.flags)}
+• result.lookupData?.flags: ${JSON.stringify(result.lookupData?.flags)}
+• directFlags: ${directFlags}
+• nestedFlags: ${nestedFlags}
+• hasPaymentMethods: ${hasPaymentMethods}`);
+
+                let responseText = `✅ **Skipify account found!**
+
+👤 **Account Details:**
+• Email: ${contact}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+
+🔐 **Authentication required - please follow the prompts to authenticate on the website**`;
+
+                if (hasPaymentMethods && result.challengeId) {
+                    responseText += `\n\n🎯 **Ready for authentication!** The shopper has payment methods available.\n💡 Say *"Authenticate"* or *"Start authentication"* to proceed.`;
+                }
+
+                addMessage('assistant', responseText);
+
+            } catch (error) {
+                console.error('SDK lookup error:', error);
+                addMessage('assistant', `❌ **Lookup failed:** ${error.message}\n\n💡 This might be due to network issues or the email not being in the Skipify network.`);
+            }
+        }
+
+        async function executeSDKAuth(parameters) {
+            const { challengeId, phone } = parameters;
+            
+            const finalChallengeId = challengeId || storedChallengeId;
+            
+            if (!finalChallengeId) {
+                addMessage('assistant', '❌ **Challenge ID required for authentication.** Please perform a lookup first to get a challenge ID, then try authentication again.');
+                return;
+            }
+            
+            if (!challengeId && storedChallengeId) {
+                console.log('🔑 Using stored challenge ID from previous lookup:', storedChallengeId);
+                addMessage('system', '🔑 Using challenge ID from previous lookup automatically');
+            }
+
+            if (!skipifySDK) {
+                addMessage('assistant', '❌ **Skipify SDK not loaded** - cannot perform authentication.');
+                return;
+            }
+
+            addMessage('assistant', '🔐 **Starting authentication process...** The authentication component will appear in the components section below.');
+
+            try {
+                if (!lookupResults) {
+                    addMessage('assistant', '❌ **Lookup results required for authentication.** Please perform a lookup first to get the full context needed for authentication.');
+                    return;
+                }
+
+                const authParams = { ...lookupResults };
+                authParams.challengeId = finalChallengeId;
+
+                if (phone) {
+                    authParams.phone = phone;
+                }
+
+                // ✅ FIXED: Use proper authentication call with callbacks like working test page
+                const result = await skipifySDK.authentication(authParams, {
+                    onSuccess: (data) => {
+                        console.log('Authentication success:', data);
+                        window.authenticationResult = data;
+                        
+                        let responseText = `✅ **Authentication completed successfully!**\n\n`;
+                        responseText += `**Authentication Results:**\n`;
+                        responseText += `• Shopper ID: ${data.shopperId || 'Retrieved'}\n`;
+                        responseText += `• Session ID: ${data.sessionId || 'Active'}\n\n`;
+                        responseText += `🎯 **Next Step:** You can now show payment options by saying:\n*"Show payment carousel for $${cartTotal.toFixed(2)}"*`;
+                        
+                        addMessage('assistant', responseText);
+                    },
+                    onError: (error) => {
+                        console.error('Authentication error:', error);
+                        addMessage('assistant', `❌ **Authentication failed:** ${error.message || error}\n\n💡 Please try again or check the challenge ID.`);
+                    },
+                    onCancel: () => {
+                        console.log('Authentication cancelled');
+                        addMessage('assistant', '⚠️ **Authentication cancelled** by user. Please try again when ready.');
+                    }
+                });
+
+                // Show auth container
+                const container = document.getElementById('skipify-auth-container');
+                if (container) {
+                    container.style.display = 'block';
+                    addMessage('system', '📱 Authentication component is now visible in the components section');
+                }
+                
+                // Render the authentication component if result has render function
+                if (result && typeof result.render === 'function') {
+                    console.log('🎨 Calling render function to display authentication component');
+                    
+                    try {
+                        result.render(container);
+                        console.log('✅ Authentication component rendered successfully');
+                    } catch (renderError) {
+                        console.error('Error rendering auth component:', renderError);
+                        addMessage('assistant', `❌ **Error displaying authentication component:** ${renderError.message}`);
+                    }
+                }
+
+            } catch (error) {
+                console.error('SDK authentication error:', error);
+                addMessage('assistant', `❌ **Authentication failed:** ${error.message}\n\n💡 Please try the authentication process again.`);
+            }
+        }
+
+        async function executeSDKCarousel(parameters) {
+            const { amount, phone } = parameters;
+            
+            if (!skipifySDK) {
+                addMessage('assistant', '❌ **Skipify SDK not loaded** - cannot show payment carousel.');
+                return;
+            }
+
+            if (!window.authenticationResult) {
+                addMessage('assistant', '❌ **Authentication required first.** Please run lookup and authentication before carousel.');
+                return;
+            }
+
+            try {
+                const carouselAmount = amount || Math.round(cartTotal * 100); // Use cart total if no amount specified
+                
+                addMessage('system', `💳 Rendering carousel with amount: $${(carouselAmount / 100).toFixed(2)}`);
+
+                const carouselContainer = document.createElement('div');
+                carouselContainer.id = 'carousel-container';
+                carouselContainer.innerHTML = '<h4>💳 Payment Carousel</h4><div id="carousel-content"></div>';
+
+                const placeholder = document.getElementById('carousel-container-placeholder');
+                placeholder.innerHTML = '';
+                placeholder.appendChild(carouselContainer);
+
+                // ✅ ENHANCED: Show confirmation step before payment (Chat version)
+                const options = {
+                    onSelect: async (result) => {
+                        console.log('Chat carousel payment selected:', result);
+                        console.log('🔍 Payment result properties:', {
+                            networkType: result.metadata?.networkType || result.networkType,
+                            cardType: result.cardType,
+                            lastFour: result.metadata?.lastFour || result.lastFour,
+                            cardEnding: result.cardEnding,
+                            metadata: result.metadata,
+                            allKeys: Object.keys(result)
+                        });
+                        
+                        // Use cart total if available, otherwise use carousel amount
+                        const paymentAmount = cartTotal > 0 ? cartTotal : (carouselAmount / 100);
+                        
+                        // Store payment details for confirmation
+                        window.selectedPaymentDetails = {
+                            paymentId: result.paymentId,
+                            sessionId: result.sessionId,
+                            cardType: result.metadata?.networkType || result.networkType || result.cardType || 'Card',
+                            cardEnding: result.metadata?.lastFour || result.lastFour || result.cardEnding || 'XXXX',
+                            amount: paymentAmount,
+                            isChat: true
+                        };
+                        
+                        // Show payment confirmation instead of immediately processing
+                        showPaymentConfirmation(window.selectedPaymentDetails, paymentAmount);
+                    },
+                    onError: (error) => {
+                        console.error('Chat carousel error:', error);
+                        addMessage('assistant', `❌ **Carousel error:** ${error.message || error}\n\nPlease try again.`);
+                    },
+                    amount: carouselAmount, // Amount in cents
+                    config: {
+                        theme: "light",
+                        fontFamily: "default",
+                        fontSize: "medium"
+                    }
+                };
+
+                // Use exact API from working test page: carousel(authenticationResult, options).render(container)
+                console.log('Calling skipifySDK.carousel with authenticationResult and options...');
+                const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
+                console.log('Carousel component created:', carouselComponent);
+                
+                // Render the carousel
+                console.log('Rendering carousel to container...');
+                carouselComponent.render(document.getElementById('carousel-content'));
+                
+                addMessage('system', '✅ Carousel component rendered successfully');
+
+                addMessage('assistant', `💳 **Payment carousel loaded!**
+
+**Click on your preferred payment method** in the components section above to complete your $${(carouselAmount / 100).toFixed(2)} purchase.
+
+💡 **Next step:** Select a payment method from the carousel to finalize your purchase!
+
+You can also ask me to help with card selection like:
+*"Select the Amex card ending in 0005"*`);
+
+            } catch (error) {
+                console.error('SDK carousel error:', error);
+                addMessage('assistant', `❌ **Carousel error:** ${error.message}\n\n💡 Make sure authentication was completed first.`);
+            }
+        }
+
+        async function executeSDKDeviceId(parameters) {
+            if (!skipifySDK) {
+                addMessage('assistant', '❌ **Skipify SDK not loaded** - cannot get device ID.');
+                return;
+            }
+
+            try {
+                const deviceId = await skipifySDK.deviceId();
+                addMessage('assistant', `📱 **Device ID Retrieved:** \`${deviceId}\`
+
+This unique identifier helps Skipify provide secure payment processing.`);
+            } catch (error) {
+                console.error('SDK device ID error:', error);
+                addMessage('assistant', `❌ **Device ID error:** ${error.message}`);
+            }
+        }
+
+        async function executeSDKCardSelection(parameters) {
+            // Simplified version - just show a message for now
+            addMessage('assistant', `💳 **Card selection requested!**
+
+Please click directly on your preferred payment method in the carousel above to select it.
+
+*Note: Automated card selection within the secure Skipify iframe is limited by browser security policies.*`);
+        }
+
+        // Manual SDK retry function
+        async function retrySDKInitialization() {
+            addMessage('system', '🔧 Manually retrying Skipify SDK initialization...');
+            
+            try {
+                skipifySDK = null; // Reset SDK
+                await initializeSkipifySDK();
+                
+                if (skipifySDK) {
+                    addMessage('assistant', '✅ **Payment system restored!** The Skipify SDK is now working properly. You can proceed with checkout.');
+                } else {
+                    addMessage('assistant', '❌ **Still having issues.** The SDK retry failed. Please refresh the page or contact support.');
+                }
+            } catch (error) {
+                console.error('Manual SDK retry failed:', error);
+                addMessage('assistant', `❌ **Retry failed:** ${error.message}\n\nPlease refresh the page completely.`);
+            }
+        }
+
+        // Session Management
+        async function createSession() {
+            try {
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/chat/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        merchantId: '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0'
+                    })
+                });
+
+                const session = await response.json();
+                currentSession = session.id;
+                skipifySessionId = session.skipifySessionId;
+
+                addMessage('system', `✅ New chat session created: ${currentSession.substring(0, 8)}...`);
+                addMessage('assistant', '👋 **Chat session ready!** I can help you checkout with Skipify. Add some T-shirts to your cart and tell me your email to start the checkout process!');
+            } catch (error) {
+                console.error('Error creating session:', error);
+                addMessage('system', '❌ Failed to create chat session. Please check if the backend server is running.');
+            }
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', async () => {
+            console.log('🚀 Page loaded, starting initialization...');
+            
+            // Wait for script to load or fail
+            let attempts = 0;
+            while (!scriptLoaded && !scriptFailed && attempts < 30) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                attempts++;
+                console.log(`⏳ Waiting for script loading... attempt ${attempts}/30`);
+            }
+            
+            if (scriptFailed) {
+                console.error('❌ Script loading failed, cannot proceed');
+                return;
+            }
+            
+            // Add additional delay to ensure SDK is ready
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            console.log('🔍 Final check - Global skipify object:', typeof window.skipify);
+            
+            initializeStore();
+            createSession();
+        });
+
+        // Additional check for SDK loading
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 DOM content loaded');
+            
+            // Check if script tag loaded properly
+            const skipifyScript = document.querySelector('script[src*="components-sdk.js"]');
+            console.log('📜 Skipify script tag found:', !!skipifyScript);
+            if (skipifyScript) {
+                console.log('📜 Script src:', skipifyScript.src);
+            }
+        });
+    </script>
+</body>
+</html>
