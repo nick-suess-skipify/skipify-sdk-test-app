@@ -250,6 +250,9 @@
         document.head.appendChild(sdkScript);
     </script>
 
+    <!-- Configuration Script -->
+    <script src="config.js"></script>
+
     <script>
         let currentSession = null;
         let skipifySessionId = null;
@@ -333,7 +336,7 @@
             const merchantId = document.getElementById('merchantIdInput').value;
             
             try {
-                const response = await fetch('http://localhost:3000/api/chat/sessions', {
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/chat/sessions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -397,7 +400,7 @@
             messageInput.value = '';
             
             try {
-                const response = await fetch('http://localhost:3000/api/chat/messages', {
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/chat/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

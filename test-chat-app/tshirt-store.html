@@ -569,6 +569,9 @@
         </div>
     </div>
 
+    <!-- Configuration Script -->
+    <script src="config.js"></script>
+
     <!-- Skipify SDK - Dynamic Loading -->
     <script>
         // Script loading monitor variables
@@ -1202,7 +1205,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/api/chat/messages`, {
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/chat/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1333,7 +1336,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 addMessage('system', '💳 Submitting payment to Skipify...');
 
                 // Call our backend instead of Skipify directly to avoid CORS
-                const response = await fetch('http://localhost:3000/api/skipify/payments', {
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/skipify/payments`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1776,7 +1779,7 @@ Please click directly on your preferred payment method in the carousel above to 
         // Session Management
         async function createSession() {
             try {
-                const response = await fetch('http://localhost:3000/api/chat/sessions', {
+                const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/chat/sessions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

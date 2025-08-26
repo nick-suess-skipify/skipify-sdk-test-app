@@ -1,0 +1,43 @@
+name: skipify-tshirt-store-demo
+services:
+- name: backend
+  source_dir: /mcp-server
+  github:
+    repo: nick-suess-skipify/skipify-sdk-test-app
+    branch: main
+  run_command: npm start
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  env:
+  - key: PORT
+    value: "8080"
+  - key: SKIPIFY_MERCHANT_ID
+    value: "1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0"
+  - key: SKIPIFY_ENVIRONMENT
+    value: "stage"
+  - key: ENABLE_CORS
+    value: "true"
+  - key: NODE_ENV
+    value: "production"
+  build_command: npm install && npm run build
+
+- name: frontend
+  source_dir: /test-chat-app
+  github:
+    repo: nick-suess-skipify/skipify-sdk-test-app
+    branch: main
+  run_command: node serve-test.js
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  env:
+  - key: PORT
+    value: "8080"
+  - key: BACKEND_URL
+    value: "${backend.PUBLIC_URL}"
+  build_command: npm install
+
+domains:
+- domain: skipify-tshirt-store-demo.ondigitalocean.app
+  type: PRIMARY
