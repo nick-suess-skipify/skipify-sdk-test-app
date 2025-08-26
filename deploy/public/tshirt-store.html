@@ -445,7 +445,51 @@
             background: #219a52;
         }
 
-        /* Skipify Components */
+        /* Integrated Skipify Assistant Section */
+        .skipify-assistant-section {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #3498db;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+        }
+
+        .assistant-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .assistant-container {
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+            background: white;
+        }
+
+        .assistant-container .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+            max-height: 500px;
+        }
+
+        .assistant-container .chat-input {
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+            background: #f8f9fa;
+        }
+
+        .component-containers {
+            display: none; /* Hidden but available for Skipify rendering */
+        }
+
+        /* Legacy Skipify Components (kept for compatibility) */
         .skipify-components {
             margin-top: 30px;
             padding: 20px;
@@ -490,9 +534,16 @@
                 grid-template-columns: 1fr;
             }
             
-            .chat-section {
-                border-left: none;
-                border-top: 3px solid #3498db;
+            .skipify-assistant-section {
+                margin-top: 20px;
+            }
+            
+            .assistant-container {
+                height: 500px;
+            }
+            
+            .assistant-container .chat-messages {
+                max-height: 350px;
             }
         }
 
@@ -549,64 +600,55 @@
                     </button>
                 </div>
 
-                <!-- Skipify Components Section -->
-                <div class="skipify-components">
-                    <h3 style="text-align: center; margin-bottom: 20px; color: #2c3e50;">🔐 Skipify Checkout Components</h3>
-                    
-                    <div class="component-container">
-                        <div class="component-title">🔍 Authentication Component</div>
-                        <div id="skipify-auth-container"></div>
-                        <div id="auth-container-placeholder"></div>
-                    </div>
-
-                    <div class="component-container">
-                        <div class="component-title">💳 Payment Carousel</div>
-                        <div id="carousel-container-placeholder"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chat Section -->
-            <div class="chat-section">
-                <div class="chat-header">
-                    🤖 Skipify Assistant
-                </div>
-                
-                <div class="chat-container">
-                    <div class="chat-messages" id="chat-messages">
-                        <div class="message assistant">
-                            👋 **Welcome to Skipify T-Shirt Store!**
-                            
-                            I can help you checkout with our secure Skipify payment system. 
-                            
-                            **Try saying:**
-                            • *"Checkout with your-email@example.com"*
-                            • *"Process my order with my email"*
-                            • *"Pay with my Skipify account"*
-                            
-                            Add some T-shirts to your cart and I'll handle the rest! 🛍️
-                        </div>
+                <!-- Integrated Skipify Assistant & Components Section -->
+                <div class="skipify-assistant-section">
+                    <div class="assistant-header">
+                        🤖 Skipify Assistant - Integrated Checkout Experience
                     </div>
                     
-                    <div class="chat-input">
-                        <div class="input-group">
-                            <input 
-                                type="text" 
-                                id="user-input" 
-                                class="chat-input-field" 
-                                placeholder="Ask me to checkout, or say 'help' for commands..."
-                                onkeypress="handleKeyPress(event)"
-                            >
-                            <button class="send-button" onclick="sendMessage()">Send</button>
+                    <div class="assistant-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message assistant">
+                                👋 **Welcome to Skipify T-Shirt Store!**
+                                
+                                I can help you checkout with our secure Skipify payment system. 
+                                
+                                **Try saying:**
+                                • *"Checkout with your-email@example.com"*
+                                • *"Process my order with my email"*
+                                • *"Pay with my Skipify account"*
+                                
+                                Add some T-shirts to your cart and I'll handle the rest! 🛍️
+                            </div>
                         </div>
                         
-                        <div style="margin-top: 10px; text-align: center;">
-                            <button onclick="createSession()" style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer; margin-right: 8px;">
-                                🔄 New Chat Session
-                            </button>
-                            <button onclick="retrySDKInitialization()" style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer;">
-                                🔧 Retry Payment System
-                            </button>
+                        <div class="chat-input">
+                            <div class="input-group">
+                                <input 
+                                    type="text" 
+                                    id="user-input" 
+                                    class="chat-input-field" 
+                                    placeholder="Ask me to checkout, or say 'help' for commands..."
+                                    onkeypress="handleKeyPress(event)"
+                                >
+                                <button class="send-button" onclick="sendMessage()">Send</button>
+                            </div>
+                            
+                            <div style="margin-top: 10px; text-align: center;">
+                                <button onclick="createSession()" style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer; margin-right: 8px;">
+                                    🔄 New Chat Session
+                                </button>
+                                <button onclick="retrySDKInitialization()" style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer;">
+                                    🔧 Retry Payment System
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Component containers for proper Skipify rendering -->
+                        <div class="component-containers">
+                            <div id="skipify-auth-container" style="display: none;"></div>
+                            <div id="auth-container-placeholder" style="display: none;"></div>
+                            <div id="carousel-container-placeholder" style="display: none;"></div>
                         </div>
                     </div>
                 </div>
@@ -1349,14 +1391,13 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 // Step 2: Authentication  
                 addMessage('system', '🔐 Step 2: Starting authentication...');
                 
-                // Create authentication container
-                const authContainer = document.createElement('div');
-                authContainer.id = 'ecommerce-auth-container';
-                authContainer.innerHTML = '<h4>🔐 Authentication Required</h4><div id="ecommerce-auth-content"></div>';
-                
-                const authPlaceholder = document.getElementById('auth-container-placeholder');
-                authPlaceholder.innerHTML = '';
-                authPlaceholder.appendChild(authContainer);
+                // Use integrated authentication container
+                const authContainer = document.getElementById('skipify-auth-container');
+                if (authContainer) {
+                    authContainer.style.display = 'block';
+                    authContainer.innerHTML = '<h4>🔐 Authentication Required</h4><div id="ecommerce-auth-content"></div>';
+                    addMessage('system', '📱 Authentication will appear in the integrated assistant section');
+                }
                 
                 // ✅ FIXED: Use proper authentication with callbacks (no await - it's interactive)
                 skipifySDK.authentication(lookupResults, {
@@ -1469,13 +1510,13 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             try {
                 addMessage('system', '💳 Step 3: Loading payment options...');
                 
-                const carouselContainer = document.createElement('div');
-                carouselContainer.id = 'ecommerce-carousel-container';
-                carouselContainer.innerHTML = '<h4>💳 Select Payment Method</h4><div id="ecommerce-carousel-content"></div>';
-                
-                const placeholder = document.getElementById('carousel-container-placeholder');
-                placeholder.innerHTML = '';
-                placeholder.appendChild(carouselContainer);
+                // Use integrated carousel container
+                const carouselContainer = document.getElementById('carousel-container-placeholder');
+                if (carouselContainer) {
+                    carouselContainer.style.display = 'block';
+                    carouselContainer.innerHTML = '<h4>💳 Select Payment Method</h4><div id="ecommerce-carousel-content"></div>';
+                    addMessage('system', '💳 Payment carousel will appear in the integrated assistant section');
+                }
 
                 // ✅ ENHANCED: Show confirmation step before payment
                 const carouselOptions = {
@@ -1698,20 +1739,20 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     }
                 });
 
-                // Show auth container
+                // Show auth container (now integrated in chat)
                 const container = document.getElementById('skipify-auth-container');
                 if (container) {
                     container.style.display = 'block';
-                    addMessage('system', '📱 Authentication component is now visible in the components section');
+                    addMessage('system', '📱 Authentication component will render in the chat interface');
                 }
                 
                 // Render the authentication component if result has render function
                 if (result && typeof result.render === 'function') {
-                    console.log('🎨 Calling render function to display authentication component');
+                    console.log('🎨 Calling render function to display authentication component in chat');
                     
                     try {
                         result.render(container);
-                        console.log('✅ Authentication component rendered successfully');
+                        console.log('✅ Authentication component rendered successfully in integrated chat');
                     } catch (renderError) {
                         console.error('Error rendering auth component:', renderError);
                         addMessage('assistant', `❌ **Error displaying authentication component:** ${renderError.message}`);
