@@ -65,15 +65,15 @@
         .main-content {
             display: grid;
             grid-template-columns: 1fr 350px;
-            gap: 20px;
+            gap: 15px;
             min-height: 70vh;
-            padding: 20px;
+            padding: 15px;
         }
         
         .left-column {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
         
         .right-column {
@@ -84,7 +84,7 @@
 
         /* Products Section */
         .products-section {
-            padding: 40px;
+            padding: 20px;
         }
 
         /* Receipt Section */
@@ -305,10 +305,10 @@
         }
 
         .message {
-            margin-bottom: 10px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            max-width: 85%;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 90%;
             line-height: 1.3;
             font-size: 14px;
         }
@@ -333,8 +333,8 @@
 
         /* Embedded Component Styling */
         .component-message {
-            max-width: 95% !important;
-            margin: 8px 0 !important;
+            max-width: 98% !important;
+            margin: 5px 0 !important;
         }
 
         .embedded-component-container {
@@ -368,21 +368,22 @@
             height: 140px !important;
         }
 
-        /* Authentication component specific styling - PROPER HEIGHT */
+        /* Authentication component specific styling - INCREASED HEIGHT */
         .embedded-component-container.auth-component {
             border-color: #4caf50;
             background: linear-gradient(145deg, #f8fff8, #ffffff);
-            max-height: 280px !important;
-            min-height: 240px !important;
-            height: 240px !important;
+            max-height: 350px !important;
+            min-height: 300px !important;
+            height: 320px !important;
         }
 
-        /* Payment carousel specific styling - COMPACT */
+        /* Payment carousel specific styling - INCREASED HEIGHT */
         .embedded-component-container.carousel-component {
             border-color: #2196f3;
             background: linear-gradient(145deg, #f0f8ff, #ffffff);
-            max-height: 200px !important;
-            min-height: 140px !important;
+            max-height: 350px !important;
+            min-height: 280px !important;
+            height: 300px !important;
         }
 
         /* Ultra-compact component styling for chat flow */
@@ -400,26 +401,26 @@
             height: 130px !important;
         }
 
-        /* Inline authentication with proper height */
+        /* Inline authentication with increased height */
         .embedded-component-container.auth-component.inline-component {
-            max-height: 280px !important;
-            height: 240px !important;
+            max-height: 350px !important;
+            height: 320px !important;
         }
 
         .embedded-component-container.auth-component.inline-component iframe {
-            height: 220px !important;
-            max-height: 260px !important;
+            height: 300px !important;
+            max-height: 320px !important;
         }
 
-        /* Ultra-compact carousel */
+        /* Inline carousel with increased height */
         .embedded-component-container.carousel-component.inline-component {
-            max-height: 180px !important;
-            height: 160px !important;
+            max-height: 350px !important;
+            height: 300px !important;
         }
 
         .embedded-component-container.carousel-component.inline-component iframe {
-            height: 140px !important;
-            max-height: 150px !important;
+            height: 280px !important;
+            max-height: 300px !important;
         }
 
         .chat-input {
@@ -536,7 +537,7 @@
         .assistant-container .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
             background: white;
             max-height: 500px;
         }
@@ -1497,8 +1498,8 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 const authContainerId = `ecommerce-auth-${Date.now()}`;
                 const authContainer = addComponentMessage('assistant', responseText, 'Authentication', authContainerId);
                 authContainer.className += ' auth-component inline-component';
-                authContainer.style.maxHeight = '280px';
-                authContainer.style.height = '240px';
+                authContainer.style.maxHeight = '350px';
+                authContainer.style.height = '320px';
                 authContainer.style.overflow = 'auto';
                 
                 // Store container for later replacement
@@ -1738,12 +1739,12 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 
 🔐 **Starting authentication...**`;
                     
-                    // Create authentication component message with proper height
+                    // Create authentication component message with increased height
                     const authContainerId = `chat-auth-${Date.now()}`;
                     const authContainer = addComponentMessage('assistant', responseText, 'Authentication', authContainerId);
                     authContainer.className += ' auth-component inline-component';
-                    authContainer.style.maxHeight = '280px';
-                    authContainer.style.height = '240px';
+                    authContainer.style.maxHeight = '350px';
+                    authContainer.style.height = '320px';
                     authContainer.style.overflow = 'auto';
                     
                     // Store container ID for later replacement
@@ -1888,10 +1889,10 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 console.log('🔍 Target container:', container);
                 console.log('🔍 Container ID:', container.id);
                 
-                // Set up inline container styling - larger height for authentication
+                // Set up inline container styling - increased height for authentication
                 container.classList.add('inline-component');
-                container.style.maxHeight = '280px';
-                container.style.height = '240px';
+                container.style.maxHeight = '350px';
+                container.style.height = '320px';
                 container.style.overflow = 'auto';
                 container.style.display = 'block';
                 container.style.position = 'relative';
@@ -2009,8 +2010,8 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                                 const iframes = container.querySelectorAll('iframe');
                                 iframes.forEach(iframe => {
                                     iframe.style.width = '100%';
-                                    iframe.style.height = '220px';
-                                    iframe.style.maxHeight = '220px';
+                                    iframe.style.height = '300px';
+                                    iframe.style.maxHeight = '300px';
                                     iframe.style.border = 'none';
                                     iframe.style.borderRadius = '4px';
                                 });
@@ -2118,12 +2119,12 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             try {
                 console.log('💳 Replacing authentication with payment carousel...');
                 
-                // Update container styling for compact carousel
+                // Update container styling for carousel with increased height
                 container.classList.remove('auth-component');
                 container.classList.add('carousel-component', 'inline-component');
-                container.style.maxHeight = '180px';
-                container.style.height = '160px';
-                container.style.overflow = 'hidden';
+                container.style.maxHeight = '350px';
+                container.style.height = '300px';
+                container.style.overflow = 'auto';
                 
                 // Show loading state
                 container.innerHTML = '<div class="component-loading">💳 Loading payment options...</div>';
@@ -2346,9 +2347,9 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 const carouselContainerId = `chat-carousel-${Date.now()}`;
                 const carouselContainer = addComponentMessage('assistant', responseText, 'Payment Options', carouselContainerId);
                 carouselContainer.className += ' carousel-component inline-component';
-                carouselContainer.style.maxHeight = '180px';
-                carouselContainer.style.height = '160px';
-                carouselContainer.style.overflow = 'hidden';
+                carouselContainer.style.maxHeight = '350px';
+                carouselContainer.style.height = '300px';
+                carouselContainer.style.overflow = 'auto';
 
                 // ✅ ENHANCED: Inline confirmation in same container
                 const options = {
@@ -2531,7 +2532,7 @@ Please click directly on your preferred payment method in the carousel above to 
             messageDiv.innerHTML = `
                 <div style="margin-bottom: 8px; font-size: 14px; line-height: 1.4;">${text}</div>
                 <div id="${containerId}" class="embedded-component-container inline-component" 
-                     style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; margin: 5px 0; min-height: 200px; max-height: 280px; overflow: auto; position: relative;">
+                     style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; margin: 5px 0; min-height: 280px; max-height: 350px; height: 300px; overflow: auto; position: relative;">
                     <div class="component-loading" style="text-align: center; color: #666; padding: 15px; font-size: 13px;">
                         🔄 Loading ${componentType}...
                     </div>
