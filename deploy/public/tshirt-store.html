@@ -816,7 +816,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">🛍️ Skipify T-Shirt Store</div>
+            <div class="logo">Skipify T-Shirt Store</div>
             <div class="cart-info">
                 <span>Cart: $<span id="cart-total">0.00</span></span>
                 <div class="cart-badge" id="cart-count">0</div>
@@ -839,13 +839,13 @@
                 <!-- Integrated Skipify Assistant & Components Section -->
                 <div class="skipify-assistant-section">
                     <div class="assistant-header">
-                        🤖 Skipify Assistant - Integrated Checkout Experience
+                        Skipify Assistant - Integrated Checkout Experience
                     </div>
                     
                     <div class="assistant-container">
                         <div class="chat-messages" id="chat-messages">
                             <div class="message assistant">
-                                👋 **Welcome to Skipify T-Shirt Store!**
+                                **Welcome to Skipify T-Shirt Store!**
                                 
                                 I can help you checkout with our secure Skipify payment system. 
                                 
@@ -854,7 +854,7 @@
                                 • *"Process my order with my email"*
                                 • *"Pay with my Skipify account"*
                                 
-                                Add some T-shirts to your cart and I'll handle the rest! 🛍️
+                                Add some T-shirts to your cart and I'll handle the rest!
                             </div>
                         </div>
                         
@@ -872,7 +872,7 @@
                             
                             <div style="margin-top: 10px; text-align: center;">
                                 <button onclick="createSession()" style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer;">
-                                    🔄 New Chat Session
+                                    New Chat Session
                                 </button>
                             </div>
                         </div>
@@ -885,7 +885,7 @@
             <!-- Right Column: Shopping Cart -->
             <div class="right-column">
                 <div class="cart-summary">
-                    <h3>🛒 Shopping Cart</h3>
+                    <h3>Shopping Cart</h3>
                     <div class="cart-total">Total: $<span id="display-total">0.00</span></div>
                     
                     <div class="cart-items" id="cart-items">
@@ -893,7 +893,7 @@
                     </div>
 
                     <button class="quick-checkout" onclick="startChatCheckout()">
-                        💬 Chat to Checkout
+                        Chat to Checkout
                     </button>
                 </div>
             </div>
@@ -950,42 +950,42 @@
                 id: 'classic-tee',
                 name: 'Classic Cotton Tee',
                 price: 29.99,
-                image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop&crop=center',
+                image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&crop=center',
                 description: 'Comfortable 100% cotton t-shirt with classic fit'
             },
             {
                 id: 'premium-polo',
                 name: 'Premium Polo Shirt',
                 price: 49.99,
-                image: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=300&h=300&fit=crop&crop=center',
+                image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=400&fit=crop&crop=center',
                 description: 'Premium cotton polo with modern fit and collar'
             },
             {
                 id: 'vintage-graphic',
                 name: 'Vintage Graphic Tee',
                 price: 34.99,
-                image: 'https://images.unsplash.com/photo-1583743814966-8936f37f179b?w=300&h=300&fit=crop&crop=center',
+                image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center',
                 description: 'Retro-style graphic design with vintage appeal'
             },
             {
                 id: 'athletic-dryfit',
                 name: 'Athletic Dry-Fit Tee',
                 price: 39.99,
-                image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=300&fit=crop&crop=center',
+                image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=400&fit=crop&crop=center',
                 description: 'Moisture-wicking performance shirt for active lifestyle'
             },
             {
                 id: 'organic-eco',
                 name: 'Organic Eco Tee',
                 price: 44.99,
-                image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=300&h=300&fit=crop&crop=center',
+                image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400&h=400&fit=crop&crop=center',
                 description: 'Sustainable organic cotton t-shirt, eco-friendly'
             },
             {
                 id: 'designer-luxury',
                 name: 'Designer Luxury Tee',
                 price: 79.99,
-                image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=300&h=300&fit=crop&crop=center',
+                image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=400&h=400&fit=crop&crop=center',
                 description: 'Premium designer cotton blend with luxury finish'
             }
         ];
@@ -1029,9 +1029,9 @@
             }
             
             if (!skipifySDK) {
-                addMessage('system', '⚠️ T-Shirt store loaded but payment system needs attention. Try refreshing the page.');
+                addMessage('system', 'T-Shirt store loaded but payment system needs attention. Try refreshing the page.');
             } else {
-                addMessage('system', '🛍️ T-Shirt store loaded! Add items to cart and use chat to checkout.');
+                addMessage('system', 'T-Shirt store loaded! Add items to cart and use chat to checkout.');
             }
         }
 
@@ -1091,15 +1091,13 @@
                 <div class="receipt-container">
                     <div class="receipt-header">
                         <div class="receipt-title">
-                            <span>🎉</span>
                             <span>Order Confirmed!</span>
-                            <span>✅</span>
                         </div>
                         <div class="receipt-subtitle">Thank you for your purchase</div>
                     </div>
 
                     <div class="receipt-section">
-                        <h3>📦 Items Purchased</h3>
+                        <h3>Items Purchased</h3>
                         ${itemsHTML}
                     </div>
 
@@ -1111,7 +1109,7 @@
                     </div>
 
                     <div class="receipt-section">
-                        <h3>💳 Payment Information</h3>
+                        <h3>Payment Information</h3>
                         <div class="receipt-info">
                             <div class="receipt-info-item">
                                 <span>Payment Method:</span>
@@ -1133,7 +1131,7 @@
                     </div>
 
                     <div class="receipt-section">
-                        <h3>📅 Order Details</h3>
+                        <h3>Order Details</h3>
                         <div class="receipt-info">
                             <div class="receipt-info-item">
                                 <span>Order Date:</span>
@@ -1145,14 +1143,14 @@
                             </div>
                             <div class="receipt-info-item">
                                 <span>Store:</span>
-                                <span>🛍️ Premium T-Shirts</span>
+                                <span>Premium T-Shirts</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="receipt-actions">
                         <button class="new-order-btn" onclick="startNewOrder()">
-                            🛍️ Start New Order
+                            Start New Order
                         </button>
                     </div>
                 </div>
@@ -1341,7 +1339,7 @@
             }
             
             updateCartDisplay();
-            addMessage('system', `✅ Added ${product.name} to cart ($${product.price})`);
+            addMessage('system', `Added ${product.name} to cart ($${product.price})`);
         }
 
         function removeFromCart(productId) {
@@ -1350,7 +1348,7 @@
                 const removed = cart[itemIndex];
                 cart.splice(itemIndex, 1);
                 updateCartDisplay();
-                addMessage('system', `🗑️ Removed ${removed.name} from cart`);
+                addMessage('system', `Removed ${removed.name} from cart`);
             }
         }
 
@@ -1409,7 +1407,7 @@
         // Quick Checkout via Chat with auto-scroll
         function startChatCheckout() {
             if (cart.length === 0) {
-                addMessage('assistant', '🛒 **Your cart is empty!** Please add some T-shirts to your cart first, then I can help you checkout.');
+                addMessage('assistant', '**Your cart is empty!** Please add some T-shirts to your cart first, then I can help you checkout.');
                 
                 // Scroll to chat window even if cart is empty
                 setTimeout(() => {
@@ -1424,7 +1422,7 @@
                 return;
             }
 
-            addMessage('assistant', `🛍️ **Ready to checkout!** 
+            addMessage('assistant', `**Ready to checkout!** 
             
 **Cart Summary:**
 ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`).join('\n')}
@@ -1602,7 +1600,7 @@ To checkout with Skipify, just tell me your email address like:
             // Enhanced e-commerce context handling
             if (message.toLowerCase().includes('checkout') || message.toLowerCase().includes('buy') || message.toLowerCase().includes('purchase')) {
                 if (cart.length === 0) {
-                    addMessage('assistant', '🛒 **Cart is empty!** Please add some T-shirts to your cart first.');
+                    addMessage('assistant', '**Cart is empty!** Please add some T-shirts to your cart first.');
                     return;
                 }
                 
@@ -1610,27 +1608,27 @@ To checkout with Skipify, just tell me your email address like:
                 const emailMatch = message.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
                 if (emailMatch) {
                     const email = emailMatch[0];
-                    addMessage('assistant', `🛍️ **Starting checkout process...**
+                    addMessage('assistant', `**Starting checkout process...**
 
 **Order Summary:**
 ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`).join('\n')}
 
 **Total: $${cartTotal.toFixed(2)}**
 
-🔍 Looking up your Skipify account: ${email}`);
+Looking up your Skipify account: ${email}`);
                     
                     // Start Skipify lookup process
                     await executeEcommerceCheckout(email);
                     return;
                 } else {
-                    addMessage('assistant', '📧 **Please provide your email address for checkout.**\n\nExample: *"Checkout with your-email@example.com"*');
+                    addMessage('assistant', '**Please provide your email address for checkout.**\n\nExample: *"Checkout with your-email@example.com"*');
                     return;
                 }
             }
 
             // Regular chat handling
             if (!currentSession) {
-                addMessage('assistant', '⚠️ **No chat session active.** Please click "New Chat Session" to start.');
+                addMessage('assistant', '**No chat session active.** Please click "New Chat Session" to start.');
                 return;
             }
 
@@ -1653,7 +1651,7 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                 }
             } catch (error) {
                 console.error('Chat error:', error);
-                addMessage('assistant', '❌ **Chat service error.** Please try again.');
+                addMessage('assistant', '**Chat service error.** Please try again.');
             }
         }
 
@@ -1662,7 +1660,7 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
             try {
                 // Check if SDK is loaded
                 if (!skipifySDK) {
-                    addMessage('assistant', `❌ **Skipify SDK not available**
+                    addMessage('assistant', `**Skipify SDK not available**
                     
 **The payment system is not ready.** Please:
 1. **Refresh the page** and wait for the SDK to load
@@ -1677,14 +1675,14 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                 }
 
                 // Step 1: Lookup
-                addMessage('system', '🔍 Step 1: Looking up Skipify account...');
+                addMessage('system', 'Step 1: Looking up Skipify account...');
                 const lookupResult = await Promise.race([
                     skipifySDK.lookup({ email: email }),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('Lookup timed out after 5 seconds')), 5000))
                 ]);
                 
                 if (lookupResult.error) {
-                    addMessage('assistant', `❌ **Checkout failed:** ${lookupResult.error.message}\n\nThis email may not be registered with Skipify.`);
+                    addMessage('assistant', `**Checkout failed:** ${lookupResult.error.message}\n\nThis email may not be registered with Skipify.`);
                     return;
                 }
 
