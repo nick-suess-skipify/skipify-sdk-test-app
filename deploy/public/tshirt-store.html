@@ -1881,7 +1881,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             }
         }
 
-        // Start inline authentication within chat message using temp container approach
+        // Start inline authentication within chat message using direct rendering approach
         async function startInlineAuthentication(lookupResult, container) {
             try {
                 console.log('🔐 Starting inline authentication in chat message...');
@@ -1894,28 +1894,29 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 container.style.height = '240px';
                 container.style.overflow = 'auto';
                 container.style.display = 'block';
+                container.style.position = 'relative';
+                container.style.zIndex = '1';
                 
                 // Show loading state
                 container.innerHTML = '<div class="component-loading" style="text-align: center; padding: 20px; color: #666;">🔄 Loading authentication...</div>';
                 
-                // Create a temporary container with unique ID that SDK can find reliably
-                const tempId = `temp-auth-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                const tempContainer = document.createElement('div');
-                tempContainer.id = tempId;
-                tempContainer.style.position = 'absolute';
-                tempContainer.style.top = '-10000px'; // Hide off-screen
-                tempContainer.style.left = '-10000px';
-                tempContainer.style.width = '400px';
-                tempContainer.style.height = '240px';
+                // Force DOM update and wait for container to be ready
+                await new Promise(resolve => {
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(resolve);
+                    });
+                });
                 
-                // Add temp container to body so SDK can find it
-                document.body.appendChild(tempContainer);
+                // Verify container is ready
+                if (!document.contains(container)) {
+                    throw new Error('Container not properly attached to DOM');
+                }
                 
-                console.log('🔧 Created temporary container for SDK rendering:', tempId);
+                console.log('✅ Container ready for direct SDK rendering');
                 
                 const authParams = { ...lookupResult };
                 
-                // Start authentication and render to temp container first
+                // Try direct rendering to inline container first
                 const result = await skipifySDK.authentication(authParams, {
                     onSuccess: (data) => {
                         console.log('🎉 Inline authentication success:', data);
@@ -1934,23 +1935,13 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                             </div>
                         `;
                         
-                        // Clean up temp container
-                        if (document.body.contains(tempContainer)) {
-                            document.body.removeChild(tempContainer);
-                        }
-                        
                         // Replace with payment carousel after brief success display
                         setTimeout(() => {
                             replaceWithPaymentCarousel(container, cartTotal);
                         }, 1500);
                     },
                     onError: (error) => {
-                        console.error('❌ Inline authentication error:', error);
-                        
-                        // Clean up temp container
-                        if (document.body.contains(tempContainer)) {
-                            document.body.removeChild(tempContainer);
-                        }
+                        console.error('❌ Direct authentication error:', error);
                         
                         // Better error object handling
                         let errorMessage = 'Authentication failed';
@@ -1982,11 +1973,6 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     onCancel: () => {
                         console.log('⚠️ Inline authentication cancelled');
                         
-                        // Clean up temp container
-                        if (document.body.contains(tempContainer)) {
-                            document.body.removeChild(tempContainer);
-                        }
-                        
                         container.innerHTML = `
                             <div style="text-align: center; padding: 15px;">
                                 <div style="font-size: 32px; margin-bottom: 10px;">⚠️</div>
@@ -2005,74 +1991,92 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 
                 console.log('🎯 Authentication SDK call completed, result:', result);
                 
-                // Render to temporary container first, then move to inline container
+                // Try to render directly to inline container first
                 setTimeout(() => {
                     if (result && typeof result.render === 'function') {
-                        console.log('🎨 Rendering authentication component to temp container first');
+                        console.log('🎨 Attempting direct render to inline container');
                         
                         try {
-                            // Render to temp container where SDK can find it
-                            result.render(tempContainer);
-                            console.log('✅ Authentication component rendered to temp container');
+                            // Clear loading state before rendering
+                            container.innerHTML = '';
                             
-                            // Wait a bit for rendering to complete, then copy content
+                            // Try direct render first
+                            result.render(container);
+                            console.log('✅ Direct authentication component render successful');
+                            
+                            // Apply styling to any iframes
                             setTimeout(() => {
-                                if (tempContainer.innerHTML && tempContainer.innerHTML.trim() !== '') {
-                                    console.log('📋 Copying auth content from temp to inline container');
+                                const iframes = container.querySelectorAll('iframe');
+                                iframes.forEach(iframe => {
+                                    iframe.style.width = '100%';
+                                    iframe.style.height = '220px';
+                                    iframe.style.maxHeight = '220px';
+                                    iframe.style.border = 'none';
+                                    iframe.style.borderRadius = '4px';
+                                });
+                                console.log('✅ Applied styling to authentication iframes');
+                            }, 500);
+                            
+                        } catch (directRenderError) {
+                            console.warn('⚠️ Direct render failed, trying fallback approach:', directRenderError);
+                            
+                            // Fallback: use temp container approach
+                            const tempId = `temp-auth-fallback-${Date.now()}`;
+                            const tempContainer = document.createElement('div');
+                            tempContainer.id = tempId;
+                            tempContainer.style.position = 'absolute';
+                            tempContainer.style.top = '-10000px';
+                            tempContainer.style.left = '-10000px';
+                            tempContainer.style.width = '400px';
+                            tempContainer.style.height = '240px';
+                            document.body.appendChild(tempContainer);
+                            
+                            try {
+                                result.render(tempContainer);
+                                console.log('✅ Fallback temp container render successful');
+                                
+                                setTimeout(() => {
+                                    // Move the entire node instead of copying innerHTML
+                                    while (tempContainer.firstChild) {
+                                        container.appendChild(tempContainer.firstChild);
+                                    }
                                     
-                                    // Copy the rendered content to the inline container
-                                    container.innerHTML = tempContainer.innerHTML;
+                                    // Clean up temp container
+                                    if (document.body.contains(tempContainer)) {
+                                        document.body.removeChild(tempContainer);
+                                    }
                                     
-                                    // Apply inline styling to copied content
-                                    const iframes = container.querySelectorAll('iframe');
-                                    iframes.forEach(iframe => {
-                                        iframe.style.height = '100px';
-                                        iframe.style.maxHeight = '100px';
-                                    });
-                                    
-                                    console.log('✅ Authentication content moved to inline container');
-                                } else {
-                                    console.warn('⚠️ Temp container is empty after render');
-                                    container.innerHTML = `
-                                        <div style="text-align: center; padding: 15px; color: #f44336;">
-                                            <div style="font-size: 14px;">Component rendered but content not found</div>
-                                        </div>
-                                    `;
-                                }
+                                    console.log('✅ Authentication component moved to inline container');
+                                }, 1000);
+                                
+                            } catch (fallbackError) {
+                                console.error('❌ Fallback render also failed:', fallbackError);
                                 
                                 // Clean up temp container
                                 if (document.body.contains(tempContainer)) {
                                     document.body.removeChild(tempContainer);
                                 }
-                            }, 1000); // Wait for SDK to render into temp container
-                            
-                        } catch (renderError) {
-                            console.error('Error rendering auth component:', renderError);
-                            
-                            // Clean up temp container
-                            if (document.body.contains(tempContainer)) {
-                                document.body.removeChild(tempContainer);
+                                
+                                container.innerHTML = `
+                                    <div style="text-align: center; padding: 15px; color: #f44336;">
+                                        <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                                        <div style="font-size: 14px; font-weight: bold;">
+                                            Authentication component failed to render
+                                        </div>
+                                        <div style="font-size: 12px; margin-top: 8px;">
+                                            ${fallbackError.message}
+                                        </div>
+                                        <div style="margin-top: 10px;">
+                                            <button onclick="location.reload()" style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                                                🔄 Refresh Page
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
                             }
-                            
-                            container.innerHTML = `
-                                <div style="text-align: center; padding: 15px; color: #f44336;">
-                                    <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
-                                    <div style="font-size: 14px; font-weight: bold;">
-                                        Component render error
-                                    </div>
-                                    <div style="font-size: 12px; margin-top: 8px;">
-                                        ${renderError.message}
-                                    </div>
-                                </div>
-                            `;
                         }
                     } else {
                         console.warn('⚠️ Authentication result does not have render function:', result);
-                        
-                        // Clean up temp container
-                        if (document.body.contains(tempContainer)) {
-                            document.body.removeChild(tempContainer);
-                        }
                         
                         container.innerHTML = `
                             <div style="text-align: center; padding: 15px; color: #f44336;">
@@ -2086,7 +2090,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                             </div>
                         `;
                     }
-                }, 500);
+                }, 300); // Reduced delay for faster response
 
             } catch (error) {
                 console.error('❌ Failed to start inline authentication:', error);
