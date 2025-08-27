@@ -827,7 +827,10 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">Skipify T-Shirt Store</div>
+            <div class="logo">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAApCAYAAADyhvzjAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAANESURBVHgB7ZtNaBNBGIafJBYh1UIRQT2oFNuDF+tJe/HgxYsHL148ePDgwYMHL168ePHixYs3L168ePHiwYMXL948eBAQQakFpVJpobS0FEuxUFpKS0tpKS2lpbS0lJbS0lJaSktp6SczmZ3sZmY3u0k2Sf1gIJnMzrz7zvd+3/f+A5AkSZIkSZIkSZIk/W8k/gXi8bgqy7IqSZLqGwwGVZ/P5/f7/T6/3+/z+/1+n8/n8/v9fp/P5/f7/X6fz+f3+/1+n8/n9/v9Pp/P7/f7fT6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+3w+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pp/f7/f7fD6f3+/3+30+n9/v9/t8Pr" alt="Skipify" style="height: 24px; vertical-align: middle; margin-right: 8px;">
+                Skipify T-Shirt Store
+            </div>
             <div class="cart-info">
                 <span>Cart: $<span id="cart-total">0.00</span></span>
                 <div class="cart-badge" id="cart-count">0</div>
@@ -856,14 +859,13 @@
                     <div class="assistant-container">
                     <div class="chat-messages" id="chat-messages">
                                                     <div class="message assistant">
-                                **Welcome to Skipify T-Shirt Store!**
+                                **Welcome to the Skipify T-Shirt Store!**
                                 
-                                I can help you checkout with our secure Skipify payment system. 
+                                I can help you pay quickly and securely with Skipify Checkout.
                                 
                                 **Try saying:**
                                 • *"Checkout with your-email@example.com"*
                                 • *"Process my order with my email: your-email@example.com"*
-                                • *"Do I have any cards available to checkout with your-email@example.com"*
                                 • *"Pay with my Skipify account your-email@example.com"*
                                 
                                 Add some T-shirts to your cart and I'll handle the rest!
@@ -1507,10 +1509,10 @@ To checkout with Skipify, just tell me your email address like:
                     await new Promise(resolve => setTimeout(resolve, 500));
                     const deviceId = await skipifySDK.deviceId();
                     console.log('📱 Device ID test successful:', deviceId);
-                    addMessage('system', '🔐 Skipify payment system ready and tested');
+                    addMessage('system', 'Skipify payment system ready and tested');
                 } catch (deviceError) {
                     console.warn('⚠️ Device ID test failed, but SDK may still work:', deviceError);
-                    addMessage('system', '🔐 Skipify payment system loaded (device ID test skipped)');
+                    addMessage('system', 'Skipify payment system loaded');
                 }
             } catch (error) {
                 console.error('❌ Failed to initialize Skipify SDK:', error);
