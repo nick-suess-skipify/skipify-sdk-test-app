@@ -368,12 +368,13 @@
             height: 140px !important;
         }
 
-        /* Authentication component specific styling - COMPACT */
+        /* Authentication component specific styling - PROPER HEIGHT */
         .embedded-component-container.auth-component {
             border-color: #4caf50;
             background: linear-gradient(145deg, #f8fff8, #ffffff);
-            max-height: 180px !important;
-            min-height: 120px !important;
+            max-height: 280px !important;
+            min-height: 240px !important;
+            height: 240px !important;
         }
 
         /* Payment carousel specific styling - COMPACT */
@@ -399,15 +400,15 @@
             height: 130px !important;
         }
 
-        /* Ultra-compact authentication */
+        /* Inline authentication with proper height */
         .embedded-component-container.auth-component.inline-component {
-            max-height: 140px !important;
-            height: 120px !important;
+            max-height: 280px !important;
+            height: 240px !important;
         }
 
         .embedded-component-container.auth-component.inline-component iframe {
-            height: 100px !important;
-            max-height: 110px !important;
+            height: 220px !important;
+            max-height: 260px !important;
         }
 
         /* Ultra-compact carousel */
@@ -1496,9 +1497,9 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 const authContainerId = `ecommerce-auth-${Date.now()}`;
                 const authContainer = addComponentMessage('assistant', responseText, 'Authentication', authContainerId);
                 authContainer.className += ' auth-component inline-component';
-                authContainer.style.maxHeight = '140px';
-                authContainer.style.height = '120px';
-                authContainer.style.overflow = 'hidden';
+                authContainer.style.maxHeight = '280px';
+                authContainer.style.height = '240px';
+                authContainer.style.overflow = 'auto';
                 
                 // Store container for later replacement
                 window.currentAuthContainer = authContainer;
@@ -1737,13 +1738,13 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 
 🔐 **Starting authentication...**`;
                     
-                    // Create compact authentication component message
+                    // Create authentication component message with proper height
                     const authContainerId = `chat-auth-${Date.now()}`;
                     const authContainer = addComponentMessage('assistant', responseText, 'Authentication', authContainerId);
                     authContainer.className += ' auth-component inline-component';
-                    authContainer.style.maxHeight = '140px';
-                    authContainer.style.height = '120px';
-                    authContainer.style.overflow = 'hidden';
+                    authContainer.style.maxHeight = '280px';
+                    authContainer.style.height = '240px';
+                    authContainer.style.overflow = 'auto';
                     
                     // Store container ID for later replacement
                     window.currentAuthContainer = authContainer;
@@ -1887,11 +1888,11 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 console.log('🔍 Target container:', container);
                 console.log('🔍 Container ID:', container.id);
                 
-                // Set up inline container styling
+                // Set up inline container styling - larger height for authentication
                 container.classList.add('inline-component');
-                container.style.maxHeight = '140px';
-                container.style.height = '120px';
-                container.style.overflow = 'hidden';
+                container.style.maxHeight = '280px';
+                container.style.height = '240px';
+                container.style.overflow = 'auto';
                 container.style.display = 'block';
                 
                 // Show loading state
@@ -1905,7 +1906,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 tempContainer.style.top = '-10000px'; // Hide off-screen
                 tempContainer.style.left = '-10000px';
                 tempContainer.style.width = '400px';
-                tempContainer.style.height = '300px';
+                tempContainer.style.height = '240px';
                 
                 // Add temp container to body so SDK can find it
                 document.body.appendChild(tempContainer);
@@ -2526,7 +2527,7 @@ Please click directly on your preferred payment method in the carousel above to 
             messageDiv.innerHTML = `
                 <div style="margin-bottom: 8px; font-size: 14px; line-height: 1.4;">${text}</div>
                 <div id="${containerId}" class="embedded-component-container inline-component" 
-                     style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; margin: 5px 0; min-height: 100px; max-height: 160px; overflow: hidden; position: relative;">
+                     style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; margin: 5px 0; min-height: 200px; max-height: 280px; overflow: auto; position: relative;">
                     <div class="component-loading" style="text-align: center; color: #666; padding: 15px; font-size: 13px;">
                         🔄 Loading ${componentType}...
                     </div>
