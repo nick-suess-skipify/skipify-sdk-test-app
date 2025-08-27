@@ -1553,7 +1553,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 const paymentData = {
                     paymentId: paymentId,
                     sessionId: sessionId,
-                    amount: Math.round(amount * 100), // Convert to cents
+                    amount: amount, // Amount is already in cents when passed to this function
                     merchantReference: merchantReference || `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                     enableRecurring: false
                 };
@@ -1576,21 +1576,22 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     console.log('✅ Payment submission successful:', result);
                     
                     // Store cart items before clearing (handle both cart and non-cart scenarios)
+                    const totalAmount = cart.length > 0 ? cart.reduce((sum, item) => sum + item.price, 0) : (amount / 100);
                     const purchasedItems = cart.length > 0 ? [...cart] : [
-                        { emoji: '🎯', name: 'Test Purchase', price: amount / 100 }
+                        { emoji: '🎯', name: 'Test Purchase', price: totalAmount }
                     ];
-                    const totalAmount = amount / 100; // Convert from cents to dollars
                     
                     // Display receipt with full order details
                     displayReceipt(purchasedItems, result, totalAmount);
                     
-                    // Show success message in chat
+                    // Show success message in chat - fix transaction ID access
+                    const transactionId = result.transactionId || result.data?.transactionId || 'Generated';
                     addMessage('assistant', `🎉 **Payment Successful!**
 
 💳 **Transaction Completed:**
 • Amount: $${totalAmount.toFixed(2)}
-• Transaction ID: ${result.data?.transactionId?.substring(0, 12)}...
-• Status: ${result.data?.status || 'Completed'}
+• Transaction ID: ${transactionId.substring(0, 12)}...
+• Status: ${result.status || result.data?.status || 'Completed'}
 
 ✅ **Your order receipt is displayed on the left. Thank you for your purchase!**`);
 
@@ -2368,7 +2369,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                 const result = await submitSkipifyPayment(
                     paymentData.paymentId,
                     paymentData.sessionId,
-                    paymentData.amount
+                    Math.round(paymentData.amount * 100) // Convert to cents
                 );
                 
                 // Show success state
