@@ -1895,17 +1895,37 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
         async function startInlineAuthentication(lookupResult, container) {
             try {
                 console.log('🔐 Starting inline authentication in chat message...');
+                console.log('🔍 Container element:', container);
+                console.log('🔍 Container ID:', container.id);
+                console.log('🔍 Container in DOM:', document.contains(container));
                 
-                // Clear loading and prepare compact container
-                container.innerHTML = '<div class="component-loading">🔄 Loading authentication...</div>';
+                // Ensure container is properly set up and visible
                 container.classList.add('inline-component');
                 container.style.maxHeight = '140px';
                 container.style.height = '120px';
                 container.style.overflow = 'hidden';
+                container.style.display = 'block'; // Ensure it's visible
+                
+                // Clear any existing content and show loading
+                container.innerHTML = '<div class="component-loading" style="text-align: center; padding: 20px; color: #666;">🔄 Loading authentication...</div>';
+                
+                // Force DOM update and wait for it to be ready
+                await new Promise(resolve => {
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(resolve);
+                    });
+                });
+                
+                // Verify container is ready
+                if (!document.contains(container)) {
+                    throw new Error('Container not properly attached to DOM');
+                }
+                
+                console.log('✅ Container ready for SDK rendering');
                 
                 const authParams = { ...lookupResult };
                 
-                // Start authentication with callbacks and compact config
+                // Start authentication - SDK will render to the container element
                 const result = await skipifySDK.authentication(authParams, {
                     config: {
                         theme: "light",
@@ -1937,6 +1957,15 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     },
                     onError: (error) => {
                         console.error('❌ Inline authentication error:', error);
+                        
+                        // Better error object handling
+                        let errorMessage = 'Authentication failed';
+                        if (error && typeof error === 'object') {
+                            errorMessage = error.message || error.error?.message || JSON.stringify(error);
+                        } else if (typeof error === 'string') {
+                            errorMessage = error;
+                        }
+                        
                         container.innerHTML = `
                             <div style="text-align: center; padding: 15px;">
                                 <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
@@ -1944,7 +1973,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                                     Authentication Failed
                                 </div>
                                 <div style="color: #666; font-size: 12px;">
-                                    ${error.message || 'Please try again'}
+                                    ${errorMessage}
                                 </div>
                                 <div style="margin-top: 10px;">
                                     <button onclick="retrySDKInitialization()" style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">
@@ -1954,7 +1983,7 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                             </div>
                         `;
                         
-                        addMessage('assistant', `❌ **Authentication failed:** ${error.message || error}\n\n💡 Please try again or check your credentials.`);
+                        addMessage('assistant', `❌ **Authentication failed:** ${errorMessage}\n\n💡 Please try again or check your credentials.`);
                     },
                     onCancel: () => {
                         console.log('⚠️ Inline authentication cancelled');
@@ -1974,16 +2003,39 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     }
                 });
 
-                // Render the authentication component in the chat container
+                console.log('🎯 Authentication SDK call completed, result:', result);
+                
+                // Render the authentication component to the container
                 if (result && typeof result.render === 'function') {
-                    console.log('🎨 Rendering inline authentication component');
+                    console.log('🎨 Rendering authentication component to inline container');
+                    
+                    // Clear loading state before rendering
+                    container.innerHTML = '';
+                    
+                    // Render the component
                     result.render(container);
+                    console.log('✅ Authentication component rendered successfully');
                 } else {
-                    console.log('🔄 Authentication started, waiting for callbacks...');
+                    console.warn('⚠️ Authentication result does not have render function:', result);
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 15px; color: #f44336;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                            <div style="font-size: 14px; font-weight: bold;">
+                                Authentication component unavailable
+                            </div>
+                            <div style="font-size: 12px; margin-top: 8px;">
+                                SDK did not return a renderable component
+                            </div>
+                        </div>
+                    `;
                 }
 
             } catch (error) {
                 console.error('❌ Failed to start inline authentication:', error);
+                
+                // Better error handling for the try-catch
+                let errorMessage = error.message || error;
+                
                 container.innerHTML = `
                     <div style="text-align: center; padding: 15px; color: #f44336;">
                         <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
@@ -1991,10 +2043,12 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                             Failed to start authentication
                         </div>
                         <div style="font-size: 12px; margin-top: 8px;">
-                            ${error.message}
+                            ${errorMessage}
                         </div>
                     </div>
                 `;
+                
+                addMessage('assistant', `❌ **Authentication setup failed:** ${errorMessage}\n\n💡 Please try refreshing the page.`);
             }
         }
 
@@ -2099,10 +2153,24 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     }
                 };
 
+                // Verify container is ready for carousel rendering
+                if (!document.contains(container)) {
+                    throw new Error('Container not available for carousel rendering');
+                }
+                
+                // Clear loading state before rendering carousel
+                container.innerHTML = '';
+                
                 // Render the carousel component
                 const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
                 console.log('💳 Rendering inline carousel component');
-                carouselComponent.render(container);
+                
+                if (carouselComponent && typeof carouselComponent.render === 'function') {
+                    carouselComponent.render(container);
+                    console.log('✅ Carousel component rendered successfully');
+                } else {
+                    throw new Error('Carousel component does not have render function');
+                }
 
             } catch (error) {
                 console.error('❌ Failed to create payment carousel:', error);
@@ -2310,19 +2378,37 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 
                 // Render the carousel directly in the chat container
                 console.log('🎨 Rendering inline carousel in chat...');
+                console.log('🔍 Carousel container:', carouselContainer);
+                console.log('🔍 Container in DOM:', document.contains(carouselContainer));
+                
+                // Verify container is ready
+                if (!document.contains(carouselContainer)) {
+                    throw new Error('Carousel container not attached to DOM');
+                }
                 
                 // Clear loading message
                 carouselContainer.innerHTML = '<div class="component-loading">💳 Loading payment options...</div>';
                 
-                setTimeout(() => {
-                    const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
-                    console.log('✅ Carousel component created, rendering to inline chat container...');
-                    
+                // Force DOM update and wait for readiness
+                await new Promise(resolve => {
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(resolve);
+                    });
+                });
+                
+                // Clear loading and render carousel
+                carouselContainer.innerHTML = '';
+                
+                const carouselComponent = skipifySDK.carousel(window.authenticationResult, options);
+                console.log('✅ Carousel component created, rendering to inline chat container...');
+                
+                if (carouselComponent && typeof carouselComponent.render === 'function') {
                     // Render to the inline chat container
                     carouselComponent.render(carouselContainer);
-                    
                     console.log('✅ Inline carousel rendered successfully in chat!');
-                }, 300);
+                } else {
+                    throw new Error('Carousel component does not have render function');
+                }
 
             } catch (error) {
                 console.error('SDK carousel error:', error);
