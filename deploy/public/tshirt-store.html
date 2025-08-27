@@ -73,7 +73,7 @@
         .left-column {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 16px;
         }
         
         .right-column {
@@ -232,9 +232,12 @@
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 24px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .product-card {
@@ -661,7 +664,7 @@
 
         /* Integrated Skipify Assistant Section */
         .skipify-assistant-section {
-            margin-top: 5px;
+            margin-top: 0;
             background: white;
             border-radius: 8px;
             border: 1px solid #e0e0e0;
@@ -807,6 +810,14 @@
             
             .products-grid {
                 grid-template-columns: 1fr;
+                gap: 20px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
             }
         }
@@ -966,27 +977,6 @@
                 price: 34.99,
                 image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=400&h=400&fit=crop&crop=center',
                 description: 'Features Skipify logo with retro-style vintage appeal'
-            },
-            {
-                id: 'athletic-dryfit',
-                name: 'Athletic Dry-Fit Tee',
-                price: 39.99,
-                image: 'https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=400&h=400&fit=crop&crop=center',
-                description: 'Moisture-wicking performance shirt for active lifestyle'
-            },
-            {
-                id: 'organic-eco',
-                name: 'Organic Eco Tee',
-                price: 44.99,
-                image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop&crop=center',
-                description: 'Sustainable organic cotton t-shirt, eco-friendly'
-            },
-            {
-                id: 'designer-luxury',
-                name: 'Designer Luxury Tee',
-                price: 79.99,
-                image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400&h=400&fit=crop&crop=center',
-                description: 'Premium designer cotton blend with luxury finish'
             }
         ];
 
