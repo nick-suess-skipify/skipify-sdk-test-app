@@ -838,55 +838,56 @@
         <div class="main-content">
             <!-- Left Column: Products + Skipify Assistant -->
             <div class="left-column">
-                <!-- Products Section -->
-                <div class="products-section">
-                    <h1 class="section-title">Premium T-Shirts Collection</h1>
-                    
-                    <div class="products-grid" id="products-grid">
-                        <!-- Products will be loaded here -->
-                    </div>
+            <!-- Products Section -->
+            <div class="products-section">
+                <h1 class="section-title">Premium T-Shirts Collection</h1>
+                
+                <div class="products-grid" id="products-grid">
+                    <!-- Products will be loaded here -->
                 </div>
+                    </div>
 
                 <!-- Integrated Skipify Assistant & Components Section -->
                 <div class="skipify-assistant-section">
                     <div class="assistant-header">
                         Skipify Assistant - Integrated Checkout Experience
-                    </div>
-                    
+                </div>
+
                     <div class="assistant-container">
-                        <div class="chat-messages" id="chat-messages">
-                            <div class="message assistant">
+                    <div class="chat-messages" id="chat-messages">
+                                                    <div class="message assistant">
                                 **Welcome to Skipify T-Shirt Store!**
                                 
                                 I can help you checkout with our secure Skipify payment system. 
                                 
                                 **Try saying:**
                                 • *"Checkout with your-email@example.com"*
-                                • *"Process my order with my email"*
-                                • *"Pay with my Skipify account"*
+                                • *"Process my order with my email: your-email@example.com"*
+                                • *"Do I have any cards available to checkout with your-email@example.com"*
+                                • *"Pay with my Skipify account your-email@example.com"*
                                 
                                 Add some T-shirts to your cart and I'll handle the rest!
                             </div>
+                    </div>
+                    
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="user-input" 
+                                class="chat-input-field" 
+                                placeholder="Ask me to checkout, or say 'help' for commands..."
+                                onkeypress="handleKeyPress(event)"
+                            >
+                            <button class="send-button" onclick="sendMessage()">Send</button>
                         </div>
                         
-                        <div class="chat-input">
-                            <div class="input-group">
-                                <input 
-                                    type="text" 
-                                    id="user-input" 
-                                    class="chat-input-field" 
-                                    placeholder="Ask me to checkout, or say 'help' for commands..."
-                                    onkeypress="handleKeyPress(event)"
-                                >
-                                <button class="send-button" onclick="sendMessage()">Send</button>
-                            </div>
-                            
-                            <div style="margin-top: 10px; text-align: center;">
+                        <div style="margin-top: 10px; text-align: center;">
                                 <button onclick="createSession()" style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 15px; font-size: 12px; cursor: pointer;">
                                     New Chat Session
-                                </button>
-                            </div>
+                            </button>
                         </div>
+                    </div>
 
 
                     </div>
@@ -921,32 +922,32 @@
         let scriptFailed = false;
 
         // Load Skipify SDK dynamically (same approach as working test page)
-        console.log('🚀 Loading Skipify SDK dynamically...');
+        console.log('Loading Skipify SDK dynamically...');
         const sdkScript = document.createElement('script');
         sdkScript.src = `https://stagecdn.skipify.com/sdk/components-sdk.js?date=${new Date().getTime()}`;
         sdkScript.onload = function() {
-            console.log('✅ Skipify SDK script loaded successfully');
-            console.log('🔍 Global skipify object available:', typeof window.skipify !== 'undefined');
+            console.log('Skipify SDK script loaded successfully');
+            console.log('Global skipify object available:', typeof window.skipify !== 'undefined');
             scriptLoaded = true;
             
             // Additional verification that skipify is actually available  
             setTimeout(() => {
                 if (window.skipify) {
-                    console.log('🎯 window.skipify confirmed available after script load');
+                    console.log('window.skipify confirmed available after script load');
                 } else {
-                    console.warn('⚠️ Script loaded but window.skipify not available - may need more time');
+                    console.warn('Script loaded but window.skipify not available - may need more time');
                 }
             }, 500); // Give it a bit more time
         };
         sdkScript.onerror = function(error) {
-            console.error('❌ Failed to load Skipify SDK script:', error);
+            console.error('Failed to load Skipify SDK script:', error);
             scriptFailed = true;
         };
         
         // Add timeout for script loading
         setTimeout(() => {
             if (!scriptLoaded && !scriptFailed) {
-                console.error('❌ Script loading timeout - network may be slow');
+                console.error('Script loading timeout - network may be slow');
                 scriptFailed = true;
             }
         }, 10000);
@@ -1040,10 +1041,10 @@
                     <div class="product-details">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
-                        <div class="product-price">$${product.price}</div>
-                        <button class="add-to-cart" onclick="addToCart('${product.id}')">
-                            Add to Cart
-                        </button>
+                    <div class="product-price">$${product.price}</div>
+                    <button class="add-to-cart" onclick="addToCart('${product.id}')">
+                        Add to Cart
+                    </button>
                     </div>
                 `;
                 grid.appendChild(productCard);
@@ -1337,7 +1338,7 @@
             if (itemIndex > -1) {
                 const removed = cart[itemIndex];
                 cart.splice(itemIndex, 1);
-                updateCartDisplay();
+            updateCartDisplay();
                 addMessage('system', `Removed ${removed.name} from cart`);
             }
         }
@@ -1587,14 +1588,34 @@ To checkout with Skipify, just tell me your email address like:
             addMessage('user', message);
             input.value = '';
 
-            // Enhanced e-commerce context handling
-            if (message.toLowerCase().includes('checkout') || message.toLowerCase().includes('buy') || message.toLowerCase().includes('purchase')) {
+            // Enhanced e-commerce context handling with robust pattern matching
+            const lowerMessage = message.toLowerCase();
+            
+            // Define comprehensive trigger patterns for checkout/order processing
+            const checkoutTriggers = [
+                'checkout',
+                'buy',
+                'purchase', 
+                'process my order',
+                'process order',
+                'pay with',
+                'do i have any cards',
+                'cards available',
+                'payment methods',
+                'complete order',
+                'finalize purchase',
+                'skipify account'
+            ];
+            
+            const isCheckoutRequest = checkoutTriggers.some(trigger => lowerMessage.includes(trigger));
+            
+            if (isCheckoutRequest) {
                 if (cart.length === 0) {
                     addMessage('assistant', '**Cart is empty!** Please add some T-shirts to your cart first.');
                     return;
                 }
                 
-                // Extract email for checkout
+                // Extract email with improved pattern matching
                 const emailMatch = message.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
                 if (emailMatch) {
                     const email = emailMatch[0];
@@ -1611,8 +1632,14 @@ Looking up your Skipify account: ${email}`);
                     await executeEcommerceCheckout(email);
                     return;
                 } else {
-                    addMessage('assistant', '**Please provide your email address for checkout.**\n\nExample: *"Checkout with your-email@example.com"*');
+                    // Check if they mentioned email but didn't provide one
+                    if (lowerMessage.includes('email') || lowerMessage.includes('my email')) {
+                        addMessage('assistant', '**Please provide your email address for checkout.**\n\nExample: *"Checkout with your-email@example.com"*');
+                        return;
+                    } else {
+                        addMessage('assistant', '**Please provide your email address for checkout.**\n\nExample: *"Checkout with your-email@example.com"*');
                     return;
+                    }
                 }
             }
 
@@ -1623,6 +1650,24 @@ Looking up your Skipify account: ${email}`);
             }
 
             try {
+                // Additional pattern matching for common queries before sending to backend
+                if (lowerMessage.includes('help') || lowerMessage === 'hi' || lowerMessage === 'hello') {
+                    addMessage('assistant', `**Welcome! I can help you checkout with Skipify.**
+
+**To get started:**
+• Add some T-shirts to your cart
+• Then say: *"Checkout with your-email@example.com"*
+• Or try: *"Process my order with my email: your-email@example.com"*
+
+**I can also help with:**
+• Checking available payment methods
+• Processing your order
+• Finding your Skipify account
+
+**What would you like to do?**`);
+                    return;
+                }
+
                 const response = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/chat/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1633,6 +1678,13 @@ Looking up your Skipify account: ${email}`);
                 });
 
                 const data = await response.json();
+                
+                // Intercept generic responses and make them more helpful
+                if (data.content && data.content.toLowerCase().includes("i'd be happy to help")) {
+                    addMessage('assistant', '**Please provide your email address for checkout.**\n\nExample: *"Checkout with your-email@example.com"*');
+                    return;
+                }
+                
                 addMessage('assistant', data.content);
 
                 // Execute Skipify operations if metadata present
@@ -1943,7 +1995,7 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
 • hasPaymentMethods: ${hasPaymentMethods}`);
 
                 if (hasPaymentMethods && result.challengeId) {
-                    let responseText = `✅ **Skipify account found!**
+                let responseText = `✅ **Skipify account found!**
 
 👤 **Account Details:**
 • Email: ${contact}
@@ -1975,8 +2027,8 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
 • Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
 
 ❌ **No payment methods found.** This account may not have any cards on file.`;
-                    
-                    addMessage('assistant', responseText);
+
+                addMessage('assistant', responseText);
                 }
 
             } catch (error) {
@@ -2055,17 +2107,17 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                 
                 // Add delay to ensure container is ready
                 setTimeout(() => {
-                    // Render the authentication component if result has render function
-                    if (result && typeof result.render === 'function') {
+                // Render the authentication component if result has render function
+                if (result && typeof result.render === 'function') {
                         console.log('🎨 Calling render function to display authentication component in chat');
-                        
-                        try {
-                            result.render(container);
+                    
+                    try {
+                        result.render(container);
                             console.log('✅ Authentication component rendered successfully in integrated chat');
                             addMessage('system', '✅ Authentication component loaded successfully');
-                        } catch (renderError) {
-                            console.error('Error rendering auth component:', renderError);
-                            addMessage('assistant', `❌ **Error displaying authentication component:** ${renderError.message}`);
+                    } catch (renderError) {
+                        console.error('Error rendering auth component:', renderError);
+                        addMessage('assistant', `❌ **Error displaying authentication component:** ${renderError.message}`);
                             
                             // Show fallback message
                             if (container) {
@@ -2910,35 +2962,35 @@ Please click directly on your preferred payment method in the carousel above to 
                 currentSession = session.id;
                 skipifySessionId = session.skipifySessionId;
 
-                addMessage('system', `✅ New chat session created: ${currentSession.substring(0, 8)}...`);
-                addMessage('assistant', '👋 **Chat session ready!** I can help you checkout with Skipify. Add some T-shirts to your cart and tell me your email to start the checkout process!');
+                addMessage('system', `New chat session created: ${currentSession.substring(0, 8)}...`);
+                addMessage('assistant', '**Chat session ready!** I can help you checkout with Skipify. \n\n**To get started:**\n• Add some T-shirts to your cart\n• Then say: *"Checkout with your-email@example.com"*\n• Or try: *"Process my order with my email: your-email@example.com"*');
             } catch (error) {
                 console.error('Error creating session:', error);
-                addMessage('system', '❌ Failed to create chat session. Please check if the backend server is running.');
+                addMessage('system', 'Failed to create chat session. Please check if the backend server is running.');
             }
         }
 
         // Initialize everything when page loads
         window.addEventListener('load', async () => {
-            console.log('🚀 Page loaded, starting initialization...');
+            console.log('Page loaded, starting initialization...');
             
             // Wait for script to load or fail
             let attempts = 0;
             while (!scriptLoaded && !scriptFailed && attempts < 30) {
                 await new Promise(resolve => setTimeout(resolve, 500));
                 attempts++;
-                console.log(`⏳ Waiting for script loading... attempt ${attempts}/30`);
+                console.log(`Waiting for script loading... attempt ${attempts}/30`);
             }
             
             if (scriptFailed) {
-                console.error('❌ Script loading failed, cannot proceed');
+                console.error('Script loading failed, cannot proceed');
                 return;
             }
             
             // Add additional delay to ensure SDK is ready
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('🔍 Final check - Global skipify object:', typeof window.skipify);
+            console.log('Final check - Global skipify object:', typeof window.skipify);
             
             initializeStore();
             createSession();
@@ -2946,13 +2998,13 @@ Please click directly on your preferred payment method in the carousel above to 
 
         // Additional check for SDK loading
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('📄 DOM content loaded');
+            console.log('DOM content loaded');
             
             // Check if script tag loaded properly
             const skipifyScript = document.querySelector('script[src*="components-sdk.js"]');
-            console.log('📜 Skipify script tag found:', !!skipifyScript);
+            console.log('Skipify script tag found:', !!skipifyScript);
             if (skipifyScript) {
-                console.log('📜 Script src:', skipifyScript.src);
+                console.log('Script src:', skipifyScript.src);
             }
         });
     </script>
