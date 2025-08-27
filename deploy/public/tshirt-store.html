@@ -1891,53 +1891,47 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
             }
         }
 
-        // Start inline authentication within chat message
+        // Start inline authentication within chat message using temp container approach
         async function startInlineAuthentication(lookupResult, container) {
             try {
                 console.log('🔐 Starting inline authentication in chat message...');
-                console.log('🔍 Container element:', container);
+                console.log('🔍 Target container:', container);
                 console.log('🔍 Container ID:', container.id);
-                console.log('🔍 Container in DOM:', document.contains(container));
                 
-                // Ensure container is properly set up and visible
+                // Set up inline container styling
                 container.classList.add('inline-component');
                 container.style.maxHeight = '140px';
                 container.style.height = '120px';
                 container.style.overflow = 'hidden';
-                container.style.display = 'block'; // Ensure it's visible
+                container.style.display = 'block';
                 
-                // Clear any existing content and show loading
+                // Show loading state
                 container.innerHTML = '<div class="component-loading" style="text-align: center; padding: 20px; color: #666;">🔄 Loading authentication...</div>';
                 
-                // Force DOM update and wait for it to be ready
-                await new Promise(resolve => {
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(resolve);
-                    });
-                });
+                // Create a temporary container with unique ID that SDK can find reliably
+                const tempId = `temp-auth-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                const tempContainer = document.createElement('div');
+                tempContainer.id = tempId;
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.top = '-10000px'; // Hide off-screen
+                tempContainer.style.left = '-10000px';
+                tempContainer.style.width = '400px';
+                tempContainer.style.height = '300px';
                 
-                // Verify container is ready
-                if (!document.contains(container)) {
-                    throw new Error('Container not properly attached to DOM');
-                }
+                // Add temp container to body so SDK can find it
+                document.body.appendChild(tempContainer);
                 
-                console.log('✅ Container ready for SDK rendering');
+                console.log('🔧 Created temporary container for SDK rendering:', tempId);
                 
                 const authParams = { ...lookupResult };
                 
-                // Start authentication - SDK will render to the container element
+                // Start authentication and render to temp container first
                 const result = await skipifySDK.authentication(authParams, {
-                    config: {
-                        theme: "light",
-                        fontSize: "small",
-                        compact: true,
-                        height: "100px"
-                    },
                     onSuccess: (data) => {
                         console.log('🎉 Inline authentication success:', data);
                         window.authenticationResult = data;
                         
-                        // Show success message briefly, then replace with carousel
+                        // Show success in inline container
                         container.innerHTML = `
                             <div style="text-align: center; padding: 15px;">
                                 <div style="font-size: 32px; margin-bottom: 10px;">✅</div>
@@ -1950,6 +1944,11 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                             </div>
                         `;
                         
+                        // Clean up temp container
+                        if (document.body.contains(tempContainer)) {
+                            document.body.removeChild(tempContainer);
+                        }
+                        
                         // Replace with payment carousel after brief success display
                         setTimeout(() => {
                             replaceWithPaymentCarousel(container, cartTotal);
@@ -1957,6 +1956,11 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     },
                     onError: (error) => {
                         console.error('❌ Inline authentication error:', error);
+                        
+                        // Clean up temp container
+                        if (document.body.contains(tempContainer)) {
+                            document.body.removeChild(tempContainer);
+                        }
                         
                         // Better error object handling
                         let errorMessage = 'Authentication failed';
@@ -1987,6 +1991,12 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
                     },
                     onCancel: () => {
                         console.log('⚠️ Inline authentication cancelled');
+                        
+                        // Clean up temp container
+                        if (document.body.contains(tempContainer)) {
+                            document.body.removeChild(tempContainer);
+                        }
+                        
                         container.innerHTML = `
                             <div style="text-align: center; padding: 15px;">
                                 <div style="font-size: 32px; margin-bottom: 10px;">⚠️</div>
@@ -2005,35 +2015,92 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 
                 console.log('🎯 Authentication SDK call completed, result:', result);
                 
-                // Render the authentication component to the container
-                if (result && typeof result.render === 'function') {
-                    console.log('🎨 Rendering authentication component to inline container');
-                    
-                    // Clear loading state before rendering
-                    container.innerHTML = '';
-                    
-                    // Render the component
-                    result.render(container);
-                    console.log('✅ Authentication component rendered successfully');
-                } else {
-                    console.warn('⚠️ Authentication result does not have render function:', result);
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 15px; color: #f44336;">
-                            <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
-                            <div style="font-size: 14px; font-weight: bold;">
-                                Authentication component unavailable
+                // Render to temporary container first, then move to inline container
+                setTimeout(() => {
+                    if (result && typeof result.render === 'function') {
+                        console.log('🎨 Rendering authentication component to temp container first');
+                        
+                        try {
+                            // Render to temp container where SDK can find it
+                            result.render(tempContainer);
+                            console.log('✅ Authentication component rendered to temp container');
+                            
+                            // Wait a bit for rendering to complete, then copy content
+                            setTimeout(() => {
+                                if (tempContainer.innerHTML && tempContainer.innerHTML.trim() !== '') {
+                                    console.log('📋 Copying auth content from temp to inline container');
+                                    
+                                    // Copy the rendered content to the inline container
+                                    container.innerHTML = tempContainer.innerHTML;
+                                    
+                                    // Apply inline styling to copied content
+                                    const iframes = container.querySelectorAll('iframe');
+                                    iframes.forEach(iframe => {
+                                        iframe.style.height = '100px';
+                                        iframe.style.maxHeight = '100px';
+                                    });
+                                    
+                                    console.log('✅ Authentication content moved to inline container');
+                                } else {
+                                    console.warn('⚠️ Temp container is empty after render');
+                                    container.innerHTML = `
+                                        <div style="text-align: center; padding: 15px; color: #f44336;">
+                                            <div style="font-size: 14px;">Component rendered but content not found</div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Clean up temp container
+                                if (document.body.contains(tempContainer)) {
+                                    document.body.removeChild(tempContainer);
+                                }
+                            }, 1000); // Wait for SDK to render into temp container
+                            
+                        } catch (renderError) {
+                            console.error('Error rendering auth component:', renderError);
+                            
+                            // Clean up temp container
+                            if (document.body.contains(tempContainer)) {
+                                document.body.removeChild(tempContainer);
+                            }
+                            
+                            container.innerHTML = `
+                                <div style="text-align: center; padding: 15px; color: #f44336;">
+                                    <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                                    <div style="font-size: 14px; font-weight: bold;">
+                                        Component render error
+                                    </div>
+                                    <div style="font-size: 12px; margin-top: 8px;">
+                                        ${renderError.message}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        console.warn('⚠️ Authentication result does not have render function:', result);
+                        
+                        // Clean up temp container
+                        if (document.body.contains(tempContainer)) {
+                            document.body.removeChild(tempContainer);
+                        }
+                        
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 15px; color: #f44336;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">❌</div>
+                                <div style="font-size: 14px; font-weight: bold;">
+                                    Authentication component unavailable
+                                </div>
+                                <div style="font-size: 12px; margin-top: 8px;">
+                                    SDK did not return a renderable component
+                                </div>
                             </div>
-                            <div style="font-size: 12px; margin-top: 8px;">
-                                SDK did not return a renderable component
-                            </div>
-                        </div>
-                    `;
-                }
+                        `;
+                    }
+                }, 500);
 
             } catch (error) {
                 console.error('❌ Failed to start inline authentication:', error);
                 
-                // Better error handling for the try-catch
                 let errorMessage = error.message || error;
                 
                 container.innerHTML = `
