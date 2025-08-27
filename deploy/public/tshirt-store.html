@@ -64,9 +64,22 @@
         /* Main Layout */
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 0;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
             min-height: 70vh;
+            padding: 20px;
+        }
+        
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .right-column {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
         }
 
         /* Products Section */
@@ -451,8 +464,10 @@
         .cart-summary {
             background: #2c3e50;
             color: white;
-            padding: 30px 40px;
+            padding: 25px;
             text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
         }
 
         .cart-total {
@@ -600,6 +615,16 @@
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .left-column {
+                order: 1;
+            }
+            
+            .right-column {
+                order: 2;
+                position: static;
             }
             
             .skipify-assistant-section {
@@ -646,26 +671,15 @@
 
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Products Section -->
-            <div class="products-section">
-                <h1 class="section-title">Premium T-Shirts Collection</h1>
-                
-                <div class="products-grid" id="products-grid">
-                    <!-- Products will be loaded here -->
-                </div>
-
-                <!-- Cart Summary -->
-                <div class="cart-summary">
-                    <h3>🛒 Shopping Cart</h3>
-                    <div class="cart-total">Total: $<span id="display-total">0.00</span></div>
+            <!-- Left Column: Products + Skipify Assistant -->
+            <div class="left-column">
+                <!-- Products Section -->
+                <div class="products-section">
+                    <h1 class="section-title">Premium T-Shirts Collection</h1>
                     
-                    <div class="cart-items" id="cart-items">
-                        <div class="empty-cart">Your cart is empty</div>
+                    <div class="products-grid" id="products-grid">
+                        <!-- Products will be loaded here -->
                     </div>
-
-                    <button class="quick-checkout" onclick="startChatCheckout()">
-                        💬 Chat to Checkout
-                    </button>
                 </div>
 
                 <!-- Integrated Skipify Assistant & Components Section -->
@@ -712,13 +726,24 @@
                             </div>
                         </div>
 
-                        <!-- Component containers for proper Skipify rendering -->
-                        <div class="component-containers">
-                            <div id="skipify-auth-container" class="skipify-component-container"></div>
-                            <div id="auth-container-placeholder" class="skipify-component-container"></div>
-                            <div id="carousel-container-placeholder" class="skipify-component-container"></div>
-                        </div>
+
                     </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Shopping Cart -->
+            <div class="right-column">
+                <div class="cart-summary">
+                    <h3>🛒 Shopping Cart</h3>
+                    <div class="cart-total">Total: $<span id="display-total">0.00</span></div>
+                    
+                    <div class="cart-items" id="cart-items">
+                        <div class="empty-cart">Your cart is empty</div>
+                    </div>
+
+                    <button class="quick-checkout" onclick="startChatCheckout()">
+                        💬 Chat to Checkout
+                    </button>
                 </div>
             </div>
         </div>
@@ -2348,6 +2373,28 @@ Please click directly on your preferred payment method in the carousel above to 
                 console.error('Manual SDK retry failed:', error);
                 addMessage('assistant', `❌ **Retry failed:** ${error.message}\n\nPlease refresh the page completely.`);
             }
+        }
+
+        // Add a component message to chat with embedded container that renders inline 
+        function addComponentMessage(sender, text, componentType, containerId) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender} component-message`;
+            
+            messageDiv.innerHTML = `
+                <div style="margin-bottom: 8px; font-size: 14px; line-height: 1.4;">${text}</div>
+                <div id="${containerId}" class="embedded-component-container inline-component" 
+                     style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; margin: 5px 0; min-height: 100px; max-height: 160px; overflow: hidden; position: relative;">
+                    <div class="component-loading" style="text-align: center; color: #666; padding: 15px; font-size: 13px;">
+                        🔄 Loading ${componentType}...
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return document.getElementById(containerId);
         }
 
         // Session Management
