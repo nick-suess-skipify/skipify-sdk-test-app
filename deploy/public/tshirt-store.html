@@ -1481,44 +1481,33 @@ ${cart.map(item => `• ${item.emoji} ${item.name} - $${item.price}`).join('\n')
 
 🔐 **Authentication required - please follow the prompts to authenticate on the website**`);
 
-                // Step 2: Authentication  
+                // Step 2: Authentication using inline approach
                 addMessage('system', '🔐 Step 2: Starting authentication...');
                 
-                // Use integrated authentication container
-                const authContainer = document.getElementById('skipify-auth-container');
-                if (authContainer) {
-                    authContainer.classList.add('active');
-                    authContainer.innerHTML = '<h4 style="margin-bottom: 15px; color: #2c3e50;">🔐 Authentication Required</h4><div id="ecommerce-auth-content" style="min-height: 200px;"></div>';
-                    addMessage('system', '📱 Authentication will appear in the integrated assistant section');
-                    console.log('📱 E-commerce authentication container prepared:', authContainer);
-                }
+                let responseText = `✅ **Skipify account found!**
+
+👤 **Account Details:**
+• Email: ${email}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+
+🔐 **Starting authentication...**`;
                 
-                // ✅ FIXED: Use proper authentication with callbacks (no await - it's interactive)
-                skipifySDK.authentication(lookupResults, {
-                    onSuccess: (data) => {
-                        console.log('E-commerce authentication success:', data);
-                        window.authenticationResult = data;
-                        
-                        addMessage('assistant', `✅ **Authentication successful!**
-
-**Authentication Results:**
-• Shopper ID: ${data.shopperId || 'Retrieved'}
-• Session ID: ${data.sessionId || 'Active'}
-
-🎯 **Ready for payment selection**`);
-
-                        // ✅ FIXED: Now trigger carousel after successful authentication
-                        showEcommerceCarousel(email, data);
-                    },
-                    onError: (error) => {
-                        console.error('E-commerce authentication error:', error);
-                        addMessage('assistant', `❌ **Authentication failed:** ${error.message || error}\n\nPlease try again or contact support.`);
-                    },
-                    onCancel: () => {
-                        console.log('E-commerce authentication cancelled');
-                        addMessage('assistant', '⚠️ **Authentication cancelled** by user.');
-                    }
-                }).render(document.getElementById('ecommerce-auth-content'));
+                // Create inline authentication component message
+                const authContainerId = `ecommerce-auth-${Date.now()}`;
+                const authContainer = addComponentMessage('assistant', responseText, 'Authentication', authContainerId);
+                authContainer.className += ' auth-component inline-component';
+                authContainer.style.maxHeight = '140px';
+                authContainer.style.height = '120px';
+                authContainer.style.overflow = 'hidden';
+                
+                // Store container for later replacement
+                window.currentAuthContainer = authContainer;
+                window.currentAuthContainerId = authContainerId;
+                
+                // Use the inline authentication function that works
+                setTimeout(() => {
+                    startInlineAuthentication(lookupResults, authContainer);
+                }, 500);
 
             } catch (error) {
                 console.error('E-commerce checkout error:', error);
