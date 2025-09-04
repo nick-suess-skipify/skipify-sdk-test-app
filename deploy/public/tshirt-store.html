@@ -860,14 +860,15 @@
                                                     <div class="message assistant">
                                 **Welcome to the Skipify T-Shirt Store!**
                                 
-                                I can help you pay quickly and securely with Skipify Checkout.
+                                I can help you shop and pay quickly and securely with Skipify Checkout.
                                 
                                 **Try saying:**
+                                • *"What T-shirts do you have?"*
+                                • *"Do you have Classic Cotton Tees?"*
+                                • *"Add 2 Premium Polo Shirts to my cart"*
                                 • *"Checkout with your-email@example.com"*
-                                • *"Process my order with my email: your-email@example.com"*
-                                • *"Pay with my Skipify account your-email@example.com"*
                                 
-                                Add some T-shirts to your cart and I'll handle the rest!
+                                Browse our collection above, or ask me anything!
                             </div>
                     </div>
                     
@@ -1663,19 +1664,19 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                     if (foundProducts.length > 0) {
                         const productList = foundProducts.map(p => 
                             `• **${p.name}** - $${p.price} (${p.description})`
-                        ).join('\\n');
+                        ).join('\n');
                         
-                        addMessage('assistant', `✅ **Yes, we have that!**\\n\\n${productList}\\n\\n**Would you like to add any to your cart?**\\n\\nJust say: *"Add 2 ${foundProducts[0].name}s to my cart"*`);
+                        addMessage('assistant', `✅ **Yes, we have that!**\n\n${productList}\n\n**Would you like to add any to your cart?**\n\nJust say: *"Add 2 ${foundProducts[0].name}s to my cart"*`);
                     } else {
-                        addMessage('assistant', '**Sorry, I didn\\'t find that specific item.**\\n\\n**Here\\'s what we have:**\\n' + 
-                            PRODUCTS.map(p => `• **${p.name}** - $${p.price}`).join('\\n') + 
-                            '\\n\\n**Which one interests you?**');
+                        addMessage('assistant', '**Sorry, I didn\\'t find that specific item.**\n\n**Here\\'s what we have:**\n' + 
+                            PRODUCTS.map(p => `• **${p.name}** - $${p.price}`).join('\n') + 
+                            '\n\n**Which one interests you?**');
                     }
                 } else {
                     // General product listing
-                    addMessage('assistant', '**Here\\'s our T-Shirt collection:**\\n\\n' + 
-                        PRODUCTS.map(p => `• **${p.name}** - $${p.price}\\n  ${p.description}`).join('\\n\\n') + 
-                        '\\n\\n**Which one would you like to add to your cart?**');
+                    addMessage('assistant', '**Here\\'s our T-Shirt collection:**\n\n' + 
+                        PRODUCTS.map(p => `• **${p.name}** - $${p.price}\n  ${p.description}`).join('\n\n') + 
+                        '\n\n**Which one would you like to add to your cart?**');
                 }
                 return;
             }
@@ -1702,14 +1703,14 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                 if (productFound) {
                     const success = addToCartViaChat(productFound.id, quantity);
                     if (success) {
-                        addMessage('assistant', `✅ **Added to cart!**\\n\\n• ${quantity}x ${productFound.name} - $${(productFound.price * quantity).toFixed(2)}\\n\\n**Cart Total: $${cartTotal.toFixed(2)}**\\n\\n**What else can I help you find, or ready to checkout?**`);
+                        addMessage('assistant', `✅ **Added to cart!**\n\n• ${quantity}x ${productFound.name} - $${(productFound.price * quantity).toFixed(2)}\n\n**Cart Total: $${cartTotal.toFixed(2)}**\n\n**What else can I help you find, or ready to checkout?**`);
                     } else {
                         addMessage('assistant', '❌ **Sorry, there was an error adding that item to your cart.**');
                     }
                 } else {
-                    addMessage('assistant', '**I\\'d love to help you add something to your cart!**\\n\\n**Please specify which item:**\\n' + 
-                        PRODUCTS.map(p => `• ${p.name}`).join('\\n') + 
-                        '\\n\\nExample: *"Add 2 Classic Cotton Tees to my cart"*');
+                    addMessage('assistant', '**I\\'d love to help you add something to your cart!**\n\n**Please specify which item:**\n' + 
+                        PRODUCTS.map(p => `• ${p.name}`).join('\n') + 
+                        '\n\nExample: *"Add 2 Classic Cotton Tees to my cart"*');
                 }
                 return;
             }
