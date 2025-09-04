@@ -155,6 +155,7 @@ app.get('/health', (req, res) => {
 app.get('/api/config', (req, res) => {
     res.json({
         skipify: {
+            merchantId: SKIPIFY_MERCHANT_ID, // Securely provide merchant ID
             environment: SKIPIFY_ENVIRONMENT,
             sdkUrl: SKIPIFY_ENVIRONMENT === 'stage' 
                 ? 'https://stagecdn.skipify.com/sdk/components-sdk.js'
