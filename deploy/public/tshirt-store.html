@@ -1668,13 +1668,13 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                         
                         addMessage('assistant', `✅ **Yes, we have that!**\n\n${productList}\n\n**Would you like to add any to your cart?**\n\nJust say: *"Add 2 ${foundProducts[0].name}s to my cart"*`);
                     } else {
-                        addMessage('assistant', '**Sorry, I didn\\'t find that specific item.**\n\n**Here\\'s what we have:**\n' + 
+                        addMessage('assistant', '**Sorry, I didn\'t find that specific item.**\n\n**Here\'s what we have:**\n' + 
                             PRODUCTS.map(p => `• **${p.name}** - $${p.price}`).join('\n') + 
                             '\n\n**Which one interests you?**');
                     }
                 } else {
                     // General product listing
-                    addMessage('assistant', '**Here\\'s our T-Shirt collection:**\n\n' + 
+                    addMessage('assistant', '**Here\'s our T-Shirt collection:**\n\n' + 
                         PRODUCTS.map(p => `• **${p.name}** - $${p.price}\n  ${p.description}`).join('\n\n') + 
                         '\n\n**Which one would you like to add to your cart?**');
                 }
@@ -1708,7 +1708,7 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                         addMessage('assistant', '❌ **Sorry, there was an error adding that item to your cart.**');
                     }
                 } else {
-                    addMessage('assistant', '**I\\'d love to help you add something to your cart!**\n\n**Please specify which item:**\n' + 
+                    addMessage('assistant', '**I\'d love to help you add something to your cart!**\n\n**Please specify which item:**\n' + 
                         PRODUCTS.map(p => `• ${p.name}`).join('\n') + 
                         '\n\nExample: *"Add 2 Classic Cotton Tees to my cart"*');
                 }
