@@ -1908,7 +1908,7 @@ Looking up your Skipify account: ${email}`);
 
 👤 **Account Details:**
 • Email: ${email}
-• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ Not Available - Add one now'}
 
 🔐 **Authentication required - please follow the prompts to authenticate on the website**`);
 
@@ -1919,7 +1919,7 @@ Looking up your Skipify account: ${email}`);
 
 👤 **Account Details:**
 • Email: ${email}
-• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ Not Available - Add one now'}
 
 🔐 **Starting authentication...**`;
                 
@@ -1992,7 +1992,7 @@ Looking up your Skipify account: ${email}`);
 • Transaction ID: ${transactionId.substring(0, 12)}...
 • Status: ${result.status || result.data?.status || 'Completed'}
 
-✅ **Your order receipt is displayed on the left. Thank you for your purchase!**`);
+✅ **Your order receipt is displayed above. Thank you for your purchase!**`);
 
                     // Clear the cart after successful payment
                     cart = [];
@@ -2165,7 +2165,7 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
 
 👤 **Account Details:**
 • Email: ${contact}
-• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ Not Available - Add one now'}
 
 🔐 **Starting authentication...**`;
                     
@@ -2190,7 +2190,7 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
 
 👤 **Account Details:**
 • Email: ${contact}
-• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ None found'}
+• Payment Methods: ${hasPaymentMethods ? '✅ Available' : '❌ Not Available - Add one now'}
 
 ❌ **No payment methods found.** This account may not have any cards on file.`;
 
@@ -2353,17 +2353,24 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                         console.log('🎉 Inline authentication success:', data);
                         window.authenticationResult = data;
                         
-                        // Show success in inline container
+                        // Show success in inline container with animated spinner
                         container.innerHTML = `
                             <div style="text-align: center; padding: 15px;">
                                 <div style="font-size: 32px; margin-bottom: 10px;">✅</div>
                                 <div style="font-size: 16px; font-weight: bold; color: #4caf50; margin-bottom: 8px;">
                                     Authentication Successful!
                                 </div>
-                                <div style="color: #666; font-size: 12px;">
+                                <div style="color: #666; font-size: 12px; margin-bottom: 10px;">
                                     Loading payment options...
                                 </div>
+                                <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #4caf50; border-radius: 50%; animation: spin 1s linear infinite;"></div>
                             </div>
+                            <style>
+                                @keyframes spin {
+                                    0% { transform: rotate(0deg); }
+                                    100% { transform: rotate(360deg); }
+                                }
+                            </style>
                         `;
                         
                         // Replace with payment carousel after brief success display
