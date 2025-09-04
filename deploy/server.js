@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 8080;
 const SKIPIFY_MERCHANT_ID = process.env.SKIPIFY_MERCHANT_ID || '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0';
 const SKIPIFY_ENVIRONMENT = process.env.SKIPIFY_ENVIRONMENT || 'stage';
 
+// Warnings for missing production credentials
 if (!process.env.SKIPIFY_MERCHANT_ID) {
     console.warn('⚠️ WARNING: Using fallback SKIPIFY_MERCHANT_ID. Set environment variable for production.');
 }
@@ -26,7 +27,7 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com"],
-            scriptSrcAttr: ["'self'", "'unsafe-inline'"], // Allow inline event handlers
+            scriptSrcAttr: ["'self'", "'unsafe-inline'"], // Allow inline event handlers (onclick, etc.)
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
@@ -155,7 +156,7 @@ app.get('/health', (req, res) => {
 app.get('/api/config', (req, res) => {
     res.json({
         skipify: {
-            merchantId: SKIPIFY_MERCHANT_ID, // Securely provide merchant ID
+            merchantId: SKIPIFY_MERCHANT_ID, // Required for SDK initialization
             environment: SKIPIFY_ENVIRONMENT,
             sdkUrl: SKIPIFY_ENVIRONMENT === 'stage' 
                 ? 'https://stagecdn.skipify.com/sdk/components-sdk.js'

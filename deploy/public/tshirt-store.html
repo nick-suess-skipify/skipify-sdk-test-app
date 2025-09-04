@@ -857,19 +857,19 @@
 
                     <div class="assistant-container">
                     <div class="chat-messages" id="chat-messages">
-                                                    <div class="message assistant">
+                        <div class="message assistant">
                                 **Welcome to the Skipify T-Shirt Store!**
-                                
+                            
                                 I can help you shop and pay quickly and securely with Skipify Checkout.
-                                
-                                **Try saying:**
+                            
+                            **Try saying:**
                                 • *"What T-shirts do you have?"*
                                 • *"Do you have Classic Cotton Tees?"*
                                 • *"Add 2 Premium Polo Shirts to my cart"*
-                                • *"Checkout with your-email@example.com"*
-                                
+                            • *"Checkout with your-email@example.com"*
+                            
                                 Browse our collection above, or ask me anything!
-                            </div>
+                        </div>
                     </div>
                     
                     <div class="chat-input">
@@ -926,27 +926,21 @@
         // Load Skipify SDK securely from backend configuration
         async function loadSkipifySDK() {
             try {
-                console.log('🔒 Loading secure configuration from:', `${window.APP_CONFIG.BACKEND_URL}/api/config`);
+                console.log('🔒 Loading secure configuration...');
                 const configResponse = await fetch(`${window.APP_CONFIG.BACKEND_URL}/api/config`);
-                
-                if (!configResponse.ok) {
-                    throw new Error(`Config API responded with status: ${configResponse.status} ${configResponse.statusText}`);
-                }
-                
                 const config = await configResponse.json();
-                console.log('✅ Secure configuration loaded:', config);
                 
-                if (!config.skipify) {
-                    throw new Error('Skipify configuration missing from response');
-                }
-                
+                console.log('✅ Secure configuration loaded');
                 window.SKIPIFY_CONFIG = config.skipify;
-                console.log('🔧 Merchant ID loaded:', config.skipify.merchantId ? '✅ Available' : '❌ Missing');
+                console.log('🔧 Skipify config:', { 
+                    environment: config.skipify.environment,
+                    hasApiKey: !!config.skipify.merchantId 
+                });
                 
                 console.log('🔧 Loading Skipify SDK from secure URL...');
                 const sdkScript = document.createElement('script');
                 sdkScript.src = `${config.skipify.sdkUrl}?date=${new Date().getTime()}`;
-                sdkScript.onload = function() {
+                                sdkScript.onload = function() {
                     console.log('✅ Skipify SDK script loaded successfully');
                     console.log('🔍 Global skipify object available:', typeof window.skipify !== 'undefined');
                     scriptLoaded = true;
@@ -976,15 +970,7 @@
                 document.head.appendChild(sdkScript);
             } catch (error) {
                 console.error('❌ Failed to load secure configuration:', error);
-                console.error('❌ Error details:', {
-                    message: error.message,
-                    stack: error.stack,
-                    configUrl: `${window.APP_CONFIG.BACKEND_URL}/api/config`
-                });
                 scriptFailed = true;
-                
-                // Try to provide helpful fallback info
-                alert(`Configuration loading failed: ${error.message}\n\nPlease check browser console for details.`);
             }
         }
         
@@ -1464,7 +1450,7 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
         async function getSecureMerchantId() {
             try {
                 if (!window.SKIPIFY_CONFIG || !window.SKIPIFY_CONFIG.merchantId) {
-                    throw new Error('Skipify configuration not loaded or missing merchant ID');
+                    throw new Error('Merchant ID not available in secure configuration');
                 }
                 return window.SKIPIFY_CONFIG.merchantId;
             } catch (error) {
@@ -1527,14 +1513,8 @@ ${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * 
                     throw new Error('Skipify configuration not loaded');
                 }
                 
-                const merchantId = await getSecureMerchantId();
-                console.log('🔧 Initializing Skipify SDK with:', {
-                    merchantId: merchantId ? `${merchantId.substring(0, 8)}...` : 'MISSING',
-                    environment: window.SKIPIFY_CONFIG.environment
-                });
-                
                 skipifySDK = new SkipifyConstructor({
-                    merchantId: merchantId,
+                    merchantId: await getSecureMerchantId(),
                     environment: window.SKIPIFY_CONFIG.environment
                 });
 
