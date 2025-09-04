@@ -2,84 +2,233 @@ const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const xss = require('xss');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+// Security Environment Variables (REQUIRED)
+const REQUIRED_ENV_VARS = ['SKIPIFY_MERCHANT_ID', 'SKIPIFY_ENVIRONMENT'];
+for (const envVar of REQUIRED_ENV_VARS) {
+    if (!process.env[envVar]) {
+        console.error(`❌ SECURITY ERROR: Required environment variable ${envVar} is not set`);
+        process.exit(1);
+    }
+}
+
+// Security middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com", "https://api.skipify.com"],
+            frameSrc: ["'self'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com"]
+        }
+    },
+    crossOriginEmbedderPolicy: false // Required for Skipify SDK
 }));
-app.use(express.json());
 
-// Serve static files from public directory
-app.use(express.static('public'));
+// Rate limiting
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { error: 'Too many requests, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
-// Store for chat sessions (in production, use a database)
+const apiLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 30, // Limit each IP to 30 API calls per minute
+    message: { error: 'API rate limit exceeded. Please wait before making more requests.' }
+});
+
+const paymentLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 5, // Limit payment attempts
+    message: { error: 'Payment rate limit exceeded for security. Please wait 5 minutes.' }
+});
+
+app.use(generalLimiter);
+
+// Secure CORS configuration
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'https://skipify-tshirt-store-demo.ondigitalocean.app',
+    // Add your production domains here
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true
+}));
+
+// Body parsing with size limits
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Serve static files with security headers
+app.use(express.static('public', {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.html')) {
+            res.setHeader('X-Content-Type-Options', 'nosniff');
+            res.setHeader('X-Frame-Options', 'DENY');
+            res.setHeader('X-XSS-Protection', '1; mode=block');
+        }
+    }
+}));
+
+// Input validation helper
+function validateInput(input, maxLength = 1000) {
+    if (!input || typeof input !== 'string') return '';
+    
+    // Remove XSS attempts
+    const cleaned = xss(input, {
+        whiteList: {}, // No HTML allowed
+        stripIgnoreTag: true,
+        stripIgnoreTagBody: ['script']
+    });
+    
+    // Limit length
+    return cleaned.substring(0, maxLength).trim();
+}
+
+// Secure session storage (in production, use Redis or database)
 const chatSessions = new Map();
 const chatMessages = new Map();
 
+// Session cleanup (prevent memory leaks)
+setInterval(() => {
+    const oneHourAgo = Date.now() - (60 * 60 * 1000);
+    for (const [sessionId, session] of chatSessions.entries()) {
+        if (new Date(session.createdAt).getTime() < oneHourAgo) {
+            chatSessions.delete(sessionId);
+            chatMessages.delete(sessionId);
+        }
+    }
+}, 30 * 60 * 1000); // Clean every 30 minutes
+
 // Health check endpoint
 app.get('/health', (req, res) => {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+    res.json({ 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
 });
 
-// Chat endpoints
-app.post('/api/chat/sessions', (req, res) => {
-    const sessionId = uuidv4();
-    const session = {
-        id: sessionId,
-        createdAt: new Date().toISOString(),
-        status: 'active'
-    };
-    
-    chatSessions.set(sessionId, session);
-    chatMessages.set(sessionId, []);
-    
-    res.json(session);
+// Secure configuration endpoint
+app.get('/api/config', (req, res) => {
+    res.json({
+        skipify: {
+            environment: process.env.SKIPIFY_ENVIRONMENT,
+            sdkUrl: process.env.SKIPIFY_ENVIRONMENT === 'stage' 
+                ? 'https://stagecdn.skipify.com/sdk/components-sdk.js'
+                : 'https://prodcdn.skipify.com/sdk/components-sdk.js'
+        },
+        features: {
+            chatEnabled: true,
+            paymentsEnabled: true
+        }
+    });
 });
 
-app.post('/api/chat/messages', (req, res) => {
-    const { sessionId, message, role = 'user' } = req.body;
-    
-    if (!sessionId || !chatSessions.has(sessionId)) {
-        return res.status(404).json({ error: 'Session not found' });
+// Chat endpoints with security
+app.post('/api/chat/sessions', apiLimiter, (req, res) => {
+    try {
+        const sessionId = uuidv4();
+        const session = {
+            id: sessionId,
+            createdAt: new Date().toISOString(),
+            status: 'active',
+            ip: req.ip,
+            userAgent: req.get('User-Agent')?.substring(0, 200) // Limit UA length
+        };
+        
+        chatSessions.set(sessionId, session);
+        chatMessages.set(sessionId, []);
+        
+        // Return only safe data
+        res.json({
+            id: sessionId,
+            createdAt: session.createdAt,
+            status: session.status
+        });
+    } catch (error) {
+        console.error('Session creation error:', error);
+        res.status(500).json({ error: 'Failed to create session' });
     }
-    
-    const messages = chatMessages.get(sessionId) || [];
-    const newMessage = {
-        id: uuidv4(),
-        role,
-        content: message,
-        timestamp: new Date().toISOString()
-    };
-    
-    messages.push(newMessage);
-    chatMessages.set(sessionId, messages);
-    
-    // Simple response logic for demo
-    let response = "I'd be happy to help you with your checkout!";
-    
-    if (message.toLowerCase().includes('checkout') && message.includes('@')) {
-        const email = message.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0];
-        if (email) {
-            response = {
-                intent: 'lookup',
-                skipifyOperation: 'lookup',
-                contact: email,
-                response: `✅ **Skipify account found!**
+});
+
+app.post('/api/chat/messages', apiLimiter, (req, res) => {
+    try {
+        const { sessionId, message, role = 'user' } = req.body;
+        
+        // Validate session
+        if (!sessionId || !chatSessions.has(sessionId)) {
+            return res.status(404).json({ error: 'Session not found' });
+        }
+        
+        // Validate and sanitize message
+        const sanitizedMessage = validateInput(message, 500);
+        if (!sanitizedMessage) {
+            return res.status(400).json({ error: 'Invalid message content' });
+        }
+        
+        const messages = chatMessages.get(sessionId) || [];
+        
+        // Check message history limits
+        if (messages.length > 100) { // Prevent spam
+            return res.status(429).json({ error: 'Message limit exceeded for this session' });
+        }
+        
+        const userMessage = {
+            id: uuidv4(),
+            role: 'user',
+            content: sanitizedMessage,
+            timestamp: new Date().toISOString()
+        };
+        
+        messages.push(userMessage);
+        
+        // Generate safe response
+        let response = "I can help you with checkout. Please provide your email address.";
+        
+        if (sanitizedMessage.toLowerCase().includes('@')) {
+            const emailMatch = sanitizedMessage.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+            if (emailMatch) {
+                const email = emailMatch[0];
+                // Basic email validation
+                if (email.length <= 100 && email.includes('@') && email.includes('.')) {
+                    response = `✅ **Skipify account found!**
 
 👤 **Account Details:**
 • Email: ${email}
 • Payment Methods: ✅ Available
 
-🔐 **Authentication required - please follow the prompts to authenticate on the website**`
-            };
-        }
-    } else if (message.toLowerCase().includes('help')) {
-        response = `🛍️ **Welcome to Skipify Checkout!**
+🔐 **Authentication required - please follow the prompts to authenticate on the website**`;
+                }
+            }
+        } else if (sanitizedMessage.toLowerCase().includes('help')) {
+            response = `🛍️ **Welcome to Skipify Checkout!**
 
 I can help you complete your purchase quickly and securely.
 
@@ -87,85 +236,130 @@ I can help you complete your purchase quickly and securely.
 • *"Checkout with your-email@example.com"*
 • *"Process my order with my email"*
 • *"Pay with my Skipify account"*`;
+        }
+        
+        const assistantMessage = {
+            id: uuidv4(),
+            role: 'assistant',
+            content: response,
+            timestamp: new Date().toISOString()
+        };
+        
+        messages.push(assistantMessage);
+        chatMessages.set(sessionId, messages);
+        
+        res.json(assistantMessage);
+    } catch (error) {
+        console.error('Message processing error:', error);
+        res.status(500).json({ error: 'Failed to process message' });
     }
-    
-    const assistantMessage = {
-        id: uuidv4(),
-        role: 'assistant',
-        content: response,
-        timestamp: new Date().toISOString()
-    };
-    
-    messages.push(assistantMessage);
-    chatMessages.set(sessionId, messages);
-    
-    res.json(assistantMessage);
 });
 
-app.get('/api/chat/sessions/:sessionId/messages', (req, res) => {
-    const { sessionId } = req.params;
-    const messages = chatMessages.get(sessionId) || [];
-    res.json(messages);
-});
-
-// Skipify API proxy endpoints
-app.post('/api/skipify/payments', (req, res) => {
-    // Mock payment processing for demo
-    const paymentId = uuidv4();
-    const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const pspTransactionId = `psp_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-    
-    res.json({
-        success: true,
-        paymentId,
-        transactionId,
-        pspTransactionId,
-        status: 'completed',
-        receipt: {
-            id: `receipt_${Date.now()}`,
+// Secure payment endpoint with enhanced validation
+app.post('/api/skipify/payments', paymentLimiter, (req, res) => {
+    try {
+        const { paymentId, sessionId, amount, merchantReference } = req.body;
+        
+        // Validate inputs
+        if (!paymentId || !sessionId || !amount) {
+            return res.status(400).json({ error: 'Missing required payment parameters' });
+        }
+        
+        // Validate amount (prevent negative or excessive amounts)
+        const numAmount = parseFloat(amount);
+        if (isNaN(numAmount) || numAmount <= 0 || numAmount > 10000) { // Max $100.00
+            return res.status(400).json({ error: 'Invalid payment amount' });
+        }
+        
+        // Validate session exists
+        if (!chatSessions.has(sessionId)) {
+            return res.status(404).json({ error: 'Invalid session' });
+        }
+        
+        // Mock payment processing for demo (in production, call real Skipify API)
+        const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const pspTransactionId = `psp_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+        
+        // Log payment attempt (for audit trail)
+        console.log(`Payment attempt: ${transactionId}, Amount: ${numAmount}, Session: ${sessionId.substring(0, 8)}`);
+        
+        res.json({
+            success: true,
+            paymentId: validateInput(paymentId, 100),
             transactionId,
             pspTransactionId,
-            amount: req.body.amount || 0,
-            currency: 'USD',
-            timestamp: new Date().toISOString(),
-            paymentMethod: req.body.paymentMethod || 'Skipify Account',
-            merchantId: process.env.SKIPIFY_MERCHANT_ID || '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0'
-        }
-    });
+            status: 'completed',
+            receipt: {
+                id: `receipt_${Date.now()}`,
+                transactionId,
+                pspTransactionId,
+                amount: numAmount,
+                currency: 'USD',
+                timestamp: new Date().toISOString(),
+                paymentMethod: 'Skipify Account',
+                merchantId: process.env.SKIPIFY_MERCHANT_ID // Secure from env
+            }
+        });
+    } catch (error) {
+        console.error('Payment processing error:', error);
+        res.status(500).json({ error: 'Payment processing failed' });
+    }
 });
 
-// Chat stats endpoint
-app.get('/api/chat/stats', (req, res) => {
+// Admin stats endpoint (should be protected in production)
+app.get('/api/admin/stats', (req, res) => {
+    // In production, add authentication middleware here
     res.json({
         totalSessions: chatSessions.size,
         totalMessages: Array.from(chatMessages.values()).reduce((sum, msgs) => sum + msgs.length, 0),
-        activeConnections: 0,
-        uptime: process.uptime()
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV,
+        timestamp: new Date().toISOString()
     });
 });
 
-// Error handling
+// Security headers for all responses
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(500).json({ 
-        error: 'Internal server error',
-        message: err.message 
+    console.error('Security Error:', {
+        message: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        timestamp: new Date().toISOString()
+    });
+    
+    // Don't leak error details in production
+    const isDev = process.env.NODE_ENV === 'development';
+    res.status(500).json({
+        error: isDev ? err.message : 'Internal server error',
+        timestamp: new Date().toISOString()
     });
 });
 
-// 404 handler for API routes
-app.use('/api/*', (req, res) => {
-    res.status(404).json({ error: 'API endpoint not found' });
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Serve index page for root
-app.get('/', (req, res) => {
-    res.redirect('/tshirt-store.html');
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    process.exit(0);
 });
 
-// Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Skipify T-Shirt Store Demo running on port ${PORT}`);
-    console.log(`📊 Health check: http://localhost:${PORT}/health`);
-    console.log(`🛍️ Demo: http://localhost:${PORT}/tshirt-store.html`);
+    console.log(`🔒 Secure server running on port ${PORT}`);
+    console.log(`🛡️ Security features enabled: Helmet, CORS, Rate Limiting, Input Validation`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+module.exports = app;
