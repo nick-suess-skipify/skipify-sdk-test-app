@@ -9,13 +9,15 @@ const xss = require('xss');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Security Environment Variables (REQUIRED)
-const REQUIRED_ENV_VARS = ['SKIPIFY_MERCHANT_ID', 'SKIPIFY_ENVIRONMENT'];
-for (const envVar of REQUIRED_ENV_VARS) {
-    if (!process.env[envVar]) {
-        console.error(`❌ SECURITY ERROR: Required environment variable ${envVar} is not set`);
-        process.exit(1);
-    }
+// Security Environment Variables (with fallbacks for development)
+const SKIPIFY_MERCHANT_ID = process.env.SKIPIFY_MERCHANT_ID || '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0';
+const SKIPIFY_ENVIRONMENT = process.env.SKIPIFY_ENVIRONMENT || 'stage';
+
+if (!process.env.SKIPIFY_MERCHANT_ID) {
+    console.warn('⚠️ WARNING: Using fallback SKIPIFY_MERCHANT_ID. Set environment variable for production.');
+}
+if (!process.env.SKIPIFY_ENVIRONMENT) {
+    console.warn('⚠️ WARNING: Using fallback SKIPIFY_ENVIRONMENT. Set environment variable for production.');
 }
 
 // Security middleware
@@ -61,6 +63,7 @@ app.use(generalLimiter);
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:8080',
+    'https://skipify-tshirt-store-qbcx3.ondigitalocean.app',
     'https://skipify-tshirt-store-demo.ondigitalocean.app',
     // Add your production domains here
 ];
@@ -126,6 +129,11 @@ setInterval(() => {
     }
 }, 30 * 60 * 1000); // Clean every 30 minutes
 
+// Root route - redirect to tshirt store
+app.get('/', (req, res) => {
+    res.redirect('/tshirt-store.html');
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ 
@@ -139,8 +147,8 @@ app.get('/health', (req, res) => {
 app.get('/api/config', (req, res) => {
     res.json({
         skipify: {
-            environment: process.env.SKIPIFY_ENVIRONMENT,
-            sdkUrl: process.env.SKIPIFY_ENVIRONMENT === 'stage' 
+            environment: SKIPIFY_ENVIRONMENT,
+            sdkUrl: SKIPIFY_ENVIRONMENT === 'stage' 
                 ? 'https://stagecdn.skipify.com/sdk/components-sdk.js'
                 : 'https://prodcdn.skipify.com/sdk/components-sdk.js'
         },
@@ -297,7 +305,7 @@ app.post('/api/skipify/payments', paymentLimiter, (req, res) => {
                 currency: 'USD',
                 timestamp: new Date().toISOString(),
                 paymentMethod: 'Skipify Account',
-                merchantId: process.env.SKIPIFY_MERCHANT_ID // Secure from env
+                merchantId: SKIPIFY_MERCHANT_ID // Secure from env
             }
         });
     } catch (error) {

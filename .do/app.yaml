@@ -1,6 +1,6 @@
-name: skipify-tshirt-store-secure
+name: skipify-tshirt-store-demo
 services:
-- name: skipify-demo-secure
+- name: skipify-demo
   source_dir: /deploy
   github:
     repo: nick-suess-skipify/skipify-sdk-test-app
@@ -28,7 +28,7 @@ services:
 
 # Security: HTTPS only
 domains:
-- domain: skipify-tshirt-store-demo.ondigitalocean.app
+- domain: skipify-tshirt-store-qbcx3.ondigitalocean.app
   type: PRIMARY
   
 # Additional security configurations
