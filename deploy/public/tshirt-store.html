@@ -1975,7 +1975,7 @@ Looking up your Skipify account: ${email}`);
                     console.log('✅ Payment submission successful:', result);
                     
                     // Store cart items before clearing (handle both cart and non-cart scenarios)
-                    const totalAmount = cart.length > 0 ? cart.reduce((sum, item) => sum + item.price, 0) : (amount / 100);
+                    const totalAmount = cart.length > 0 ? cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) : (amount / 100);
                     const purchasedItems = cart.length > 0 ? [...cart] : [
                         { emoji: '🎯', name: 'Test Purchase', price: totalAmount }
                     ];
