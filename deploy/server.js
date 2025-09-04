@@ -26,11 +26,19 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com"],
+            scriptSrcAttr: ["'self'", "'unsafe-inline'"], // Allow inline event handlers
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
-            connectSrc: ["'self'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com", "https://api.skipify.com"],
-            frameSrc: ["'self'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com"]
+            connectSrc: ["'self'", "https://stagecdn.skipify.com", "https://prodcdn.skipify.com", "https://api.skipify.com", "https://checkout.staging.skipify.com", "https://checkout.skipify.com"],
+            frameSrc: [
+                "'self'", 
+                "https://stagecdn.skipify.com", 
+                "https://prodcdn.skipify.com",
+                "https://checkout.staging.skipify.com",
+                "https://checkout.skipify.com",
+                "https://*.skipify.com" // Allow all skipify subdomains
+            ]
         }
     },
     crossOriginEmbedderPolicy: false // Required for Skipify SDK
