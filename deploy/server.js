@@ -290,7 +290,12 @@ app.post('/api/skipify/payments', paymentLimiter, (req, res) => {
         
         // Validate amount (prevent negative or excessive amounts)
         const numAmount = parseFloat(amount);
-        if (isNaN(numAmount) || numAmount <= 0 || numAmount > 10000) { // Max $100.00
+        if (isNaN(numAmount) || numAmount <= 0 || numAmount > 100000) { // Max $1000.00 for demo
+            console.error('❌ Payment amount validation failed:', { 
+                amount: amount, 
+                numAmount: numAmount, 
+                inDollars: (numAmount / 100).toFixed(2) 
+            });
             return res.status(400).json({ error: 'Invalid payment amount' });
         }
         
