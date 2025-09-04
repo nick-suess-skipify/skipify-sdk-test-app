@@ -877,7 +877,7 @@
                                 type="text" 
                                 id="user-input" 
                                 class="chat-input-field" 
-                                placeholder="Ask me to checkout, or say 'help' for commands..."
+                                placeholder="Ask about products, add to cart, or checkout..."
                                 onkeypress="handleKeyPress(event)"
                             >
                             <button class="send-button" onclick="sendMessage()">Send</button>
@@ -905,8 +905,8 @@
                         <div class="empty-cart">Your cart is empty</div>
                     </div>
 
-                    <button class="quick-checkout" onclick="startChatCheckout()">
-                        Chat to Checkout
+                    <button class="quick-checkout" onclick="startChatShopping()">
+                        Chat to Shop
                     </button>
                 </div>
             </div>
@@ -1023,7 +1023,7 @@
             if (!skipifySDK) {
                 addMessage('system', 'T-Shirt store loaded but payment system needs attention. Try refreshing the page.');
             } else {
-                addMessage('system', 'T-Shirt store loaded! Add items to cart and use chat to checkout.');
+                addMessage('system', 'T-Shirt store loaded! Ask me about products, add items to cart, and checkout via chat.');
             }
         }
 
@@ -1396,33 +1396,14 @@
             }
         }
 
-        // Quick Checkout via Chat with auto-scroll
-        function startChatCheckout() {
+        // Start Shopping Chat with auto-scroll
+        function startChatShopping() {
             if (cart.length === 0) {
-                addMessage('assistant', '**Your cart is empty!** Please add some T-shirts to your cart first, then I can help you checkout.');
-                
-                // Scroll to chat window even if cart is empty
-                setTimeout(() => {
-                    const skipifyAssistant = document.querySelector('.skipify-assistant-section');
-                    if (skipifyAssistant) {
-                        skipifyAssistant.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'start' 
-                        });
-                    }
-                }, 100);
-                return;
+                addMessage('assistant', '**Welcome! Your cart is empty.**\n\n**I can help you shop!** Try asking:\n• *"What T-shirts do you have?"*\n• *"Do you have Classic Cotton Tees?"*\n• *"Add 2 Premium Polo Shirts to my cart"*\n• *"Show me your products"*\n\n**What are you looking for today?**');
+            } else {
+                addMessage('assistant', `**Ready to shop or checkout!**\n\n**Current Cart:**
+${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`).join('\n')}\n\n**Total: $${cartTotal.toFixed(2)}**\n\n**I can help you:**\n• *"Add more items to cart"*\n• *"What other products do you have?"*\n• *"Checkout with your-email@example.com"*`);
             }
-
-            addMessage('assistant', `**Ready to checkout!** 
-            
-**Cart Summary:**
-${cart.map(item => `• ${item.name} (Qty: ${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`).join('\n')}
-
-**Total: $${cartTotal.toFixed(2)}**
-
-To checkout with Skipify, just tell me your email address like:
-*"Checkout with your-email@example.com"*`);
             
             // Auto-scroll to Skipify Assistant chat window
             setTimeout(() => {
@@ -1433,7 +1414,7 @@ To checkout with Skipify, just tell me your email address like:
                         block: 'start' 
                     });
                     
-                    // Optional: Focus on the chat input for better UX
+                    // Focus on the chat input for better UX
                     setTimeout(() => {
                         const chatInput = document.querySelector('#user-input');
                         if (chatInput) {
@@ -1533,6 +1514,54 @@ To checkout with Skipify, just tell me your email address like:
             }
         }
 
+        // Shopping Assistant Functions
+        function searchProducts(query) {
+            const lowerQuery = query.toLowerCase();
+            return PRODUCTS.filter(product => 
+                product.name.toLowerCase().includes(lowerQuery) ||
+                product.description.toLowerCase().includes(lowerQuery) ||
+                product.id.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        function parseQuantity(text) {
+            const numberWords = {
+                'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+                'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+            };
+            
+            // Look for numbers first
+            const numberMatch = text.match(/\b(\d+)\b/);
+            if (numberMatch) {
+                return parseInt(numberMatch[1]);
+            }
+            
+            // Look for word numbers
+            for (const [word, num] of Object.entries(numberWords)) {
+                if (text.toLowerCase().includes(word)) {
+                    return num;
+                }
+            }
+            
+            return 1; // Default quantity
+        }
+
+        function addToCartViaChat(productId, quantity = 1) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            if (!product) return false;
+
+            // Check if product already exists in cart
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({ ...product, quantity: quantity });
+            }
+            
+            updateCartDisplay();
+            return true;
+        }
+
         // Chat Functions
         function addMessage(type, content) {
             const chatMessages = document.getElementById('chat-messages');
@@ -1589,8 +1618,101 @@ To checkout with Skipify, just tell me your email address like:
             addMessage('user', message);
             input.value = '';
 
-            // Enhanced e-commerce context handling with robust pattern matching
+            // Enhanced shopping and e-commerce context handling
             const lowerMessage = message.toLowerCase();
+            
+            // Handle shopping inquiries first (before checkout)
+            const productInquiryTriggers = [
+                'do you have',
+                'what do you have',
+                'show me',
+                'what products',
+                'what t-shirts',
+                'what shirts',
+                'what items',
+                'available',
+                'sell',
+                'carry',
+                'stock'
+            ];
+            
+            const addToCartTriggers = [
+                'add',
+                'put in cart',
+                'add to cart',
+                'i want',
+                'i need',
+                'get me'
+            ];
+            
+            const isProductInquiry = productInquiryTriggers.some(trigger => lowerMessage.includes(trigger));
+            const isAddToCartRequest = addToCartTriggers.some(trigger => lowerMessage.includes(trigger));
+            
+            // Handle shopping requests
+            if (isProductInquiry && !lowerMessage.includes('checkout') && !lowerMessage.includes('@')) {
+                // Extract product search terms
+                let searchTerm = '';
+                if (lowerMessage.includes('classic')) searchTerm = 'classic';
+                else if (lowerMessage.includes('polo')) searchTerm = 'polo';
+                else if (lowerMessage.includes('vintage') || lowerMessage.includes('graphic')) searchTerm = 'vintage';
+                else if (lowerMessage.includes('cotton')) searchTerm = 'cotton';
+                else if (lowerMessage.includes('premium')) searchTerm = 'premium';
+                
+                if (searchTerm) {
+                    const foundProducts = searchProducts(searchTerm);
+                    if (foundProducts.length > 0) {
+                        const productList = foundProducts.map(p => 
+                            `• **${p.name}** - $${p.price} (${p.description})`
+                        ).join('\\n');
+                        
+                        addMessage('assistant', `✅ **Yes, we have that!**\\n\\n${productList}\\n\\n**Would you like to add any to your cart?**\\n\\nJust say: *"Add 2 ${foundProducts[0].name}s to my cart"*`);
+                    } else {
+                        addMessage('assistant', '**Sorry, I didn\\'t find that specific item.**\\n\\n**Here\\'s what we have:**\\n' + 
+                            PRODUCTS.map(p => `• **${p.name}** - $${p.price}`).join('\\n') + 
+                            '\\n\\n**Which one interests you?**');
+                    }
+                } else {
+                    // General product listing
+                    addMessage('assistant', '**Here\\'s our T-Shirt collection:**\\n\\n' + 
+                        PRODUCTS.map(p => `• **${p.name}** - $${p.price}\\n  ${p.description}`).join('\\n\\n') + 
+                        '\\n\\n**Which one would you like to add to your cart?**');
+                }
+                return;
+            }
+            
+            if (isAddToCartRequest && !lowerMessage.includes('checkout') && !lowerMessage.includes('@')) {
+                // Parse quantity and product
+                const quantity = parseQuantity(message);
+                let productFound = null;
+                
+                // Look for specific products
+                for (const product of PRODUCTS) {
+                    const productKeywords = [
+                        product.name.toLowerCase(),
+                        product.id.toLowerCase(),
+                        ...product.name.toLowerCase().split(' ')
+                    ];
+                    
+                    if (productKeywords.some(keyword => lowerMessage.includes(keyword))) {
+                        productFound = product;
+                        break;
+                    }
+                }
+                
+                if (productFound) {
+                    const success = addToCartViaChat(productFound.id, quantity);
+                    if (success) {
+                        addMessage('assistant', `✅ **Added to cart!**\\n\\n• ${quantity}x ${productFound.name} - $${(productFound.price * quantity).toFixed(2)}\\n\\n**Cart Total: $${cartTotal.toFixed(2)}**\\n\\n**What else can I help you find, or ready to checkout?**`);
+                    } else {
+                        addMessage('assistant', '❌ **Sorry, there was an error adding that item to your cart.**');
+                    }
+                } else {
+                    addMessage('assistant', '**I\\'d love to help you add something to your cart!**\\n\\n**Please specify which item:**\\n' + 
+                        PRODUCTS.map(p => `• ${p.name}`).join('\\n') + 
+                        '\\n\\nExample: *"Add 2 Classic Cotton Tees to my cart"*');
+                }
+                return;
+            }
             
             // Define comprehensive trigger patterns for checkout/order processing
             const checkoutTriggers = [
@@ -1653,19 +1775,24 @@ Looking up your Skipify account: ${email}`);
             try {
                 // Additional pattern matching for common queries before sending to backend
                 if (lowerMessage.includes('help') || lowerMessage === 'hi' || lowerMessage === 'hello') {
-                    addMessage('assistant', `**Welcome! I can help you checkout with Skipify.**
+                    addMessage('assistant', `**Welcome! I can help you shop and checkout with Skipify.**
 
-**To get started:**
-• Add some T-shirts to your cart
-• Then say: *"Checkout with your-email@example.com"*
-• Or try: *"Process my order with my email: your-email@example.com"*
+**Shopping Commands:**
+• *"What T-shirts do you have?"* - See all products
+• *"Do you have Classic Cotton Tees?"* - Search for specific items
+• *"Add 2 Premium Polo Shirts to my cart"* - Add items to cart
 
-**I can also help with:**
-• Checking available payment methods
-• Processing your order
-• Finding your Skipify account
+**Checkout Commands:**
+• *"Checkout with your-email@example.com"* - Start checkout
+• *"Process my order with my email: your-email@example.com"* - Begin payment
 
-**What would you like to do?**`);
+**I can help you:**
+• Browse our T-shirt collection
+• Add items to your cart
+• Process secure payments with Skipify
+• Find your Skipify account and payment methods
+
+**What would you like to do today?**`);
                     return;
                 }
 
@@ -2964,7 +3091,7 @@ Please click directly on your preferred payment method in the carousel above to 
                 skipifySessionId = session.skipifySessionId;
 
                 addMessage('system', `New chat session created: ${currentSession.substring(0, 8)}...`);
-                addMessage('assistant', '**Chat session ready!** I can help you checkout with Skipify. \n\n**To get started:**\n• Add some T-shirts to your cart\n• Then say: *"Checkout with your-email@example.com"*\n• Or try: *"Process my order with my email: your-email@example.com"*');
+                addMessage('assistant', '**Welcome to the Skipify T-Shirt Store!**\n\nI can help you shop and pay quickly and securely with Skipify Checkout.\n\n**Try saying:**\n• *"Do you have Classic Cotton T-Shirts?"*\n• *"Add 2 Premium Polo Shirts to my cart"*\n• *"Checkout with your-email@example.com"*\n• *"Process my order with my email: your-email@example.com"*\n\n**What can I help you find today?**');
             } catch (error) {
                 console.error('Error creating session:', error);
                 addMessage('system', 'Failed to create chat session. Please check if the backend server is running.');
