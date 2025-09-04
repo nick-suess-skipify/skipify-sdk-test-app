@@ -280,6 +280,11 @@ app.post('/api/skipify/payments', paymentLimiter, (req, res) => {
         
         // Validate inputs
         if (!paymentId || !sessionId || !amount) {
+            console.error('❌ Payment validation failed - missing parameters:', { 
+                hasPaymentId: !!paymentId, 
+                hasSessionId: !!sessionId, 
+                hasAmount: !!amount 
+            });
             return res.status(400).json({ error: 'Missing required payment parameters' });
         }
         
@@ -289,19 +294,19 @@ app.post('/api/skipify/payments', paymentLimiter, (req, res) => {
             return res.status(400).json({ error: 'Invalid payment amount' });
         }
         
-        // Validate session exists
-        if (!chatSessions.has(sessionId)) {
-            return res.status(404).json({ error: 'Invalid session' });
-        }
+        // Note: sessionId here is the Skipify session ID, not chat session ID
+        // For demo purposes, we don't need to validate it against chat sessions
+        // In production, you would validate against Skipify's session system
+        console.log(`Processing payment for Skipify session: ${sessionId?.substring(0, 8)}...`);
         
         // Mock payment processing for demo (in production, call real Skipify API)
         const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const pspTransactionId = `psp_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
         
         // Log payment attempt (for audit trail)
-        console.log(`Payment attempt: ${transactionId}, Amount: ${numAmount}, Session: ${sessionId.substring(0, 8)}`);
+        console.log(`✅ Payment processing: ${transactionId}, Amount: $${numAmount}, Skipify Session: ${sessionId?.substring(0, 8)}...`);
         
-        res.json({
+        const responseData = {
             success: true,
             paymentId: validateInput(paymentId, 100),
             transactionId,
@@ -317,7 +322,10 @@ app.post('/api/skipify/payments', paymentLimiter, (req, res) => {
                 paymentMethod: 'Skipify Account',
                 merchantId: SKIPIFY_MERCHANT_ID // Secure from env
             }
-        });
+        };
+        
+        console.log(`✅ Payment successful: ${transactionId} - Returning response`);
+        res.json(responseData);
     } catch (error) {
         console.error('Payment processing error:', error);
         res.status(500).json({ error: 'Payment processing failed' });
