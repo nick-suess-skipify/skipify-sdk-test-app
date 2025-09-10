@@ -91,8 +91,10 @@ app.use('/api', rateLimit({ max: 30, windowMs: 60000 }))
 #### **Required Environment Variables:**
 ```bash
 SKIPIFY_MERCHANT_ID=<your_merchant_id>    # REQUIRED - No fallback
-SESSION_SECRET=<secure_random_string>     # REQUIRED - Min 32 chars
 SKIPIFY_ENVIRONMENT=stage|prod            # Optional - defaults to 'stage'
+
+# NOTE: SESSION_SECRET removed - not needed for current implementation
+# (The app uses in-memory sessions, not cryptographically signed cookies)
 ```
 
 #### **Local Development Setup:**
@@ -112,8 +114,7 @@ npm start
 #### **Production Deployment (Digital Ocean):**
 1. Go to **App Platform → Settings → Environment Variables**
 2. Add **SKIPIFY_MERCHANT_ID** (your actual merchant ID)
-3. Add **SESSION_SECRET** (secure random string)
-4. **Redeploy application**
+3. **Redeploy application**
 
 #### **Security Validation:**
 - Server logs: `Merchant ID: 1bdc8b60...(masked)` ✅

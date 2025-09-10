@@ -21,14 +21,13 @@ services:
   # 🔐 CRITICAL SECURITY: The following variables MUST be set in Digital Ocean dashboard
   # ⚠️  DO NOT commit sensitive values to GitHub - set these in DO App Platform:
   # 
-  # REQUIRED: Set these in Digital Ocean App Platform Environment Variables:
+  # REQUIRED: Set this in Digital Ocean App Platform Environment Variables:
   # SKIPIFY_MERCHANT_ID: <your_skipify_merchant_id>
-  # SESSION_SECRET: <generate_secure_random_string_min_32_chars>
   #
   # 📋 Instructions:
   # 1. Go to Digital Ocean App Platform
   # 2. Select your app → Settings → App-Level Environment Variables
-  # 3. Add the required environment variables listed above
+  # 3. Add SKIPIFY_MERCHANT_ID with your actual merchant ID
   # 4. Redeploy the application
   #
   # 🚨 NEVER commit real values to this file!

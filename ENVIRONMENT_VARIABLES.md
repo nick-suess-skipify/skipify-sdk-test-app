@@ -24,13 +24,13 @@ SKIPIFY_MERCHANT_ID=your_skipify_merchant_id_here
 SKIPIFY_ENVIRONMENT=stage
 
 # ============================================================================
-# 🔒 SECURITY CONFIGURATION (REQUIRED)
+# 🔒 SECURITY CONFIGURATION (OPTIONAL)
 # ============================================================================
 
-# Session Secret: Generate a secure random string (minimum 32 characters)
-# Use: openssl rand -base64 32
-# Or: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-SESSION_SECRET=your_secure_random_session_secret_min_32_chars
+# NOTE: SESSION_SECRET is not currently used by this application
+# The app uses in-memory chat sessions that don't require cryptographic signing
+# If you add express-session middleware in the future, you'll need:
+# SESSION_SECRET=your_secure_random_session_secret_min_32_chars
 
 # ============================================================================
 # 🚀 APPLICATION CONFIGURATION (OPTIONAL)
