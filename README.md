@@ -89,7 +89,8 @@ Create a `.env` file in the `mcp-server/` directory:
 
 ```bash
 PORT=3000
-SKIPIFY_MERCHANT_ID=1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0
+# Obtain your merchantID from your Skipify representative
+SKIPIFY_MERCHANT_ID=your_merchant_id_here
 SKIPIFY_ENVIRONMENT=stage
 ENABLE_CORS=true
 ```
@@ -97,7 +98,7 @@ ENABLE_CORS=true
 ### Skipify Configuration
 
 The demo is pre-configured for the Skipify staging environment:
-- **Merchant ID**: `1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0`
+- **Merchant ID**: Obtain your merchantID from your Skipify representative
 - **Environment**: `stage`
 - **SDK URL**: `https://stagecdn.skipify.com/sdk/components-sdk.js`
 
