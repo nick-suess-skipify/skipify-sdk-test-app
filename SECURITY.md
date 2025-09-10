@@ -10,6 +10,10 @@ This document outlines the comprehensive security measures implemented to protec
 - ✅ **Environment variables for all sensitive data**
 - ✅ **Merchant ID never exposed to client-side**
 - ✅ **Secure configuration endpoint**
+- ✅ **FAIL-FAST security: App won't start without required env vars**
+- ✅ **Masked logging: Sensitive values hidden in logs**
+- ✅ **Zero hardcoded fallbacks in production code**
+- ✅ **Secure .env handling with proper .gitignore**
 
 ### 2. **Input Validation & XSS Prevention**
 - ✅ **XSS sanitization using `xss` library**
@@ -73,6 +77,48 @@ const sanitizedMessage = validateInput(message, 500);
 // ✅ RATE LIMITING
 app.use('/api', rateLimit({ max: 30, windowMs: 60000 }))
 ```
+
+## 🔐 Environment Variable Security
+
+### **Critical Security Implementation (2024)**
+
+#### **Zero-Exposure Principle:**
+- ❌ **NO hardcoded Merchant IDs** in any committed code
+- ❌ **NO fallback secrets** that could be exposed
+- ❌ **NO sensitive data** in repository files
+- ✅ **Fail-fast architecture** - app terminates if secrets missing
+
+#### **Required Environment Variables:**
+```bash
+SKIPIFY_MERCHANT_ID=<your_merchant_id>    # REQUIRED - No fallback
+SESSION_SECRET=<secure_random_string>     # REQUIRED - Min 32 chars
+SKIPIFY_ENVIRONMENT=stage|prod            # Optional - defaults to 'stage'
+```
+
+#### **Local Development Setup:**
+```bash
+# 1. Create .env file (NOT committed to Git)
+cd deploy
+cp ../ENVIRONMENT_VARIABLES.md .env.template
+nano .env
+
+# 2. Generate secure session secret
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# 3. Start with environment validation
+npm start
+```
+
+#### **Production Deployment (Digital Ocean):**
+1. Go to **App Platform → Settings → Environment Variables**
+2. Add **SKIPIFY_MERCHANT_ID** (your actual merchant ID)
+3. Add **SESSION_SECRET** (secure random string)
+4. **Redeploy application**
+
+#### **Security Validation:**
+- Server logs: `Merchant ID: 1bdc8b60...(masked)` ✅
+- Error: `CRITICAL ERROR: SKIPIFY_MERCHANT_ID required` ✅
+- No secrets visible in GitHub repository ✅
 
 ## 🔧 Security Configuration
 

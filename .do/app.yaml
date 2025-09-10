@@ -12,18 +12,26 @@ services:
   env:
   - key: PORT
     value: "8080"
-  # CRITICAL SECURITY: These must be set in Digital Ocean dashboard
-  - key: SKIPIFY_MERCHANT_ID
-    value: "1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0"
-  - key: SKIPIFY_ENVIRONMENT
-    value: "stage"
   - key: NODE_ENV
     value: "production"
-  # Additional security settings
-  - key: SESSION_SECRET
-    value: "CHANGE_THIS_IN_PRODUCTION_TO_RANDOM_STRING"
+  - key: SKIPIFY_ENVIRONMENT
+    value: "stage"
   - key: SECURITY_ENABLED
     value: "true"
+  # 🔐 CRITICAL SECURITY: The following variables MUST be set in Digital Ocean dashboard
+  # ⚠️  DO NOT commit sensitive values to GitHub - set these in DO App Platform:
+  # 
+  # REQUIRED: Set these in Digital Ocean App Platform Environment Variables:
+  # SKIPIFY_MERCHANT_ID: <your_skipify_merchant_id>
+  # SESSION_SECRET: <generate_secure_random_string_min_32_chars>
+  #
+  # 📋 Instructions:
+  # 1. Go to Digital Ocean App Platform
+  # 2. Select your app → Settings → App-Level Environment Variables
+  # 3. Add the required environment variables listed above
+  # 4. Redeploy the application
+  #
+  # 🚨 NEVER commit real values to this file!
   build_command: npm install --only=production
 
 # Security: HTTPS only

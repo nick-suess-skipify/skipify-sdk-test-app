@@ -9,17 +9,29 @@ const xss = require('xss');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Security Environment Variables (with fallbacks for development)
-const SKIPIFY_MERCHANT_ID = process.env.SKIPIFY_MERCHANT_ID || '1bdc8b60-6dd4-4126-88e1-c9e5b570f1a0';
+// 🔐 SECURE: Environment Variables (NO FALLBACKS FOR PRODUCTION SECURITY)
+const SKIPIFY_MERCHANT_ID = process.env.SKIPIFY_MERCHANT_ID;
 const SKIPIFY_ENVIRONMENT = process.env.SKIPIFY_ENVIRONMENT || 'stage';
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
-// Warnings for missing production credentials
-if (!process.env.SKIPIFY_MERCHANT_ID) {
-    console.warn('⚠️ WARNING: Using fallback SKIPIFY_MERCHANT_ID. Set environment variable for production.');
+// 🚨 CRITICAL: Fail fast if required credentials are missing
+if (!SKIPIFY_MERCHANT_ID) {
+    console.error('🚨 CRITICAL ERROR: SKIPIFY_MERCHANT_ID environment variable is required');
+    console.error('📋 Please set this in your deployment environment (Digital Ocean, Docker, etc.)');
+    console.error('🔧 For local development, create a .env file with: SKIPIFY_MERCHANT_ID=your_merchant_id');
+    process.exit(1);
 }
-if (!process.env.SKIPIFY_ENVIRONMENT) {
-    console.warn('⚠️ WARNING: Using fallback SKIPIFY_ENVIRONMENT. Set environment variable for production.');
+
+if (!SESSION_SECRET) {
+    console.error('🚨 CRITICAL ERROR: SESSION_SECRET environment variable is required');
+    console.error('📋 Please set a secure random string in your deployment environment');
+    console.error('🔧 For local development, create a .env file with: SESSION_SECRET=your_random_secret');
+    process.exit(1);
 }
+
+console.log('✅ Security: All required environment variables loaded');
+console.log(`📊 Merchant ID: ${SKIPIFY_MERCHANT_ID.substring(0, 8)}...(masked)`);
+console.log(`🌍 Environment: ${SKIPIFY_ENVIRONMENT}`);
 
 // Security middleware
 app.use(helmet({
